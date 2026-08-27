@@ -3,527 +3,331 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>🏋️ Asistente de Halterofilia V11</title>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   <style>
-    :root {
-      --bg-dark: #090d16;
-      --card-bg: #131b2e;
-      --accent-blue: #2563eb;
-      --accent-green: #10b981;
-      --accent-red: #ef4444;
-      --text-white: #f8fafc;
-      --text-muted: #94a3b8;
-      --border-color: #1e293b;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg-dark); color: var(--text-white); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: env(safe-area-inset-top, 14px) 14px env(safe-area-inset-bottom, 14px) 14px; }
-    .main-wrapper { width: 100%; max-width: 580px; display: flex; flex-direction: column; gap: 14px; }
-
-    .panel { background-color: var(--card-bg); border-radius: 12px; padding: 18px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5); }
-    .text-center { text-align: center; }
-    h1 { font-size: 1.4rem; margin-bottom: 4px; }
-    h2 { font-size: 1.05rem; color: var(--text-muted); margin-bottom: 12px; }
-
-    .btn { padding: 11px 16px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; color: white; transition: opacity 0.2s; font-size: 0.95rem; }
-    .btn:active { opacity: 0.75; }
-    .btn-blue { background-color: var(--accent-blue); }
-    .btn-green { background-color: var(--accent-green); }
-    .btn-dark { background-color: #334155; }
-
-    .input-box, select { width: 100%; padding: 11px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #1e293b; color: white; font-size: 1rem; margin-bottom: 8px; outline: none; }
-    .flex-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
-    .flex-row > * { flex: 1; }
-
-    .mode-container { display: flex; gap: 8px; margin-bottom: 12px; }
-    .mode-tab { flex: 1; padding: 10px; border: 2px solid var(--border-color); background-color: #1e293b; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; }
-    .mode-tab.active { border-color: var(--accent-blue); background-color: var(--accent-blue); }
-
-    /* Slider de Porcentaje */
-    .slider-container { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
-    .slider-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); }
-    .range-slider { width: 100%; accent-color: var(--accent-blue); cursor: pointer; height: 6px; border-radius: 3px; background: #334155; outline: none; }
-
-    /* Barra Gráfica */
-    .barbell-canvas { width: 100%; height: 160px; background-color: #050811; border-radius: 10px; border: 1px solid var(--border-color); position: relative; display: flex; align-items: center; justify-content: center; overflow-x: auto; padding: 0 10px; margin-top: 10px; }
-    .bar-core { position: absolute; height: 10px; width: 88%; background: linear-gradient(180deg, #94a3b8 0%, #475569 100%); z-index: 1; border-radius: 4px; }
-    .sleeve-container { position: absolute; height: 100%; display: flex; align-items: center; z-index: 2; }
-    .sleeve-container.left { left: 24px; flex-direction: row-reverse; }
-    .sleeve-container.right { right: 24px; flex-direction: row; }
-
-    .plate-item { margin: 0 1px; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.58rem; font-weight: bold; writing-mode: vertical-rl; border: 1px solid rgba(0,0,0,0.6); }
-    
-    /* Especificaciones de Discos */
-    .plate-lb { background-color: #0f172a; color: #f8fafc; border: 1px solid #475569; }
-    .plate-kg-2_5 { background-color: #dc2626; color: white; }
-    .plate-kg-2   { background-color: #2563eb; color: white; }
-    .plate-kg-1_5 { background-color: #ca8a04; color: black; }
-    .plate-kg-1   { background-color: #16a34a; color: white; }
-    .plate-kg-0_5 { background-color: #f8fafc; color: black; }
-
-    .results-display { background-color: #050811; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 10px; font-size: 0.9rem; }
-    .footer-note { text-align: center; font-size: 0.68rem; color: var(--text-muted); padding: 14px 4px; margin-top: auto; border-top: 1px solid var(--border-color); width: 100%; line-height: 1.4; }
-    
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 99; padding: 16px; }
-    .modal-card { background-color: var(--card-bg); width: 100%; max-width: 420px; border-radius: 12px; padding: 20px; border: 1px solid var(--border-color); }
-    .hidden { display: none !important; }
+    :root{--bg:#090d16;--card:#131b2e;--bl:#2563eb;--gr:#10b981;--rd:#ef4444;--tx:#f8fafc;--tm:#94a3b8;--bd:#1e293b}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+    body{background:var(--bg);color:var(--tx);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:14px}
+    .wrap{width:100%;max-width:580px;display:flex;flex-direction:column;gap:14px}
+    .panel{background:var(--card);border-radius:12px;padding:18px;border:1px solid var(--bd);box-shadow:0 4px 6px -1px rgba(0,0,0,.5)}
+    .tc{text-align:center} h1{font-size:1.4rem;margin-bottom:4px} h2{font-size:1.05rem;color:var(--tm);margin-bottom:12px}
+    .btn{padding:11px 16px;border-radius:8px;border:none;font-weight:600;cursor:pointer;color:#fff;font-size:.95rem}
+    .btn:active{opacity:.75} .btn-bl{background:var(--bl)} .btn-gr{background:var(--gr)} .btn-dk{background:#334155}
+    .inp,select{width:100%;padding:11px;border-radius:8px;border:1px solid var(--bd);background:#1e293b;color:#fff;font-size:1rem;margin-bottom:8px;outline:none}
+    .row{display:flex;gap:8px;align-items:center;margin-bottom:8px} .row>*{flex:1}
+    .modes{display:flex;gap:8px;margin-bottom:12px}
+    .tab{flex:1;padding:10px;border:2px solid var(--bd);background:#1e293b;color:#fff;border-radius:8px;font-weight:700;cursor:pointer;text-align:center}
+    .tab.act{border-color:var(--bl);background:var(--bl)}
+    .sl-wrap{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+    .sl-hdr{display:flex;justify-content:space-between;font-size:.8rem;color:var(--tm)}
+    .sl{width:100%;accent-color:var(--bl);cursor:pointer;height:6px;border-radius:3px;background:#334155;outline:none}
+    .bb-cvs{width:100%;height:160px;background:#050811;border-radius:10px;border:1px solid var(--bd);position:relative;display:flex;align-items:center;justify-content:center;overflow-x:auto;padding:0 10px;margin-top:10px}
+    .bb-cr{position:absolute;height:10px;width:88%;background:linear-gradient(180deg,#94a3b8 0%,#475569 100%);z-index:1;border-radius:4px}
+    .slv{position:absolute;height:100%;display:flex;align-items:center;z-index:2} .slv.l{left:24px;flex-direction:row-reverse} .slv.r{right:24px;flex-direction:row}
+    .pl{margin:0 1px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:700;writing-mode:vertical-rl;border:1px solid rgba(0,0,0,.6)}
+    .pl-lb{background:#0f172a;color:#f8fafc;border:1px solid #475569} .pl-2_5{background:#dc2626;color:#fff} .pl-2{background:#2563eb;color:#fff} .pl-1_5{background:#ca8a04;color:#000} .pl-1{background:#16a34a;color:#fff} .pl-0_5{background:#f8fafc;color:#000}
+    .res{background:#050811;padding:12px;border-radius:8px;border:1px solid var(--bd);margin-top:10px;font-size:.9rem}
+    .ftr{text-align:center;font-size:.68rem;color:var(--tm);padding:14px 4px;margin-top:auto;border-top:1px solid var(--bd);width:100%}
+    .mod-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:99;padding:16px}
+    .mod{background:var(--card);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;border-radius:12px;padding:20px;border:1px solid var(--bd)}
+    .hd{display:none!important}
+    .chart-box{background:#080d1a;border-radius:8px;padding:12px;margin-bottom:12px;border:1px solid var(--bd)}
+    .chart{width:100%;height:160px;background:#050811;border-radius:6px}
   </style>
 </head>
 <body>
 
-  <div class="main-wrapper">
-    <!-- Encabezado y Barra de Sesión -->
-    <header class="panel text-center">
+  <div class="wrap">
+    <header class="panel tc">
       <h1>🏋️ Asistente de Halterofilia</h1>
-      <p id="label-user" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 3px;">Sin usuario activo</p>
-      
-      <div style="margin-top: 10px; display: flex; gap: 8px; justify-content: center;">
-        <button id="btn-open-install" class="btn btn-dark">⚙️ Instalación</button>
-        <button id="btn-switch-user" class="btn btn-dark hidden">🔄 Cambio de Usuario</button>
+      <p id="usr-lbl" style="font-size:.85rem;color:var(--tm);margin-top:3px">Sin usuario activo</p>
+      <div style="margin-top:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <button id="b-inst" class="btn btn-dk">⚙️ Instalación</button>
+        <button id="b-sw" class="btn btn-dk hd">🔄 Cambio de Usuario</button>
+        <button id="b-rpt" class="btn btn-gr hd">📊 Avances</button>
       </div>
     </header>
 
-    <!-- Pantalla Inicial (Solo visible antes de instalar) -->
-    <div id="view-initial-lock" class="panel text-center">
+    <div id="v-init" class="panel tc">
       <h2>Bienvenido al Asistente de Halterofilia</h2>
-      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">Para comenzar a utilizar la aplicación, realiza la instalación inicial con la contraseña de seguridad.</p>
-      <button id="btn-start-install" class="btn btn-blue" style="width: 100%; padding: 12px;">Instalación</button>
+      <p style="font-size:.9rem;color:var(--tm);margin-bottom:15px">Realiza la instalación inicial con la contraseña de seguridad.</p>
+      <button id="b-st" class="btn btn-bl" style="width:100%">Instalación</button>
     </div>
 
-    <!-- Panel de Operaciones (Calculadora) -->
-    <main class="panel hidden" id="view-calculator">
+    <main class="panel hd" id="v-calc">
       <h2>Modo de Entrenamiento</h2>
-      <div class="mode-container">
-        <button id="tab-snatch" class="mode-tab active">Snatch</button>
-        <button id="tab-cj" class="mode-tab">Clean & Jerk</button>
+      <div class="modes">
+        <button id="t-sn" class="tab act">Snatch</button>
+        <button id="t-cj" class="tab">Clean & Jerk</button>
       </div>
 
-      <div class="flex-row">
+      <div class="row">
         <div>
-          <label style="font-size: 0.8rem; color: var(--text-muted);">PR Registrado Actual:</label>
-          <div id="val-pr" style="font-size: 1.15rem; font-weight: bold; color: var(--accent-green);">0 lb</div>
+          <label style="font-size:.8rem;color:var(--tm)">PR Actual:</label>
+          <div id="v-pr" style="font-size:1.15rem;font-weight:700;color:var(--gr)">0 lb</div>
         </div>
       </div>
 
-      <!-- Input de Peso y Conmutador Lbs/Kgs -->
-      <div class="flex-row">
-        <div style="flex: 2;">
-          <label for="num-weight" style="font-size: 0.8rem; color: var(--text-muted);">Peso Objetivo:</label>
-          <input type="number" id="num-weight" class="input-box" placeholder="Ej: 135" step="0.5" inputmode="decimal">
+      <div class="row">
+        <div style="flex:2">
+          <label style="font-size:.8rem;color:var(--tm)">Peso Objetivo:</label>
+          <input type="number" id="i-wt" class="inp" placeholder="Ej: 135" step="0.5">
         </div>
-        <div style="flex: 1;">
-          <label style="font-size: 0.8rem; color: var(--text-muted);">Unidad:</label>
-          <button id="btn-toggle-unit" class="btn btn-dark" style="width: 100%; padding: 11px;">lbs</button>
+        <div style="flex:1">
+          <label style="font-size:.8rem;color:var(--tm)">Unidad:</label>
+          <button id="b-un" class="btn btn-dk" style="width:100%">lbs</button>
         </div>
       </div>
 
-      <!-- Barra de Selección de Porcentaje del PR -->
-      <div class="slider-container">
-        <div class="slider-header">
-          <span>Porcentaje del PR:</span>
-          <span id="slider-label" style="font-weight: bold; color: var(--accent-blue);">100%</span>
-        </div>
-        <input type="range" id="range-pr" class="range-slider" min="10" max="100" value="100" step="1">
+      <div class="sl-wrap">
+        <div class="sl-hdr"><span>Porcentaje del PR:</span><span id="sl-lbl" style="font-weight:700;color:var(--bl)">100%</span></div>
+        <input type="range" id="i-sl" class="sl" min="10" max="100" value="100" step="1">
       </div>
 
-      <!-- Selector de Barra -->
-      <div class="flex-row">
+      <div class="row">
         <div>
-          <label for="sel-bar" style="font-size: 0.8rem; color: var(--text-muted);">Tipo de Barra:</label>
-          <select id="sel-bar" class="input-box">
-            <option value="45">Barra Pesada (45 lb)</option>
-            <option value="35">Barra Liviana (35 lb)</option>
-          </select>
+          <label style="font-size:.8rem;color:var(--tm)">Tipo de Barra:</label>
+          <select id="i-bar" class="inp"><option value="45">Barra Pesada (45 lb)</option><option value="35">Barra Liviana (35 lb)</option></select>
         </div>
       </div>
 
-      <!-- Checkbox de Actualización de PR -->
-      <div style="display: flex; align-items: center; gap: 8px; margin: 6px 0 10px 0;">
-        <input type="checkbox" id="chk-update-pr" style="width: 18px; height: 18px; cursor: pointer;">
-        <label for="chk-update-pr" style="font-size: 0.85rem; cursor: pointer; color: var(--text-white);">Actualizar el PR si el peso Logrado es mayor que el PR anterior</label>
+      <div style="display:flex;align-items:center;gap:8px;margin:6px 0 10px 0">
+        <input type="checkbox" id="c-pr" style="width:18px;height:18px">
+        <label for="c-pr" style="font-size:.85rem;color:var(--tx)">Actualizar el PR si el peso Logrado es mayor que el PR anterior</label>
       </div>
 
-      <button id="btn-compute" class="btn btn-blue" style="width: 100%; padding: 12px;">Aceptar</button>
+      <button id="b-comp" class="btn btn-bl" style="width:100%">Aceptar</button>
 
-      <!-- Panel de Resultados (Texto) -->
-      <div id="box-results" class="results-display hidden">
-        <div id="out-total" style="font-weight: bold; margin-bottom: 4px;"></div>
-        <div id="out-breakdown" style="font-size: 0.85rem; color: var(--text-muted);"></div>
+      <div id="bx-res" class="res hd">
+        <div id="o-tot" style="font-weight:700;margin-bottom:4px"></div>
+        <div id="o-brk" style="font-size:.85rem;color:var(--tm)"></div>
       </div>
 
-      <!-- Simulación Gráfica de la Barra -->
-      <div class="barbell-canvas">
-        <div class="bar-core"></div>
-        <div id="sleeve-l" class="sleeve-container left"></div>
-        <div id="sleeve-r" class="sleeve-container right"></div>
+      <div class="bb-cvs">
+        <div class="bb-cr"></div>
+        <div id="slv-l" class="slv l"></div>
+        <div id="slv-r" class="slv r"></div>
       </div>
     </main>
 
-    <!-- Footer Estático Obligatorio -->
-    <footer class="footer-note">
-      Análisis/Diseño de Andres Aguiar V 1.1 Santiago de Chile Agosto 2026 - Contacto +56933395447 - Whatsapp +56933395447
-    </footer>
+    <footer class="ftr">Análisis/Diseño de Andres Aguiar V 1.1 Santiago de Chile Agosto 2026 - Contacto +56933395447 - Whatsapp +56933395447</footer>
   </div>
 
-  <!-- Modal de Instalación -->
-  <div id="modal-installer" class="modal-overlay hidden">
-    <div class="modal-card">
-      <h2 style="color: white; margin-bottom: 10px;">Módulo de Instalación</h2>
-      
-      <!-- Paso 1: Clave Secreta -->
-      <div id="sec-auth">
-        <label style="font-size: 0.8rem;">Contraseña Secreta:</label>
-        <input type="password" id="txt-secret" class="input-box" placeholder="Ingrese contraseña">
-        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
-          <button id="btn-cancel-auth" class="btn btn-dark">Cancelar</button>
-          <button id="btn-submit-auth" class="btn btn-blue">Validar</button>
+  <div id="m-inst" class="mod-bg hd">
+    <div class="mod">
+      <h2 style="color:#fff;margin-bottom:10px">Instalación</h2>
+      <div id="s-pw">
+        <label style="font-size:.8rem">Contraseña Secreta:</label>
+        <input type="password" id="i-pw" class="inp">
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px">
+          <button id="b-cx" class="btn btn-dk">Cancelar</button>
+          <button id="b-val" class="btn btn-bl">Validar</button>
+        </div>
+      </div>
+      <div id="s-reg" class="hd">
+        <input type="text" id="i-fn" class="inp" placeholder="Nombre">
+        <input type="text" id="i-ln" class="inp" placeholder="Apellido">
+        <input type="email" id="i-em" class="inp" placeholder="Correo">
+        <button id="b-sv" class="btn btn-gr" style="width:100%">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="m-rpt" class="mod-bg hd">
+    <div class="mod">
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+        <h2 style="color:#fff;margin:0">📊 Reporte de Avances</h2>
+        <button id="b-cx-r" class="btn btn-dk" style="padding:4px 10px">✕</button>
+      </div>
+      <div id="p-area">
+        <p id="r-inf" style="font-size:.85rem;color:var(--tm);margin-bottom:10px"></p>
+        <div class="chart-box"><h3 style="font-size:.95rem;color:var(--bl)">PR: Snatch</h3><canvas id="c-sn" class="chart"></canvas></div>
+        <div class="chart-box"><h3 style="font-size:.95rem;color:var(--gr)">PR: Clean & Jerk</h3><canvas id="c-cj" class="chart"></canvas></div>
+      </div>
+      <button id="b-pdf" class="btn btn-bl" style="width:100%">📄 Descargar y Enviar</button>
+    </div>
+  </div>
+
+  <div id="m-exp" class="mod-bg hd">
+    <div class="mod tc">
+      <h2 style="color:var(--rd)">Evaluación Expirada</h2>
+      <p style="font-size:.95rem">Para la Instalación definitiva, contactar al +56933395447</p>
+    </div>
+  </div>
+
+  <script>
+    /* Lógica Estructurada y Ofuscada mediante Minificación Segura */
+    !function(){const e=document,t="NalitaBonita",n=2592e5,a=2.20462,r=[{t:"lb",n:45,w:45,h:130,wd:18,c:"pl-lb"},{t:"lb",n:35,w:35,h:130,wd:16,c:"pl-lb"},{t:"lb",n:25,w:25,h:110,wd:14,c:"pl-lb"},{t:"lb",n:15,w:15,h:95,wd:12,c:"pl-lb"},{t:"lb",n:10,w:10,h:80,wd:10,c:"pl-lb"},{t:"kg",n:2.5,w:2.5*a,h:70,wd:9,c:"pl-2_5"},{t:"kg",n:2,w:2*a,h:65,wd:8,c:"pl-2"},{t:"kg",n:1.5,w:1.5*a,h:60,wd:8,c:"pl-1_5"},{t:"kg",n:1,w:1*a,h:55,wd:7,c:"pl-1"},{t:"kg",n:.5,w:.5*a,h:50,wd:6,c:"pl-0_5"}];let i={m:"sn",u:"lbs",usr:null,usrs:[],ts:null};const s=t=>e.getElementById(t);function o(){const e=localStorage.getItem("_H_V11_");if(e)try{i=JSON.parse(e)}catch(e){}}function l(){localStorage.setItem("_H_V11_",JSON.stringify(i))}function c(){if(!i.ts)return!1;if(Date.now()-i.ts>n)return s("m-exp").classList.remove("hd"),!0;return!1}function d(){s("s-pw").classList.remove("hd"),s("s-reg").classList.add("hd"),s("i-pw").value="",s("m-inst").classList.remove("hd")}function m(){s("m-inst").classList.add("hd"),s("m-rpt").classList.add("hd")}function u(){s("i-pw").value===t?(i.ts||(i.ts=Date.now()),s("s-pw").classList.add("hd"),s("s-reg").classList.remove("hd")):alert("Clave incorrecta")}function p(){const e=s("i-fn").value.trim(),t=s("i-ln").value.trim(),n=s("i-em").value.trim();if(!e||!t||!n)return alert("Llene todos los campos");const a={id:Date.now(),fn:e,ln:t,em:n,pr:{sn:0,cj:0},hx:{sn:[],cj:[]}};i.usrs.push(a),i.usr=a,l(),s("i-fn").value="",s("i-ln").value="",s("i-em").value="",m(),v()}function g(){if(!c()){if(i.usrs.length<=1)return d();const e=i.usrs.findIndex((e=>e.id===i.usr.id));i.usr=i.usrs[(e+1)%i.usrs.length],l(),v()}}function h(e){i.m=e,s("t-sn").classList.toggle("act","sn"===e),s("t-cj").classList.toggle("act","cj"===e),v()}function f(){i.u="lbs"===i.u?"kg":"lbs",s("b-un").innerText=i.u,l(),v()}function x(e){if(s("sl-lbl").innerText=`${e}%`,!i.usr)return;const t=i.usr.pr[i.m]||0,n="kg"===i.u?t/a:t,r=n*e/100;s("i-wt").value=r>0?r.toFixed(1):""}function b(){if(!i.usr)return;const e=parseFloat(s("i-wt").value),t=i.usr.pr[i.m]||0,n="kg"===i.u?t/a:t;if(n>0&&!isNaN(e)&&e>0){let t=Math.round(e/n*100);t=Math.min(Math.max(t,10),100),s("i-sl").value=t,s("sl-lbl").innerText=`${t}%`}else s("i-sl").value=100,s("sl-lbl").innerText="100%"}function v(){if(c())return;if(!i.usr)return s("v-init").classList.remove("hd"),s("v-calc").classList.add("hd"),s("b-sw").classList.add("hd"),s("b-rpt").classList.add("hd"),void(s("usr-lbl").innerText="Sin usuario");s("v-init").classList.add("hd"),s("v-calc").classList.remove("hd"),s("b-sw").classList.remove("hd"),s("b-rpt").classList.remove("hd"),s("usr-lbl").innerText=`${i.usr.fn} ${i.usr.ln} (${i.usr.em})`;const e=i.usr.pr[i.m]||0;s("v-pr").innerText=`${e} lb`,s("b-un").innerText=i.u,s("i-sl").value=100,s("sl-lbl").innerText="100%";const t="kg"===i.u?e/a:e;s("i-wt").value=t>0?t.toFixed(1):""}function L(){if(c())return;if(!i.usr)return d();const t=parseFloat(s("i-wt").value),n=parseFloat(s("i-bar").value);if(isNaN(t)||t<=0)return alert("Peso inválido");const o="kg"===i.u?t*a:t;if(o<n)return alert(`Mínimo ${n} lb`);if(s("c-pr").checked){const e=i.usr.pr[i.m]||0;if(o>e){const e=Math.round(10*o)/10;i.usr.pr[i.m]=e,i.usr.hx||(i.usr.hx={sn:[],cj:[]});const t=new Date().toLocaleDateString("es-CL");i.usr.hx[i.m].push({d:t,w:e}),l(),v()}}let u=(o-n)/2;const p=[];for(const e of r){const t=Math.floor(u/e.w);t>0&&(p.push({d:e,c:t}),u=Math.round(1e3*(u-t*e.w))/1e3)}s("bx-res").classList.remove("hd"),s("o-tot").innerText=`Total: ${o.toFixed(1)} lb (~${(o/a).toFixed(1)} kg)`;let g=`Barra: ${n} lb | Lado: `;g+=0===p.length?"Vacía":p.map((e=>`${e.c}x ${e.d.n} ${e.d.t}`)).join(" + "),u>.4&&(g+=` | Sobran: ${(2*u).toFixed(1)} lb`),s("o-brk").innerText=g;const h=s("slv-l"),f=s("slv-r");h.innerHTML="",f.innerHTML="",p.forEach((t=>{for(let n=0;n<t.c;n++){const n=e.createElement("div");n.className=`pl ${t.d.c}`,n.style.height=`${t.d.h}px`,n.style.width=`${t.d.wd}px`,n.innerText=`${t.d.n}`,h.appendChild(n.cloneNode(!0)),f.appendChild(n)}}))}function M(e,t,n){const a=s(e);if(!a)return;const r=a.getContext("2d"),i=a.width,o=a.height;if(r.clearRect(0,0,i,o),!t||0===t.length)return r.fillStyle="#94a3b8",r.font="12px sans-serif",r.textAlign="center",void r.fillText("Sin datos",i/2,o/2);const l=30,c=o-1.5*l,d=Math.max(...t.map((e=>e.w)),50),m=Math.min(35,(i-2*l)/t.length-10);t.forEach(((e,t)=>{const a=l+t*(m+12),i=e.w/d*c,s=o-l-i;r.fillStyle=n,r.fillRect(a,s,m,i),r.fillStyle="#fff",r.font="10px sans-serif",r.textAlign="center",r.fillText(`${e.w}lb`,a+m/2,s-5),r.fillStyle="#94a3b8",r.font="9px sans-serif",r.fillText(e.d,a+m/2,o-8)}))}function w(){i.usr&&(s("r-inf").innerText=`${i.usr.fn} ${i.usr.ln} | ${i.usr.em}`,s("m-rpt").classList.remove("hd"),setTimeout((()=>{M("c-sn",i.usr.hx?i.usr.hx.sn:[],"#2563eb"),M("c-cj",i.usr.hx?i.usr.hx.cj:[],"#10b981")}),100))}async function _(){if(!i.usr)return;try{const e=await html2canvas(s("p-area"),{scale:2,backgroundColor:"#131b2e"}),t=e.toDataURL("image/png"),{jsPDF:n}=window.jspdf,a=new n("p","mm","a4");a.setFontSize(16),a.text("Reporte de Avances V11",15,18),a.setFontSize(11),a.text(`${i.usr.fn} ${i.usr.ln} (${i.usr.em})`,15,26),a.text(`Fecha: ${new Date().toLocaleDateString("es-CL")}`,15,32),a.addImage(t,"PNG",15,40,180,130),a.setFontSize(9),a.text("Diseño Andres Aguiar V1.1 - Contacto +56933395447",15,280),a.save(`Reporte_${i.usr.fn}.pdf`),window.location.href=`mailto:${i.usr.em}?subject=${encodeURIComponent("Reporte PR")}&body=${encodeURIComponent("Adjunto PDF.")}`}catch(e){alert("Error: "+e.message)}}e.addEventListener("DOMContentLoaded",(()=>{s("b-inst").onclick=s("b-st").onclick=d,s("b-cx").onclick=s("b-cx-r").onclick=m,s("b-val").onclick=u,s("b-sv").onclick=p,s("b-sw").onclick=g,s("b-rpt").onclick=w,s("b-un").onclick=f,s("t-sn").onclick=()=>h("sn"),s("t-cj").onclick=()=>h("cj"),s("i-sl").oninput=e=>x(parseInt(e.target.value)),s("i-wt").oninput=b,s("b-comp").onclick=L,s("b-pdf").onclick=_,o(),v()}))}();
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>🏋️ Asistente de Halterofilia V11</title>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    :root{--bg:#090d16;--card:#131b2e;--bl:#2563eb;--gr:#10b981;--rd:#ef4444;--tx:#f8fafc;--tm:#94a3b8;--bd:#1e293b}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+    body{background:var(--bg);color:var(--tx);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:14px}
+    .wrap{width:100%;max-width:580px;display:flex;flex-direction:column;gap:14px}
+    .panel{background:var(--card);border-radius:12px;padding:18px;border:1px solid var(--bd);box-shadow:0 4px 6px -1px rgba(0,0,0,.5)}
+    .tc{text-align:center} h1{font-size:1.4rem;margin-bottom:4px} h2{font-size:1.05rem;color:var(--tm);margin-bottom:12px}
+    .btn{padding:11px 16px;border-radius:8px;border:none;font-weight:600;cursor:pointer;color:#fff;font-size:.95rem}
+    .btn:active{opacity:.75} .btn-bl{background:var(--bl)} .btn-gr{background:var(--gr)} .btn-dk{background:#334155}
+    .inp,select{width:100%;padding:11px;border-radius:8px;border:1px solid var(--bd);background:#1e293b;color:#fff;font-size:1rem;margin-bottom:8px;outline:none}
+    .row{display:flex;gap:8px;align-items:center;margin-bottom:8px} .row>*{flex:1}
+    .modes{display:flex;gap:8px;margin-bottom:12px}
+    .tab{flex:1;padding:10px;border:2px solid var(--bd);background:#1e293b;color:#fff;border-radius:8px;font-weight:700;cursor:pointer;text-align:center}
+    .tab.act{border-color:var(--bl);background:var(--bl)}
+    .sl-wrap{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+    .sl-hdr{display:flex;justify-content:space-between;font-size:.8rem;color:var(--tm)}
+    .sl{width:100%;accent-color:var(--bl);cursor:pointer;height:6px;border-radius:3px;background:#334155;outline:none}
+    .bb-cvs{width:100%;height:160px;background:#050811;border-radius:10px;border:1px solid var(--bd);position:relative;display:flex;align-items:center;justify-content:center;overflow-x:auto;padding:0 10px;margin-top:10px}
+    .bb-cr{position:absolute;height:10px;width:88%;background:linear-gradient(180deg,#94a3b8 0%,#475569 100%);z-index:1;border-radius:4px}
+    .slv{position:absolute;height:100%;display:flex;align-items:center;z-index:2} .slv.l{left:24px;flex-direction:row-reverse} .slv.r{right:24px;flex-direction:row}
+    .pl{margin:0 1px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:700;writing-mode:vertical-rl;border:1px solid rgba(0,0,0,.6)}
+    .pl-lb{background:#0f172a;color:#f8fafc;border:1px solid #475569} .pl-2_5{background:#dc2626;color:#fff} .pl-2{background:#2563eb;color:#fff} .pl-1_5{background:#ca8a04;color:#000} .pl-1{background:#16a34a;color:#fff} .pl-0_5{background:#f8fafc;color:#000}
+    .res{background:#050811;padding:12px;border-radius:8px;border:1px solid var(--bd);margin-top:10px;font-size:.9rem}
+    .ftr{text-align:center;font-size:.68rem;color:var(--tm);padding:14px 4px;margin-top:auto;border-top:1px solid var(--bd);width:100%}
+    .mod-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:99;padding:16px}
+    .mod{background:var(--card);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;border-radius:12px;padding:20px;border:1px solid var(--bd)}
+    .hd{display:none!important}
+    .chart-box{background:#080d1a;border-radius:8px;padding:12px;margin-bottom:12px;border:1px solid var(--bd)}
+    .chart{width:100%;height:160px;background:#050811;border-radius:6px}
+  </style>
+</head>
+<body>
+
+  <div class="wrap">
+    <header class="panel tc">
+      <h1>🏋️ Asistente de Halterofilia</h1>
+      <p id="usr-lbl" style="font-size:.85rem;color:var(--tm);margin-top:3px">Sin usuario activo</p>
+      <div style="margin-top:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <button id="b-inst" class="btn btn-dk">⚙️ Instalación</button>
+        <button id="b-sw" class="btn btn-dk hd">🔄 Cambio de Usuario</button>
+        <button id="b-rpt" class="btn btn-gr hd">📊 Avances</button>
+      </div>
+    </header>
+
+    <div id="v-init" class="panel tc">
+      <h2>Bienvenido al Asistente de Halterofilia</h2>
+      <p style="font-size:.9rem;color:var(--tm);margin-bottom:15px">Realiza la instalación inicial con la contraseña de seguridad.</p>
+      <button id="b-st" class="btn btn-bl" style="width:100%">Instalación</button>
+    </div>
+
+    <main class="panel hd" id="v-calc">
+      <h2>Modo de Entrenamiento</h2>
+      <div class="modes">
+        <button id="t-sn" class="tab act">Snatch</button>
+        <button id="t-cj" class="tab">Clean & Jerk</button>
+      </div>
+
+      <div class="row">
+        <div>
+          <label style="font-size:.8rem;color:var(--tm)">PR Actual:</label>
+          <div id="v-pr" style="font-size:1.15rem;font-weight:700;color:var(--gr)">0 lb</div>
         </div>
       </div>
 
-      <!-- Paso 2: Registro del Atleta -->
-      <div id="sec-userreg" class="hidden">
-        <label style="font-size: 0.8rem;">Primer Nombre:</label>
-        <input type="text" id="txt-fname" class="input-box" placeholder="Nombre">
-        <label style="font-size: 0.8rem;">Apellido:</label>
-        <input type="text" id="txt-lname" class="input-box" placeholder="Apellido">
-        <label style="font-size: 0.8rem;">Correo Electrónico:</label>
-        <input type="email" id="txt-mail" class="input-box" placeholder="atleta@correo.com">
-        <button id="btn-save-user" class="btn btn-green" style="width: 100%; margin-top: 10px;">Guardar Perfil</button>
+      <div class="row">
+        <div style="flex:2">
+          <label style="font-size:.8rem;color:var(--tm)">Peso Objetivo:</label>
+          <input type="number" id="i-wt" class="inp" placeholder="Ej: 135" step="0.5">
+        </div>
+        <div style="flex:1">
+          <label style="font-size:.8rem;color:var(--tm)">Unidad:</label>
+          <button id="b-un" class="btn btn-dk" style="width:100%">lbs</button>
+        </div>
+      </div>
+
+      <div class="sl-wrap">
+        <div class="sl-hdr"><span>Porcentaje del PR:</span><span id="sl-lbl" style="font-weight:700;color:var(--bl)">100%</span></div>
+        <input type="range" id="i-sl" class="sl" min="10" max="100" value="100" step="1">
+      </div>
+
+      <div class="row">
+        <div>
+          <label style="font-size:.8rem;color:var(--tm)">Tipo de Barra:</label>
+          <select id="i-bar" class="inp"><option value="45">Barra Pesada (45 lb)</option><option value="35">Barra Liviana (35 lb)</option></select>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;margin:6px 0 10px 0">
+        <input type="checkbox" id="c-pr" style="width:18px;height:18px">
+        <label for="c-pr" style="font-size:.85rem;color:var(--tx)">Actualizar el PR si el peso Logrado es mayor que el PR anterior</label>
+      </div>
+
+      <button id="b-comp" class="btn btn-bl" style="width:100%">Aceptar</button>
+
+      <div id="bx-res" class="res hd">
+        <div id="o-tot" style="font-weight:700;margin-bottom:4px"></div>
+        <div id="o-brk" style="font-size:.85rem;color:var(--tm)"></div>
+      </div>
+
+      <div class="bb-cvs">
+        <div class="bb-cr"></div>
+        <div id="slv-l" class="slv l"></div>
+        <div id="slv-r" class="slv r"></div>
+      </div>
+    </main>
+
+    <footer class="ftr">Análisis/Diseño de Andres Aguiar V 1.1 Santiago de Chile Agosto 2026 - Contacto +56933395447 - Whatsapp +56933395447</footer>
+  </div>
+
+  <div id="m-inst" class="mod-bg hd">
+    <div class="mod">
+      <h2 style="color:#fff;margin-bottom:10px">Instalación</h2>
+      <div id="s-pw">
+        <label style="font-size:.8rem">Contraseña Secreta:</label>
+        <input type="password" id="i-pw" class="inp">
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px">
+          <button id="b-cx" class="btn btn-dk">Cancelar</button>
+          <button id="b-val" class="btn btn-bl">Validar</button>
+        </div>
+      </div>
+      <div id="s-reg" class="hd">
+        <input type="text" id="i-fn" class="inp" placeholder="Nombre">
+        <input type="text" id="i-ln" class="inp" placeholder="Apellido">
+        <input type="email" id="i-em" class="inp" placeholder="Correo">
+        <button id="b-sv" class="btn btn-gr" style="width:100%">Guardar</button>
       </div>
     </div>
   </div>
 
-  <!-- Pantalla de Bloqueo tras 3 días -->
-  <div id="modal-expired" class="modal-overlay hidden">
-    <div class="modal-card text-center">
-      <h2 style="color: var(--accent-red); margin-bottom: 10px;">Periodo de Evaluación Expirado</h2>
-      <p style="font-size: 0.95rem; line-height: 1.5;">Para la Instalación definitiva, contactar al +56933395447</p>
+  <div id="m-rpt" class="mod-bg hd">
+    <div class="mod">
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+        <h2 style="color:#fff;margin:0">📊 Reporte de Avances</h2>
+        <button id="b-cx-r" class="btn btn-dk" style="padding:4px 10px">✕</button>
+      </div>
+      <div id="p-area">
+        <p id="r-inf" style="font-size:.85rem;color:var(--tm);margin-bottom:10px"></p>
+        <div class="chart-box"><h3 style="font-size:.95rem;color:var(--bl)">PR: Snatch</h3><canvas id="c-sn" class="chart"></canvas></div>
+        <div class="chart-box"><h3 style="font-size:.95rem;color:var(--gr)">PR: Clean & Jerk</h3><canvas id="c-cj" class="chart"></canvas></div>
+      </div>
+      <button id="b-pdf" class="btn btn-bl" style="width:100%">📄 Descargar y Enviar</button>
     </div>
   </div>
 
-  <!-- Lógica JavaScript Modular y 100% Estable -->
+  <div id="m-exp" class="mod-bg hd">
+    <div class="mod tc">
+      <h2 style="color:var(--rd)">Evaluación Expirada</h2>
+      <p style="font-size:.95rem">Para la Instalación definitiva, contactar al +56933395447</p>
+    </div>
+  </div>
+
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const PASS_SECRET = "NalitaBonita";
-      const EXPIRATION_MS = 3 * 24 * 60 * 60 * 1000; // 3 días
-      const KG_TO_LB = 2.20462;
-
-      // Estado Global
-      let appState = {
-        mode: 'snatch',       // 'snatch' o 'cj'
-        unit: 'lbs',          // 'lbs' o 'kg'
-        activeUser: null,
-        users: [],
-        installedAt: null
-      };
-
-      // Catálogo Oficial de Discos
-      const discCatalog = [
-        { type: 'lb', name: 45, weightLb: 45, height: 130, width: 18, cssClass: 'plate-lb' },
-        { type: 'lb', name: 35, weightLb: 35, height: 130, width: 16, cssClass: 'plate-lb' },
-        { type: 'lb', name: 25, weightLb: 25, height: 110, width: 14, cssClass: 'plate-lb' },
-        { type: 'lb', name: 15, weightLb: 15, height: 95,  width: 12, cssClass: 'plate-lb' },
-        { type: 'lb', name: 10, weightLb: 10, height: 80,  width: 10, cssClass: 'plate-lb' },
-        { type: 'kg', name: 2.5, weightLb: 2.5 * KG_TO_LB, height: 70, width: 9, cssClass: 'plate-kg-2_5' },
-        { type: 'kg', name: 2.0, weightLb: 2.0 * KG_TO_LB, height: 65, width: 8, cssClass: 'plate-kg-2' },
-        { type: 'kg', name: 1.5, weightLb: 1.5 * KG_TO_LB, height: 60, width: 8, cssClass: 'plate-kg-1_5' },
-        { type: 'kg', name: 1.0, weightLb: 1.0 * KG_TO_LB, height: 55, width: 7, cssClass: 'plate-kg-1' },
-        { type: 'kg', name: 0.5, weightLb: 0.5 * KG_TO_LB, height: 50, width: 6, cssClass: 'plate-kg-0_5' }
-      ];
-
-      // Referencias DOM
-      const viewInitialLock = document.getElementById('view-initial-lock');
-      const viewCalculator = document.getElementById('view-calculator');
-      const labelUser = document.getElementById('label-user');
-      const valPR = document.getElementById('val-pr');
-      const numWeight = document.getElementById('num-weight');
-      const btnToggleUnit = document.getElementById('btn-toggle-unit');
-      const selBar = document.getElementById('sel-bar');
-      const chkUpdatePR = document.getElementById('chk-update-pr');
-      const tabSnatch = document.getElementById('tab-snatch');
-      const tabCJ = document.getElementById('tab-cj');
-      const rangePR = document.getElementById('range-pr');
-      const sliderLabel = document.getElementById('slider-label');
-      const boxResults = document.getElementById('box-results');
-      const outTotal = document.getElementById('out-total');
-      const outBreakdown = document.getElementById('out-breakdown');
-      const sleeveL = document.getElementById('sleeve-l');
-      const sleeveR = document.getElementById('sleeve-r');
-      const btnSwitchUser = document.getElementById('btn-switch-user');
-
-      const modalInstaller = document.getElementById('modal-installer');
-      const modalExpired = document.getElementById('modal-expired');
-      const secAuth = document.getElementById('sec-auth');
-      const secUserReg = document.getElementById('sec-userreg');
-      const txtSecret = document.getElementById('txt-secret');
-      const txtFname = document.getElementById('txt-fname');
-      const txtLname = document.getElementById('txt-lname');
-      const txtMail = document.getElementById('txt-mail');
-
-      // Funciones de Guardado y Carga
-      function loadStorage() {
-        const raw = localStorage.getItem('__HALTEROFILIA_V11_APP__');
-        if (raw) {
-          try {
-            appState = JSON.parse(raw);
-          } catch (e) {
-            console.error("Error al cargar localStorage", e);
-          }
-        }
-      }
-
-      function saveStorage() {
-        localStorage.setItem('__HALTEROFILIA_V11_APP__', JSON.stringify(appState));
-      }
-
-      function isTrialExpired() {
-        if (!appState.installedAt) return false;
-        if (Date.now() - appState.installedAt > EXPIRATION_MS) {
-          modalExpired.classList.remove('hidden');
-          return true;
-        }
-        return false;
-      }
-
-      // Modales y Control de Acceso
-      function openInstallerModal() {
-        secAuth.classList.remove('hidden');
-        secUserReg.classList.add('hidden');
-        txtSecret.value = '';
-        modalInstaller.classList.remove('hidden');
-      }
-
-      function closeModal() {
-        modalInstaller.classList.add('hidden');
-      }
-
-      function validateSecret() {
-        if (txtSecret.value === PASS_SECRET) {
-          if (!appState.installedAt) {
-            appState.installedAt = Date.now();
-          }
-          secAuth.classList.add('hidden');
-          secUserReg.classList.remove('hidden');
-        } else {
-          alert("Contraseña incorrecta.");
-        }
-      }
-
-      function saveUserProfile() {
-        const fname = txtFname.value.trim();
-        const lname = txtLname.value.trim();
-        const mail = txtMail.value.trim();
-
-        if (!fname || !lname || !mail) {
-          alert("Por favor completa todos los campos del atleta.");
-          return;
-        }
-
-        const newUser = {
-          id: Date.now(),
-          fname,
-          lname,
-          mail,
-          pr: { snatch: 0, cj: 0 }
-        };
-
-        appState.users.push(newUser);
-        appState.activeUser = newUser;
-        saveStorage();
-
-        txtFname.value = '';
-        txtLname.value = '';
-        txtMail.value = '';
-
-        closeModal();
-        updateUI();
-      }
-
-      function switchUserProfile() {
-        if (isTrialExpired()) return;
-        if (appState.users.length <= 1) {
-          openInstallerModal();
-          return;
-        }
-
-        const idx = appState.users.findIndex(u => u.id === appState.activeUser.id);
-        const nextIdx = (idx + 1) % appState.users.length;
-        appState.activeUser = appState.users[nextIdx];
-        saveStorage();
-        updateUI();
-      }
-
-      function setExerciseMode(newMode) {
-        appState.mode = newMode;
-        tabSnatch.classList.toggle('active', newMode === 'snatch');
-        tabCJ.classList.toggle('active', newMode === 'cj');
-        updateUI();
-      }
-
-      function toggleWeightUnit() {
-        appState.unit = (appState.unit === 'lbs') ? 'kg' : 'lbs';
-        btnToggleUnit.innerText = appState.unit;
-        saveStorage();
-        updateUI();
-      }
-
-      // Slider de Porcentaje del PR
-      function handleSliderChange(pct) {
-        sliderLabel.innerText = `${pct}%`;
-        if (!appState.activeUser) return;
-
-        const prLb = appState.activeUser.pr[appState.mode] || 0;
-        const prInUnit = appState.unit === 'kg' ? (prLb / KG_TO_LB) : prLb;
-        const calcWeight = (prInUnit * pct) / 100.0;
-
-        numWeight.value = calcWeight > 0 ? calcWeight.toFixed(1) : '';
-      }
-
-      function handleManualWeightInput() {
-        if (!appState.activeUser) return;
-        const val = parseFloat(numWeight.value);
-        const prLb = appState.activeUser.pr[appState.mode] || 0;
-        const prInUnit = appState.unit === 'kg' ? (prLb / KG_TO_LB) : prLb;
-
-        if (prInUnit > 0 && !isNaN(val) && val > 0) {
-          let pct = Math.round((val / prInUnit) * 100);
-          pct = Math.min(Math.max(pct, 10), 100);
-          rangePR.value = pct;
-          sliderLabel.innerText = `${pct}%`;
-        } else {
-          rangePR.value = 100;
-          sliderLabel.innerText = '100%';
-        }
-      }
-
-      // Actualizar Vista General
-      function updateUI() {
-        if (isTrialExpired()) return;
-
-        if (!appState.activeUser) {
-          viewInitialLock.classList.remove('hidden');
-          viewCalculator.classList.add('hidden');
-          btnSwitchUser.classList.add('hidden');
-          labelUser.innerText = "Sin usuario activo";
-          return;
-        }
-
-        viewInitialLock.classList.add('hidden');
-        viewCalculator.classList.remove('hidden');
-        btnSwitchUser.classList.remove('hidden');
-
-        labelUser.innerText = `Atleta: ${appState.activeUser.fname} ${appState.activeUser.lname} (${appState.activeUser.mail})`;
-        
-        const prLb = appState.activeUser.pr[appState.mode] || 0;
-        valPR.innerText = `${prLb} lb`;
-        btnToggleUnit.innerText = appState.unit;
-
-        rangePR.value = 100;
-        sliderLabel.innerText = '100%';
-
-        const prInUnit = appState.unit === 'kg' ? (prLb / KG_TO_LB) : prLb;
-        numWeight.value = prInUnit > 0 ? prInUnit.toFixed(1) : '';
-      }
-
-      // Cálculo de Carga y Gráfica
-      function calculateLoad() {
-        if (isTrialExpired()) return;
-        if (!appState.activeUser) {
-          openInstallerModal();
-          return;
-        }
-
-        const rawWeight = parseFloat(numWeight.value);
-        const barWeight = parseFloat(selBar.value);
-
-        if (isNaN(rawWeight) || rawWeight <= 0) {
-          alert("Por favor ingresa un peso numérico válido.");
-          return;
-        }
-
-        const totalWeightLb = (appState.unit === 'kg') ? (rawWeight * KG_TO_LB) : rawWeight;
-
-        if (totalWeightLb < barWeight) {
-          alert(`El peso total debe ser mayor o igual al peso de la barra (${barWeight} lb).`);
-          return;
-        }
-
-        // Actualizar PR si la casilla está marcada y el peso logrado es mayor
-        if (chkUpdatePR.checked) {
-          const currentPR = appState.activeUser.pr[appState.mode] || 0;
-          if (totalWeightLb > currentPR) {
-            appState.activeUser.pr[appState.mode] = Math.round(totalWeightLb * 10) / 10;
-            saveStorage();
-            updateUI();
-          }
-        }
-
-        // Distribución simétrica por lado
-        let sideWeight = (totalWeightLb - barWeight) / 2.0;
-        const selectedDiscs = [];
-
-        for (const disc of discCatalog) {
-          const count = Math.floor(sideWeight / disc.weightLb);
-          if (count > 0) {
-            selectedDiscs.push({ disc, count });
-            sideWeight = Math.round((sideWeight - (count * disc.weightLb)) * 1000) / 1000;
-          }
-        }
-
-        // Mostrar texto descriptivo
-        boxResults.classList.remove('hidden');
-        outTotal.innerText = `Carga Total: ${totalWeightLb.toFixed(1)} lb (~${(totalWeightLb / KG_TO_LB).toFixed(1)} kg)`;
-
-        let breakdown = `Barra: ${barWeight} lb | Por lado: `;
-        if (selectedDiscs.length === 0) {
-          breakdown += "Sin discos (solo barra).";
-        } else {
-          breakdown += selectedDiscs.map(item => `${item.count}x ${item.disc.name} ${item.disc.type}`).join(' + ');
-        }
-
-        if (sideWeight > 0.4) {
-          breakdown += ` | Sobran: ${(sideWeight * 2).toFixed(1)} lb`;
-        }
-        outBreakdown.innerText = breakdown;
-
-        // Renderizar simulación gráfica
-        sleeveL.innerHTML = '';
-        sleeveR.innerHTML = '';
-
-        selectedDiscs.forEach(item => {
-          for (let i = 0; i < item.count; i++) {
-            const el = document.createElement('div');
-            el.className = `plate-item ${item.disc.cssClass}`;
-            el.style.height = `${item.disc.height}px`;
-            el.style.width = `${item.disc.width}px`;
-            el.innerText = `${item.disc.name}`;
-
-            sleeveL.appendChild(el.cloneNode(true));
-            sleeveR.appendChild(el);
-          }
-        });
-      }
-
-      // Conexión de Event Listeners
-      document.getElementById('btn-open-install').addEventListener('click', openInstallerModal);
-      document.getElementById('btn-start-install').addEventListener('click', openInstallerModal);
-      document.getElementById('btn-cancel-auth').addEventListener('click', closeModal);
-      document.getElementById('btn-submit-auth').addEventListener('click', validateSecret);
-      document.getElementById('btn-save-user').addEventListener('click', saveUserProfile);
-      btnSwitchUser.addEventListener('click', switchUserProfile);
-      btnToggleUnit.addEventListener('click', toggleWeightUnit);
-      tabSnatch.addEventListener('click', () => setExerciseMode('snatch'));
-      tabCJ.addEventListener('click', () => setExerciseMode('cj'));
-      rangePR.addEventListener('input', (e) => handleSliderChange(parseInt(e.target.value)));
-      numWeight.addEventListener('input', handleManualWeightInput);
-      document.getElementById('btn-compute').addEventListener('click', calculateLoad);
-
-      // Arranque seguro
-      loadStorage();
-      updateUI();
-    });
+    /* Lógica Estructurada y Ofuscada mediante Minificación Segura */
+    !function(){const e=document,t="NalitaBonita",n=2592e5,a=2.20462,r=[{t:"lb",n:45,w:45,h:130,wd:18,c:"pl-lb"},{t:"lb",n:35,w:35,h:130,wd:16,c:"pl-lb"},{t:"lb",n:25,w:25,h:110,wd:14,c:"pl-lb"},{t:"lb",n:15,w:15,h:95,wd:12,c:"pl-lb"},{t:"lb",n:10,w:10,h:80,wd:10,c:"pl-lb"},{t:"kg",n:2.5,w:2.5*a,h:70,wd:9,c:"pl-2_5"},{t:"kg",n:2,w:2*a,h:65,wd:8,c:"pl-2"},{t:"kg",n:1.5,w:1.5*a,h:60,wd:8,c:"pl-1_5"},{t:"kg",n:1,w:1*a,h:55,wd:7,c:"pl-1"},{t:"kg",n:.5,w:.5*a,h:50,wd:6,c:"pl-0_5"}];let i={m:"sn",u:"lbs",usr:null,usrs:[],ts:null};const s=t=>e.getElementById(t);function o(){const e=localStorage.getItem("_H_V11_");if(e)try{i=JSON.parse(e)}catch(e){}}function l(){localStorage.setItem("_H_V11_",JSON.stringify(i))}function c(){if(!i.ts)return!1;if(Date.now()-i.ts>n)return s("m-exp").classList.remove("hd"),!0;return!1}function d(){s("s-pw").classList.remove("hd"),s("s-reg").classList.add("hd"),s("i-pw").value="",s("m-inst").classList.remove("hd")}function m(){s("m-inst").classList.add("hd"),s("m-rpt").classList.add("hd")}function u(){s("i-pw").value===t?(i.ts||(i.ts=Date.now()),s("s-pw").classList.add("hd"),s("s-reg").classList.remove("hd")):alert("Clave incorrecta")}function p(){const e=s("i-fn").value.trim(),t=s("i-ln").value.trim(),n=s("i-em").value.trim();if(!e||!t||!n)return alert("Llene todos los campos");const a={id:Date.now(),fn:e,ln:t,em:n,pr:{sn:0,cj:0},hx:{sn:[],cj:[]}};i.usrs.push(a),i.usr=a,l(),s("i-fn").value="",s("i-ln").value="",s("i-em").value="",m(),v()}function g(){if(!c()){if(i.usrs.length<=1)return d();const e=i.usrs.findIndex((e=>e.id===i.usr.id));i.usr=i.usrs[(e+1)%i.usrs.length],l(),v()}}function h(e){i.m=e,s("t-sn").classList.toggle("act","sn"===e),s("t-cj").classList.toggle("act","cj"===e),v()}function f(){i.u="lbs"===i.u?"kg":"lbs",s("b-un").innerText=i.u,l(),v()}function x(e){if(s("sl-lbl").innerText=`${e}%`,!i.usr)return;const t=i.usr.pr[i.m]||0,n="kg"===i.u?t/a:t,r=n*e/100;s("i-wt").value=r>0?r.toFixed(1):""}function b(){if(!i.usr)return;const e=parseFloat(s("i-wt").value),t=i.usr.pr[i.m]||0,n="kg"===i.u?t/a:t;if(n>0&&!isNaN(e)&&e>0){let t=Math.round(e/n*100);t=Math.min(Math.max(t,10),100),s("i-sl").value=t,s("sl-lbl").innerText=`${t}%`}else s("i-sl").value=100,s("sl-lbl").innerText="100%"}function v(){if(c())return;if(!i.usr)return s("v-init").classList.remove("hd"),s("v-calc").classList.add("hd"),s("b-sw").classList.add("hd"),s("b-rpt").classList.add("hd"),void(s("usr-lbl").innerText="Sin usuario");s("v-init").classList.add("hd"),s("v-calc").classList.remove("hd"),s("b-sw").classList.remove("hd"),s("b-rpt").classList.remove("hd"),s("usr-lbl").innerText=`${i.usr.fn} ${i.usr.ln} (${i.usr.em})`;const e=i.usr.pr[i.m]||0;s("v-pr").innerText=`${e} lb`,s("b-un").innerText=i.u,s("i-sl").value=100,s("sl-lbl").innerText="100%";const t="kg"===i.u?e/a:e;s("i-wt").value=t>0?t.toFixed(1):""}function L(){if(c())return;if(!i.usr)return d();const t=parseFloat(s("i-wt").value),n=parseFloat(s("i-bar").value);if(isNaN(t)||t<=0)return alert("Peso inválido");const o="kg"===i.u?t*a:t;if(o<n)return alert(`Mínimo ${n} lb`);if(s("c-pr").checked){const e=i.usr.pr[i.m]||0;if(o>e){const e=Math.round(10*o)/10;i.usr.pr[i.m]=e,i.usr.hx||(i.usr.hx={sn:[],cj:[]});const t=new Date().toLocaleDateString("es-CL");i.usr.hx[i.m].push({d:t,w:e}),l(),v()}}let u=(o-n)/2;const p=[];for(const e of r){const t=Math.floor(u/e.w);t>0&&(p.push({d:e,c:t}),u=Math.round(1e3*(u-t*e.w))/1e3)}s("bx-res").classList.remove("hd"),s("o-tot").innerText=`Total: ${o.toFixed(1)} lb (~${(o/a).toFixed(1)} kg)`;let g=`Barra: ${n} lb | Lado: `;g+=0===p.length?"Vacía":p.map((e=>`${e.c}x ${e.d.n} ${e.d.t}`)).join(" + "),u>.4&&(g+=` | Sobran: ${(2*u).toFixed(1)} lb`),s("o-brk").innerText=g;const h=s("slv-l"),f=s("slv-r");h.innerHTML="",f.innerHTML="",p.forEach((t=>{for(let n=0;n<t.c;n++){const n=e.createElement("div");n.className=`pl ${t.d.c}`,n.style.height=`${t.d.h}px`,n.style.width=`${t.d.wd}px`,n.innerText=`${t.d.n}`,h.appendChild(n.cloneNode(!0)),f.appendChild(n)}}))}function M(e,t,n){const a=s(e);if(!a)return;const r=a.getContext("2d"),i=a.width,o=a.height;if(r.clearRect(0,0,i,o),!t||0===t.length)return r.fillStyle="#94a3b8",r.font="12px sans-serif",r.textAlign="center",void r.fillText("Sin datos",i/2,o/2);const l=30,c=o-1.5*l,d=Math.max(...t.map((e=>e.w)),50),m=Math.min(35,(i-2*l)/t.length-10);t.forEach(((e,t)=>{const a=l+t*(m+12),i=e.w/d*c,s=o-l-i;r.fillStyle=n,r.fillRect(a,s,m,i),r.fillStyle="#fff",r.font="10px sans-serif",r.textAlign="center",r.fillText(`${e.w}lb`,a+m/2,s-5),r.fillStyle="#94a3b8",r.font="9px sans-serif",r.fillText(e.d,a+m/2,o-8)}))}function w(){i.usr&&(s("r-inf").innerText=`${i.usr.fn} ${i.usr.ln} | ${i.usr.em}`,s("m-rpt").classList.remove("hd"),setTimeout((()=>{M("c-sn",i.usr.hx?i.usr.hx.sn:[],"#2563eb"),M("c-cj",i.usr.hx?i.usr.hx.cj:[],"#10b981")}),100))}async function _(){if(!i.usr)return;try{const e=await html2canvas(s("p-area"),{scale:2,backgroundColor:"#131b2e"}),t=e.toDataURL("image/png"),{jsPDF:n}=window.jspdf,a=new n("p","mm","a4");a.setFontSize(16),a.text("Reporte de Avances V11",15,18),a.setFontSize(11),a.text(`${i.usr.fn} ${i.usr.ln} (${i.usr.em})`,15,26),a.text(`Fecha: ${new Date().toLocaleDateString("es-CL")}`,15,32),a.addImage(t,"PNG",15,40,180,130),a.setFontSize(9),a.text("Diseño Andres Aguiar V1.1 - Contacto +56933395447",15,280),a.save(`Reporte_${i.usr.fn}.pdf`),window.location.href=`mailto:${i.usr.em}?subject=${encodeURIComponent("Reporte PR")}&body=${encodeURIComponent("Adjunto PDF.")}`}catch(e){alert("Error: "+e.message)}}e.addEventListener("DOMContentLoaded",(()=>{s("b-inst").onclick=s("b-st").onclick=d,s("b-cx").onclick=s("b-cx-r").onclick=m,s("b-val").onclick=u,s("b-sv").onclick=p,s("b-sw").onclick=g,s("b-rpt").onclick=w,s("b-un").onclick=f,s("t-sn").onclick=()=>h("sn"),s("t-cj").onclick=()=>h("cj"),s("i-sl").oninput=e=>x(parseInt(e.target.value)),s("i-wt").oninput=b,s("b-comp").onclick=L,s("b-pdf").onclick=_,o(),v()}))}();
   </script>
 </body>
 </html>
