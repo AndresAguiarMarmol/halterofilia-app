@@ -8,24 +8,24 @@
   <title>🏋️ Asistente de Halterofilia V11</title>
   <style>
     :root {
-      --bg-main: #0b0f19;
-      --panel-bg: #151d30;
+      --bg-dark: #090d16;
+      --card-bg: #131b2e;
       --accent-blue: #2563eb;
       --accent-green: #10b981;
       --accent-red: #ef4444;
-      --text-light: #f8fafc;
-      --text-dim: #94a3b8;
-      --border-line: #222f49;
+      --text-white: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #1e293b;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg-main); color: var(--text-light); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: env(safe-area-inset-top, 12px) 12px env(safe-area-inset-bottom, 12px) 12px; }
-    .app-viewport { width: 100%; max-width: 580px; display: flex; flex-direction: column; gap: 14px; }
+    body { background-color: var(--bg-dark); color: var(--text-white); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: env(safe-area-inset-top, 14px) 14px env(safe-area-inset-bottom, 14px) 14px; }
+    .main-wrapper { width: 100%; max-width: 580px; display: flex; flex-direction: column; gap: 14px; }
 
-    .panel-card { background-color: var(--panel-bg); border-radius: 12px; padding: 16px; border: 1px solid var(--border-line); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4); }
+    .panel { background-color: var(--card-bg); border-radius: 12px; padding: 18px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5); }
     .text-center { text-align: center; }
-    h1 { font-size: 1.35rem; margin-bottom: 4px; }
-    h2 { font-size: 1rem; color: var(--text-dim); margin-bottom: 12px; }
+    h1 { font-size: 1.4rem; margin-bottom: 4px; }
+    h2 { font-size: 1.05rem; color: var(--text-muted); margin-bottom: 12px; }
 
     .btn { padding: 11px 16px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; color: white; transition: opacity 0.2s; font-size: 0.95rem; }
     .btn:active { opacity: 0.75; }
@@ -33,154 +33,187 @@
     .btn-green { background-color: var(--accent-green); }
     .btn-dark { background-color: #334155; }
 
-    .input-field, select { width: 100%; padding: 11px; border-radius: 8px; border: 1px solid var(--border-line); background-color: #1e293b; color: white; font-size: 1rem; margin-bottom: 8px; outline: none; }
-    .row-flex { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
-    .row-flex > * { flex: 1; }
+    .input-box, select { width: 100%; padding: 11px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #1e293b; color: white; font-size: 1rem; margin-bottom: 8px; outline: none; }
+    .flex-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .flex-row > * { flex: 1; }
 
-    .mode-nav { display: flex; gap: 8px; margin-bottom: 12px; }
-    .mode-tab { flex: 1; padding: 10px; border: 2px solid var(--border-line); background-color: #1e293b; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; }
-    .mode-tab.selected { border-color: var(--accent-blue); background-color: var(--accent-blue); }
+    .mode-container { display: flex; gap: 8px; margin-bottom: 12px; }
+    .mode-tab { flex: 1; padding: 10px; border: 2px solid var(--border-color); background-color: #1e293b; color: white; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; }
+    .mode-tab.active { border-color: var(--accent-blue); background-color: var(--accent-blue); }
+
+    /* Slider de Porcentaje */
+    .slider-container { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+    .slider-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); }
+    .range-slider { width: 100%; accent-color: var(--accent-blue); cursor: pointer; height: 6px; border-radius: 3px; background: #334155; outline: none; }
 
     /* Barra Gráfica */
-    .stage-barbell { width: 100%; height: 160px; background-color: #060911; border-radius: 10px; border: 1px solid var(--border-line); position: relative; display: flex; align-items: center; justify-content: center; overflow-x: auto; padding: 0 10px; margin-top: 10px; }
-    .steel-bar { position: absolute; height: 10px; width: 88%; background: linear-gradient(180deg, #94a3b8 0%, #475569 100%); z-index: 1; border-radius: 4px; }
-    .sleeve-mount { position: absolute; height: 100%; display: flex; align-items: center; z-index: 2; }
-    .sleeve-mount.left { left: 24px; flex-direction: row-reverse; }
-    .sleeve-mount.right { right: 24px; flex-direction: row; }
+    .barbell-canvas { width: 100%; height: 160px; background-color: #050811; border-radius: 10px; border: 1px solid var(--border-color); position: relative; display: flex; align-items: center; justify-content: center; overflow-x: auto; padding: 0 10px; margin-top: 10px; }
+    .bar-core { position: absolute; height: 10px; width: 88%; background: linear-gradient(180deg, #94a3b8 0%, #475569 100%); z-index: 1; border-radius: 4px; }
+    .sleeve-container { position: absolute; height: 100%; display: flex; align-items: center; z-index: 2; }
+    .sleeve-container.left { left: 24px; flex-direction: row-reverse; }
+    .sleeve-container.right { right: 24px; flex-direction: row; }
 
-    .plate-render { margin: 0 1px; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: bold; writing-mode: vertical-rl; border: 1px solid rgba(0,0,0,0.6); }
+    .plate-item { margin: 0 1px; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 0.58rem; font-weight: bold; writing-mode: vertical-rl; border: 1px solid rgba(0,0,0,0.6); }
     
-    /* Especificaciones de discos */
-    .plate-lb { background-color: #111827; color: #f8fafc; border: 1px solid #475569; }
+    /* Especificaciones de Discos */
+    .plate-lb { background-color: #0f172a; color: #f8fafc; border: 1px solid #475569; }
     .plate-kg-2_5 { background-color: #dc2626; color: white; }
     .plate-kg-2   { background-color: #2563eb; color: white; }
     .plate-kg-1_5 { background-color: #ca8a04; color: black; }
     .plate-kg-1   { background-color: #16a34a; color: white; }
     .plate-kg-0_5 { background-color: #f8fafc; color: black; }
 
-    .result-console { background-color: #060911; padding: 12px; border-radius: 8px; border: 1px solid var(--border-line); margin-top: 10px; font-size: 0.9rem; }
-    .footer-stamp { text-align: center; font-size: 0.68rem; color: var(--text-dim); padding: 14px 4px; margin-top: auto; border-top: 1px solid var(--border-line); width: 100%; line-height: 1.4; }
+    .results-display { background-color: #050811; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 10px; font-size: 0.9rem; }
+    .footer-note { text-align: center; font-size: 0.68rem; color: var(--text-muted); padding: 14px 4px; margin-top: auto; border-top: 1px solid var(--border-color); width: 100%; line-height: 1.4; }
     
-    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 99; padding: 16px; }
-    .modal-box { background-color: var(--panel-bg); width: 100%; max-width: 420px; border-radius: 12px; padding: 20px; border: 1px solid var(--border-line); }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 99; padding: 16px; }
+    .modal-card { background-color: var(--card-bg); width: 100%; max-width: 420px; border-radius: 12px; padding: 20px; border: 1px solid var(--border-color); }
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
-  <div class="app-viewport">
-    <!-- Encabezado de Sesión -->
-    <header class="panel-card text-center">
+  <div class="main-wrapper">
+    <!-- Encabezado y Barra de Sesión -->
+    <header class="panel text-center">
       <h1>🏋️ Asistente de Halterofilia</h1>
-      <p id="label-user" style="font-size: 0.85rem; color: var(--text-dim);">Esperando instalación inicial...</p>
+      <p id="label-user" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 3px;">Sin usuario activo</p>
+      
       <div style="margin-top: 10px; display: flex; gap: 8px; justify-content: center;">
         <button id="btn-open-install" class="btn btn-dark">⚙️ Instalación</button>
-        <button id="btn-switch-user" class="btn btn-dark">🔄 Cambio de Usuario</button>
+        <button id="btn-switch-user" class="btn btn-dark hidden">🔄 Cambio de Usuario</button>
       </div>
     </header>
 
-    <!-- Panel de Operaciones -->
-    <main class="panel-card" id="view-calculator">
+    <!-- Pantalla Inicial (Solo visible antes de instalar) -->
+    <div id="view-initial-lock" class="panel text-center">
+      <h2>Bienvenido al Asistente de Halterofilia</h2>
+      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">Para comenzar a utilizar la aplicación, realiza la instalación inicial con la contraseña de seguridad.</p>
+      <button id="btn-start-install" class="btn btn-blue" style="width: 100%; padding: 12px;">Instalación</button>
+    </div>
+
+    <!-- Panel de Operaciones (Calculadora) -->
+    <main class="panel hidden" id="view-calculator">
       <h2>Modo de Entrenamiento</h2>
-      <div class="mode-nav">
-        <button id="tab-snatch" class="mode-tab selected">Snatch</button>
+      <div class="mode-container">
+        <button id="tab-snatch" class="mode-tab active">Snatch</button>
         <button id="tab-cj" class="mode-tab">Clean & Jerk</button>
       </div>
 
-      <div class="row-flex">
+      <div class="flex-row">
         <div>
-          <label style="font-size: 0.8rem; color: var(--text-dim);">PR Registrado Actual:</label>
+          <label style="font-size: 0.8rem; color: var(--text-muted);">PR Registrado Actual:</label>
           <div id="val-pr" style="font-size: 1.15rem; font-weight: bold; color: var(--accent-green);">0 lb</div>
         </div>
       </div>
 
-      <div class="row-flex">
-        <div>
-          <label for="num-weight" style="font-size: 0.8rem; color: var(--text-dim);">Peso Objetivo (lb):</label>
-          <input type="number" id="num-weight" class="input-field" placeholder="Ej: 155" step="0.5" inputmode="decimal">
+      <!-- Input de Peso y Conmutador Lbs/Kgs -->
+      <div class="flex-row">
+        <div style="flex: 2;">
+          <label for="num-weight" style="font-size: 0.8rem; color: var(--text-muted);">Peso Objetivo:</label>
+          <input type="number" id="num-weight" class="input-box" placeholder="Ej: 135" step="0.5" inputmode="decimal">
         </div>
+        <div style="flex: 1;">
+          <label style="font-size: 0.8rem; color: var(--text-muted);">Unidad:</label>
+          <button id="btn-toggle-unit" class="btn btn-dark" style="width: 100%; padding: 11px;">lbs</button>
+        </div>
+      </div>
+
+      <!-- Barra de Selección de Porcentaje del PR -->
+      <div class="slider-container">
+        <div class="slider-header">
+          <span>Porcentaje del PR:</span>
+          <span id="slider-label" style="font-weight: bold; color: var(--accent-blue);">100%</span>
+        </div>
+        <input type="range" id="range-pr" class="range-slider" min="10" max="100" value="100" step="1">
+      </div>
+
+      <!-- Selector de Barra -->
+      <div class="flex-row">
         <div>
-          <label for="sel-bar" style="font-size: 0.8rem; color: var(--text-dim);">Tipo de Barra:</label>
-          <select id="sel-bar" class="input-field">
+          <label for="sel-bar" style="font-size: 0.8rem; color: var(--text-muted);">Tipo de Barra:</label>
+          <select id="sel-bar" class="input-box">
             <option value="45">Barra Pesada (45 lb)</option>
             <option value="35">Barra Liviana (35 lb)</option>
           </select>
         </div>
       </div>
 
+      <!-- Checkbox de Actualización de PR -->
       <div style="display: flex; align-items: center; gap: 8px; margin: 6px 0 10px 0;">
         <input type="checkbox" id="chk-update-pr" style="width: 18px; height: 18px; cursor: pointer;">
-        <label for="chk-update-pr" style="font-size: 0.85rem; cursor: pointer; color: var(--text-light);">Actualizar PR si el peso calculado es superior</label>
+        <label for="chk-update-pr" style="font-size: 0.85rem; cursor: pointer; color: var(--text-white);">Actualizar el PR si el peso Logrado es mayor que el PR anterior</label>
       </div>
 
       <button id="btn-compute" class="btn btn-blue" style="width: 100%; padding: 12px;">Aceptar</button>
 
-      <!-- Panel de Resultados -->
-      <div id="box-results" class="result-console hidden">
+      <!-- Panel de Resultados (Texto) -->
+      <div id="box-results" class="results-display hidden">
         <div id="out-total" style="font-weight: bold; margin-bottom: 4px;"></div>
-        <div id="out-breakdown" style="font-size: 0.85rem; color: var(--text-dim);"></div>
+        <div id="out-breakdown" style="font-size: 0.85rem; color: var(--text-muted);"></div>
       </div>
 
-      <!-- Simulación Gráfica -->
-      <div class="stage-barbell">
-        <div class="steel-bar"></div>
-        <div id="sleeve-l" class="sleeve-mount left"></div>
-        <div id="sleeve-r" class="sleeve-mount right"></div>
+      <!-- Simulación Gráfica de la Barra -->
+      <div class="barbell-canvas">
+        <div class="bar-core"></div>
+        <div id="sleeve-l" class="sleeve-container left"></div>
+        <div id="sleeve-r" class="sleeve-container right"></div>
       </div>
     </main>
 
-    <!-- Firma de Autoría -->
-    <footer class="footer-stamp">
+    <!-- Footer Estático Obligatorio -->
+    <footer class="footer-note">
       Análisis/Diseño de Andres Aguiar V 1.1 Santiago de Chile Agosto 2026 - Contacto +56933395447 - Whatsapp +56933395447
     </footer>
   </div>
 
   <!-- Modal de Instalación -->
-  <div id="modal-installer" class="modal-backdrop hidden">
-    <div class="modal-box">
-      <h2 style="color: white; margin-bottom: 10px;">Instalación del Sistema</h2>
+  <div id="modal-installer" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h2 style="color: white; margin-bottom: 10px;">Módulo de Instalación</h2>
       
       <!-- Paso 1: Clave Secreta -->
       <div id="sec-auth">
         <label style="font-size: 0.8rem;">Contraseña Secreta:</label>
-        <input type="password" id="txt-secret" class="input-field" placeholder="Ingrese contraseña">
+        <input type="password" id="txt-secret" class="input-box" placeholder="Ingrese contraseña">
         <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
           <button id="btn-cancel-auth" class="btn btn-dark">Cancelar</button>
           <button id="btn-submit-auth" class="btn btn-blue">Validar</button>
         </div>
       </div>
 
-      <!-- Paso 2: Datos de Usuario -->
+      <!-- Paso 2: Registro del Atleta -->
       <div id="sec-userreg" class="hidden">
         <label style="font-size: 0.8rem;">Primer Nombre:</label>
-        <input type="text" id="txt-fname" class="input-field" placeholder="Nombre">
+        <input type="text" id="txt-fname" class="input-box" placeholder="Nombre">
         <label style="font-size: 0.8rem;">Apellido:</label>
-        <input type="text" id="txt-lname" class="input-field" placeholder="Apellido">
+        <input type="text" id="txt-lname" class="input-box" placeholder="Apellido">
         <label style="font-size: 0.8rem;">Correo Electrónico:</label>
-        <input type="email" id="txt-mail" class="input-field" placeholder="atleta@correo.com">
+        <input type="email" id="txt-mail" class="input-box" placeholder="atleta@correo.com">
         <button id="btn-save-user" class="btn btn-green" style="width: 100%; margin-top: 10px;">Guardar Perfil</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal de Expiración -->
-  <div id="modal-expired" class="modal-backdrop hidden">
-    <div class="modal-box text-center">
+  <!-- Pantalla de Bloqueo tras 3 días -->
+  <div id="modal-expired" class="modal-overlay hidden">
+    <div class="modal-card text-center">
       <h2 style="color: var(--accent-red); margin-bottom: 10px;">Periodo de Evaluación Expirado</h2>
       <p style="font-size: 0.95rem; line-height: 1.5;">Para la Instalación definitiva, contactar al +56933395447</p>
     </div>
   </div>
 
-  <!-- Lógica JavaScript Estructurada y Robusta -->
+  <!-- Lógica JavaScript Modular y 100% Estable -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const PASS_SECRET = "NalitaBonita";
       const EXPIRATION_MS = 3 * 24 * 60 * 60 * 1000; // 3 días
       const KG_TO_LB = 2.20462;
 
-      // Estado de la Aplicación
+      // Estado Global
       let appState = {
-        mode: 'snatch',
+        mode: 'snatch',       // 'snatch' o 'cj'
+        unit: 'lbs',          // 'lbs' o 'kg'
         activeUser: null,
         users: [],
         installedAt: null
@@ -201,18 +234,24 @@
       ];
 
       // Referencias DOM
+      const viewInitialLock = document.getElementById('view-initial-lock');
+      const viewCalculator = document.getElementById('view-calculator');
       const labelUser = document.getElementById('label-user');
       const valPR = document.getElementById('val-pr');
       const numWeight = document.getElementById('num-weight');
+      const btnToggleUnit = document.getElementById('btn-toggle-unit');
       const selBar = document.getElementById('sel-bar');
       const chkUpdatePR = document.getElementById('chk-update-pr');
       const tabSnatch = document.getElementById('tab-snatch');
       const tabCJ = document.getElementById('tab-cj');
+      const rangePR = document.getElementById('range-pr');
+      const sliderLabel = document.getElementById('slider-label');
       const boxResults = document.getElementById('box-results');
       const outTotal = document.getElementById('out-total');
       const outBreakdown = document.getElementById('out-breakdown');
       const sleeveL = document.getElementById('sleeve-l');
       const sleeveR = document.getElementById('sleeve-r');
+      const btnSwitchUser = document.getElementById('btn-switch-user');
 
       const modalInstaller = document.getElementById('modal-installer');
       const modalExpired = document.getElementById('modal-expired');
@@ -223,23 +262,23 @@
       const txtLname = document.getElementById('txt-lname');
       const txtMail = document.getElementById('txt-mail');
 
-      // Funciones de Persistencia
+      // Funciones de Guardado y Carga
       function loadStorage() {
-        const raw = localStorage.getItem('__HALTEROFILIA_V11__');
+        const raw = localStorage.getItem('__HALTEROFILIA_V11_APP__');
         if (raw) {
           try {
             appState = JSON.parse(raw);
-          } catch(e) {
+          } catch (e) {
             console.error("Error al cargar localStorage", e);
           }
         }
       }
 
       function saveStorage() {
-        localStorage.setItem('__HALTEROFILIA_V11__', JSON.stringify(appState));
+        localStorage.setItem('__HALTEROFILIA_V11_APP__', JSON.stringify(appState));
       }
 
-      function checkTrialExpired() {
+      function isTrialExpired() {
         if (!appState.installedAt) return false;
         if (Date.now() - appState.installedAt > EXPIRATION_MS) {
           modalExpired.classList.remove('hidden');
@@ -249,18 +288,18 @@
       }
 
       // Modales y Control de Acceso
-      function openInstallModal() {
+      function openInstallerModal() {
         secAuth.classList.remove('hidden');
         secUserReg.classList.add('hidden');
         txtSecret.value = '';
         modalInstaller.classList.remove('hidden');
       }
 
-      function closeModals() {
+      function closeModal() {
         modalInstaller.classList.add('hidden');
       }
 
-      function handleAuth() {
+      function validateSecret() {
         if (txtSecret.value === PASS_SECRET) {
           if (!appState.installedAt) {
             appState.installedAt = Date.now();
@@ -268,11 +307,11 @@
           secAuth.classList.add('hidden');
           secUserReg.classList.remove('hidden');
         } else {
-          alert("Contraseña secreta incorrecta.");
+          alert("Contraseña incorrecta.");
         }
       }
 
-      function handleSaveUser() {
+      function saveUserProfile() {
         const fname = txtFname.value.trim();
         const lname = txtLname.value.trim();
         const mail = txtMail.value.trim();
@@ -298,144 +337,192 @@
         txtLname.value = '';
         txtMail.value = '';
 
-        closeModals();
-        renderUI();
+        closeModal();
+        updateUI();
       }
 
-      function handleSwitchUser() {
-        if (checkTrialExpired()) return;
+      function switchUserProfile() {
+        if (isTrialExpired()) return;
         if (appState.users.length <= 1) {
-          openInstallModal();
+          openInstallerModal();
           return;
         }
 
-        const currentIndex = appState.users.findIndex(u => u.id === appState.activeUser.id);
-        const nextIndex = (currentIndex + 1) % appState.users.length;
-        appState.activeUser = appState.users[nextIndex];
+        const idx = appState.users.findIndex(u => u.id === appState.activeUser.id);
+        const nextIdx = (idx + 1) % appState.users.length;
+        appState.activeUser = appState.users[nextIdx];
         saveStorage();
-        renderUI();
+        updateUI();
       }
 
-      // Renderizado de UI
-      function renderUI() {
+      function setExerciseMode(newMode) {
+        appState.mode = newMode;
+        tabSnatch.classList.toggle('active', newMode === 'snatch');
+        tabCJ.classList.toggle('active', newMode === 'cj');
+        updateUI();
+      }
+
+      function toggleWeightUnit() {
+        appState.unit = (appState.unit === 'lbs') ? 'kg' : 'lbs';
+        btnToggleUnit.innerText = appState.unit;
+        saveStorage();
+        updateUI();
+      }
+
+      // Slider de Porcentaje del PR
+      function handleSliderChange(pct) {
+        sliderLabel.innerText = `${pct}%`;
+        if (!appState.activeUser) return;
+
+        const prLb = appState.activeUser.pr[appState.mode] || 0;
+        const prInUnit = appState.unit === 'kg' ? (prLb / KG_TO_LB) : prLb;
+        const calcWeight = (prInUnit * pct) / 100.0;
+
+        numWeight.value = calcWeight > 0 ? calcWeight.toFixed(1) : '';
+      }
+
+      function handleManualWeightInput() {
+        if (!appState.activeUser) return;
+        const val = parseFloat(numWeight.value);
+        const prLb = appState.activeUser.pr[appState.mode] || 0;
+        const prInUnit = appState.unit === 'kg' ? (prLb / KG_TO_LB) : prLb;
+
+        if (prInUnit > 0 && !isNaN(val) && val > 0) {
+          let pct = Math.round((val / prInUnit) * 100);
+          pct = Math.min(Math.max(pct, 10), 100);
+          rangePR.value = pct;
+          sliderLabel.innerText = `${pct}%`;
+        } else {
+          rangePR.value = 100;
+          sliderLabel.innerText = '100%';
+        }
+      }
+
+      // Actualizar Vista General
+      function updateUI() {
+        if (isTrialExpired()) return;
+
         if (!appState.activeUser) {
-          labelUser.innerText = "Esperando instalación inicial...";
-          valPR.innerText = "0 lb";
-          numWeight.value = "";
+          viewInitialLock.classList.remove('hidden');
+          viewCalculator.classList.add('hidden');
+          btnSwitchUser.classList.add('hidden');
+          labelUser.innerText = "Sin usuario activo";
           return;
         }
+
+        viewInitialLock.classList.add('hidden');
+        viewCalculator.classList.remove('hidden');
+        btnSwitchUser.classList.remove('hidden');
 
         labelUser.innerText = `Atleta: ${appState.activeUser.fname} ${appState.activeUser.lname} (${appState.activeUser.mail})`;
-        const prValue = appState.activeUser.pr[appState.mode] || 0;
-        valPR.innerText = `${prValue} lb`;
-        numWeight.value = prValue > 0 ? prValue : "";
+        
+        const prLb = appState.activeUser.pr[appState.mode] || 0;
+        valPR.innerText = `${prLb} lb`;
+        btnToggleUnit.innerText = appState.unit;
+
+        rangePR.value = 100;
+        sliderLabel.innerText = '100%';
+
+        const prInUnit = appState.unit === 'kg' ? (prLb / KG_TO_LB) : prLb;
+        numWeight.value = prInUnit > 0 ? prInUnit.toFixed(1) : '';
       }
 
-      function setMode(newMode) {
-        appState.mode = newMode;
-        tabSnatch.classList.toggle('selected', newMode === 'snatch');
-        tabCJ.classList.toggle('selected', newMode === 'cj');
-        renderUI();
-      }
-
-      // Motor de Cálculo y Dibujo de Barra
-      function handleCompute() {
-        if (checkTrialExpired()) return;
+      // Cálculo de Carga y Gráfica
+      function calculateLoad() {
+        if (isTrialExpired()) return;
         if (!appState.activeUser) {
-          openInstallModal();
+          openInstallerModal();
           return;
         }
 
-        const totalWeight = parseFloat(numWeight.value);
+        const rawWeight = parseFloat(numWeight.value);
         const barWeight = parseFloat(selBar.value);
 
-        if (isNaN(totalWeight) || totalWeight <= 0) {
-          alert("Por favor ingresa un peso objetivo válido.");
+        if (isNaN(rawWeight) || rawWeight <= 0) {
+          alert("Por favor ingresa un peso numérico válido.");
           return;
         }
 
-        if (totalWeight < barWeight) {
-          alert(`El peso objetivo debe ser mayor o igual al peso de la barra seleccionada (${barWeight} lb).`);
+        const totalWeightLb = (appState.unit === 'kg') ? (rawWeight * KG_TO_LB) : rawWeight;
+
+        if (totalWeightLb < barWeight) {
+          alert(`El peso total debe ser mayor o igual al peso de la barra (${barWeight} lb).`);
           return;
         }
 
-        // Actualización de PR si está marcado el checkbox
+        // Actualizar PR si la casilla está marcada y el peso logrado es mayor
         if (chkUpdatePR.checked) {
           const currentPR = appState.activeUser.pr[appState.mode] || 0;
-          if (totalWeight > currentPR) {
-            appState.activeUser.pr[appState.mode] = Math.round(totalWeight * 10) / 10;
+          if (totalWeightLb > currentPR) {
+            appState.activeUser.pr[appState.mode] = Math.round(totalWeightLb * 10) / 10;
             saveStorage();
-            renderUI();
+            updateUI();
           }
         }
 
-        // Algoritmo de distribución simétrica por lado
-        let weightPerSide = (totalWeight - barWeight) / 2.0;
-        const selectedPlates = [];
+        // Distribución simétrica por lado
+        let sideWeight = (totalWeightLb - barWeight) / 2.0;
+        const selectedDiscs = [];
 
-        for (const plate of discCatalog) {
-          const count = Math.floor(weightPerSide / plate.weightLb);
+        for (const disc of discCatalog) {
+          const count = Math.floor(sideWeight / disc.weightLb);
           if (count > 0) {
-            selectedPlates.push({ plate, count });
-            weightPerSide = Math.round((weightPerSide - (count * plate.weightLb)) * 1000) / 1000;
+            selectedDiscs.push({ disc, count });
+            sideWeight = Math.round((sideWeight - (count * disc.weightLb)) * 1000) / 1000;
           }
         }
 
         // Mostrar texto descriptivo
         boxResults.classList.remove('hidden');
-        outTotal.innerText = `Carga Total: ${totalWeight.toFixed(1)} lb (~${(totalWeight / KG_TO_LB).toFixed(1)} kg)`;
+        outTotal.innerText = `Carga Total: ${totalWeightLb.toFixed(1)} lb (~${(totalWeightLb / KG_TO_LB).toFixed(1)} kg)`;
 
-        let breakdownText = `Barra: ${barWeight} lb | Por lado: `;
-        if (selectedPlates.length === 0) {
-          breakdownText += "Sin discos (solo barra).";
+        let breakdown = `Barra: ${barWeight} lb | Por lado: `;
+        if (selectedDiscs.length === 0) {
+          breakdown += "Sin discos (solo barra).";
         } else {
-          breakdownText += selectedPlates.map(item => `${item.count}x ${item.plate.name} ${item.plate.type}`).join(' + ');
+          breakdown += selectedDiscs.map(item => `${item.count}x ${item.disc.name} ${item.disc.type}`).join(' + ');
         }
 
-        if (weightPerSide > 0.4) {
-          breakdownText += ` | Sobran: ${(weightPerSide * 2).toFixed(1)} lb`;
+        if (sideWeight > 0.4) {
+          breakdown += ` | Sobran: ${(sideWeight * 2).toFixed(1)} lb`;
         }
-        outBreakdown.innerText = breakdownText;
+        outBreakdown.innerText = breakdown;
 
-        // Dibujar discos en la barra
+        // Renderizar simulación gráfica
         sleeveL.innerHTML = '';
         sleeveR.innerHTML = '';
 
-        selectedPlates.forEach(item => {
+        selectedDiscs.forEach(item => {
           for (let i = 0; i < item.count; i++) {
-            const plateElement = document.createElement('div');
-            plateElement.className = `plate-render ${item.plate.cssClass}`;
-            plateElement.style.height = `${item.plate.height}px`;
-            plateElement.style.width = `${item.plate.width}px`;
-            plateElement.innerText = `${item.plate.name}`;
+            const el = document.createElement('div');
+            el.className = `plate-item ${item.disc.cssClass}`;
+            el.style.height = `${item.disc.height}px`;
+            el.style.width = `${item.disc.width}px`;
+            el.innerText = `${item.disc.name}`;
 
-            sleeveL.appendChild(plateElement.cloneNode(true));
-            sleeveR.appendChild(plateElement);
+            sleeveL.appendChild(el.cloneNode(true));
+            sleeveR.appendChild(el);
           }
         });
       }
 
-      // Asignación de Eventos
-      document.getElementById('btn-open-install').addEventListener('click', openInstallModal);
-      document.getElementById('btn-switch-user').addEventListener('click', handleSwitchUser);
-      document.getElementById('btn-cancel-auth').addEventListener('click', closeModals);
-      document.getElementById('btn-submit-auth').addEventListener('click', handleAuth);
-      document.getElementById('btn-save-user').addEventListener('click', handleSaveUser);
-      document.getElementById('btn-compute').addEventListener('click', handleCompute);
+      // Conexión de Event Listeners
+      document.getElementById('btn-open-install').addEventListener('click', openInstallerModal);
+      document.getElementById('btn-start-install').addEventListener('click', openInstallerModal);
+      document.getElementById('btn-cancel-auth').addEventListener('click', closeModal);
+      document.getElementById('btn-submit-auth').addEventListener('click', validateSecret);
+      document.getElementById('btn-save-user').addEventListener('click', saveUserProfile);
+      btnSwitchUser.addEventListener('click', switchUserProfile);
+      btnToggleUnit.addEventListener('click', toggleWeightUnit);
+      tabSnatch.addEventListener('click', () => setExerciseMode('snatch'));
+      tabCJ.addEventListener('click', () => setExerciseMode('cj'));
+      rangePR.addEventListener('input', (e) => handleSliderChange(parseInt(e.target.value)));
+      numWeight.addEventListener('input', handleManualWeightInput);
+      document.getElementById('btn-compute').addEventListener('click', calculateLoad);
 
-      tabSnatch.addEventListener('click', () => setMode('snatch'));
-      tabCJ.addEventListener('click', () => setMode('cj'));
-
-      // Arranque del sistema
+      // Arranque seguro
       loadStorage();
-      if (!checkTrialExpired()) {
-        if (!appState.activeUser) {
-          // Si no hay usuario, abre automáticamente el modal de instalación
-          openInstallModal();
-        } else {
-          renderUI();
-        }
-      }
+      updateUI();
     });
   </script>
 </body>
