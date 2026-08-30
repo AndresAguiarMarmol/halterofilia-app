@@ -52,6 +52,9 @@
     .breakdown { background: var(--card-alt); border-radius: 8px; padding: 16px; margin-top: 12px; border: 1px solid var(--border); }
     .breakdown h3 { color: var(--primary); margin-bottom: 8px; font-size: 1rem; }
 
+    .alt-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); gap: 10px; }
+    .alt-info { flex: 1; font-size: 0.9rem; }
+
     /* Barra Visual Dinámica */
     .bar-visual-container { background: #05070d; border: 1px solid var(--border); border-radius: 12px; padding: 35px 10px; overflow-x: auto; display: flex; justify-content: center; align-items: center; min-height: 180px; }
     .barbell { display: flex; align-items: center; position: relative; height: 140px; }
@@ -69,7 +72,7 @@
     .plate-kg-20 { background: #1d4ed8; }
     .plate-kg-25 { background: #b91c1c; }
 
-    /* Contenedor Gráfico Histórico */
+    /* Gráfico Histórico */
     .chart-container { background: var(--card-alt); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-top: 10px; width: 100%; height: 260px; position: relative; }
     canvas { width: 100%; height: 100%; display: block; }
 
@@ -83,7 +86,7 @@
 </head>
 <body>
 
-  <!-- BLOQUEO POR LICENCIA DEMO -->
+  <!-- PANTALLA LICENCIA BLOQUEADA -->
   <div id="licenseBlock" class="modal-overlay hidden">
     <div class="modal-box" style="text-align: center;">
       <div class="lockout-box">
@@ -123,7 +126,7 @@
     </div>
   </div>
 
-  <!-- GESTIÓN DE PERFILES -->
+  <!-- MODAL GESTIÓN DE PERFILES -->
   <div id="profilesModal" class="modal-overlay hidden">
     <div class="modal-box">
       <h2>Gestión de Perfiles</h2>
@@ -159,7 +162,7 @@
     </div>
   </div>
 
-  <!-- APLICACIÓN PRINCIPAL -->
+  <!-- SPA PRINCIPAL -->
   <div class="container" id="mainApp">
     <header class="header-bar">
       <div>
@@ -226,13 +229,19 @@
     <section class="card" id="resultsSection">
       <h2>Desglose por Lado</h2>
       <div class="breakdown">
-        <h3>Combinación Principal (Óptima)</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3>Combinación Principal (Óptima)</h3>
+          <button class="btn btn-secondary btn-sm" id="btnSelectOptimal" style="display:none;">Dibujar en Barra</button>
+        </div>
         <p id="calcTotalSummary" style="font-size:0.85rem; color:var(--text-dim); margin-bottom:6px;"></p>
         <div id="platesOptimal">Ingrese un peso y presione Calcular.</div>
       </div>
 
       <div class="breakdown" id="altContainer">
-        <h3>Combinación Alternativa</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <h3 style="margin-bottom:0;">Combinaciones Alternativas</h3>
+          <button class="btn btn-secondary btn-sm" id="btnMoreAlt">Generar más opciones (+2)</button>
+        </div>
         <div id="platesAlternative">No requerida o idéntica.</div>
       </div>
 
@@ -262,11 +271,434 @@
     Análisis/Diseño de Andres Aguiar V 1.1 Santiago de Chile Agosto 2026 - Contacto +56933395447 - Whatsapp +56933395447
   </footer>
 
-  <!-- LÓGICA DE CONTROL OFUSCADA -->
+  <!-- LÓGICA DE CONTROL Y OPTIMIZACIÓN OFUSCADA -->
   <script>
-    document.addEventListener("DOMContentLoaded",function(){
-      eval(function(p,a,c,k,e,d){e=function(c){return(c<a?'':e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--)d[e(c)]=k[c]||e(c);k=[function(e){return d[e]}];e=function(){return'\\w+'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);return p}('5 T(b){7 d.X(b)}5 o={g:2=>{8{7 F.C(G.H(2))}I(e){7 J}},s:(2,1)=>{G.K(2,F.L(1))},r:2=>G.H(2),w:(2,1)=>G.K(2,1)};5 e={I:"\\x5f\\x76\\x31\\x31\\x5f\\x69",P:"\\x5f\\x76\\x31\\x31\\x5f\\x70",U:"\\x5f\\x76\\x31\\x31\\x5f\\x75",C:"\\x5f\\x76\\x31\\x31\\x5f\\x63",H:"\\x5f\\x76\\x31\\x31\\x5f\\x68",M:"\\x5f\\x76\\x31\\x31\\x5f\\x6d"};5 k=o.r(e.I);j(k){5 l=(N.O()-Q(k,10))/(1000*60*60*24);j(l>2){T("R").q.S("t");7}}5 3=["V","W & Y"];5 4="V";5 c=o.g(e.U)||[];5 u=o.r(e.C);j(!k||!c.Z||!u){T("11").q.S("t");T("12").q.S("t");T("13").q.14("t");T("15").q.14("t")}16{17()}T("18").19("1a",()=>{T("12").q.14("t");T("13").q.S("t")});T("1b").19("1a",()=>{5 p=T("1c").1d.1e();j(p==="\\x4e\\x61\\x6c\\x69\\x74\\x61\\x42\\x6f\\x6e\\x69\\x74\\x61"){o.w(e.I,N.O().1f());T("13").q.14("t");T("15").q.S("t")}16{1g("1h 1i.")}});T("1j").19("1a",()=>{5 f=T("1k").1d.1e(),lN=T("1l").1d.1e(),mE=T("1m").1d.1e();j(!f||!lN||!mE){1g("1n 1o 1p 1q 1r.");7}5 id="u_"+N.O();o.s(e.U,[{id:id,fn:f,ln:lN,1s:mE}]);o.w(e.C,id);T("11").q.14("t");17()});T("1t").19("1a",()=>{5 v=T("1u").1d.1e();j(v&&!3.1v(v)){3.1w(v);o.s(e.M,3);1x();T("1u").1d="";1y(v)}});5 1x=()=>{5 bX=T("1z");bX.1A="";3.1B(m=>{5 b=d.1C("1D");b.1E="1F-b"+(m===4?" 1G":"");b.1H=m;b.19("1a",()=>1y(m));bX.1I(b)})};5 1y=m=>{4=m;1x();1J()};5 1J=()=>{5 p=o.g(e.P)||{},id=o.r(e.C),v=(p[id]&&p[id][4])||0;T("1K").1H=1L(v).1M(2)+" 1N"};T("1O").19("1a",()=>1P());T("1Q").19("1a",()=>T("1R").q.14("t"));T("1S").19("1a",()=>{5 f=T("1T").1d.1e(),lN=T("1U").1d.1e(),mE=T("1V").1d.1e();j(!f||!lN||!mE){1g("1n 1o 1p 1r.");7}5 lU=o.g(e.U)||[],id="u_"+N.O();lU.1w({id:id,fn:f,ln:lN,1s:mE});o.s(e.U,lU);o.w(e.C,id);T("1R").q.14("t");17()});5 1P=()=>{5 lU=o.g(e.U)||[],id=o.r(e.C),box=T("1W");box.1A="";lU.1B(u=>{5 r=d.1C("1D");r.1X.1Y="1Z;20-21:22;23-24:25;26:6px;27-28:1px 29 2a;";r.1A=`<2b>${u.fn} ${u.ln}</2b>`;5 b=d.1C("2c");b.1E="b b-2d "+(u.id===id?"b-2e":"");b.1H=(u.id===id?"2f":"2g");b.2h=(u.id===id);b.19("1a",()=>{o.w(e.C,u.id);T("1R").q.14("t");17()});r.1I(b);box.1I(r)});T("1R").q.S("t")};T("2i").19("1a",()=>2j());T("2k").19("1a",()=>T("2l").q.14("t"));T("2m").19("2n",()=>2o());5 2j=()=>{5 s=T("2m");s.1A="";3.1B(m=>{5 oE=d.1C("2p");oE.1d=m;oE.1H=m;j(m===4)oE.2q=2r;s.1I(oE)});T("2l").q.S("t");2s(()=>2o(),50)};5 2o=()=>{5 cv=T("2t");j(!cv)7;5 cx=cv.2u("2v"),id=o.r(e.C),mv=T("2m").1d,ht=o.g(e.H)||[],dh=ht.2w(x=>x.id===id&&x.m===mv),dpr=2x.2y||1,rc=cv.2z();cv.2A=rc.2B*dpr;cv.2C=rc.2D*dpr;cx.2E(dpr,dpr);5 w=rc.2B,h=rc.2D;cx.2F(0,0,w,h);j(!dh.Z){cx.2G="2H(2I,2J,2K,0.7)";cx.2L="2M 2N";cx.2O="2P";cx.2Q("Sin registros para "+mv,w/2,h/2);7}5 ws=dh.2R(x=>x.w),mx=2S.mx(...ws)*1.1,mn=2S.mn(...ws)*0.9;j(mx===mn){mx+=10;mn=2S.2T(0,mn-10)}cx.2U=1;cx.2V="2H(2W,2W,2W,0.08)";5 st=4;2X(5 i=0;i<=st;i++){5 y=h-30-(i/st)*(h-60);cx.2Y();cx.2Z(45,y);cx.30(w-15,y);cx.31();cx.2G="#32";cx.2L="10px 2N";cx.2O="33";cx.2Q((mn+(i/st)*(mx-mn)).1M(0),40,y+3)}cx.2Y();cx.2U=2.5;cx.2V="#38bdf8";5 dx=(w-70)/(dh.Z>1?dh.Z-1:1);dh.1B((pt,i)=>{5 x=50+(dh.Z===1?(w-70)/2:i*dx),y=h-30-((pt.w-mn)/(mx-mn))*(h-60);j(i===0)cx.2Z(x,y);16 cx.30(x,y)});cx.31();dh.1B((pt,i)=>{5 x=50+(dh.Z===1?(w-70)/2:i*dx),y=h-30-((pt.w-mn)/(mx-mn))*(h-60);cx.2Y();cx.34(x,y,4,0,2*2S.PI);cx.2G="#38bdf8";cx.35();cx.2G="#f8fafc";cx.2L="36 10px 2N";cx.2O="2P";cx.2Q(pt.w,x,y-8);cx.2G="#32";cx.2L="9px 2N";cx.2Q(pt.dt,x,h-12)})};5 17=()=>{5 lU=o.g(e.U)||[],id=o.r(e.C),u=lU.37(x=>x.id===id)||lU[0];j(!u){T("11").q.S("t");7}T("38").1H=u.fn+" "+u.ln;5 sM=o.g(e.M);j(sM&&39.3a(sM)&&sM.Z)3=sM;1x();1J();3b()};5 3b=()=>{5 ht=o.g(e.H)||[],id=o.r(e.C),uh=ht.2w(x=>x.id===id).3c().3d(0,10),bx=T("3e");bx.1A="";j(!uh.Z){bx.1A=\'<2b 1X="3f:3g;">Sin 3h aún.</2b>\';7}uh.1B(h=>{5 dV=d.1C("1D");dV.1X.1Y="1Z;20-21:22;26:4px 0;27-28:1px 29 #334155;";dV.1A=`<2b>${h.dt} - <b>${h.m}</b></2b><2b 1X="3f:var(--3i);3j-3k:36;">${h.w} ${h.un}</2b>`;bx.1I(dV)})};5 V1=[{w:45,t:"1N",c:"3l-1N",h:125,th:14},{w:35,t:"1N",c:"3l-1N",h:112,th:13},{w:25,t:"1N",c:"3l-1N",h:100,th:11},{w:15,t:"1N",c:"3l-1N",h:86,th:9},{w:10,t:"1N",c:"3l-1N",h:76,th:7},{w:2.5*2.20462,k:2.5,t:"3m",c:"3l-3m-25",h:68,th:8},{w:2.0*2.20462,k:2.0,t:"3m",c:"3l-3m-20",h:62,th:7},{w:1.5*2.20462,k:1.5,t:"3m",c:"3l-3m-15",h:56,th:6},{w:1.0*2.20462,k:1.0,t:"3m",c:"3l-3m-10",h:50,th:5},{w:0.5*2.20462,k:0.5,t:"3m",c:"3l-3m-05",h:45,th:5}];5 3n=(sd,iv)=>{5 tl=1.1023;5 bt=(r,idx,cb)=>{j(r<=tl)7 cb;2X(5 i=idx;i<iv.Z;i++){5 p=iv[i];j(p.w<=r+tl){5 res=bt(r-p.w,i,cb.3o([p]));j(res)7 res}}7 J};7 bt(sd,0,[])};5 3p=(sd,op)=>{5 br=op.37(p=>p.w>=15);j(!br)7 J;5 al=V1.2w(p=>p!==br);7 3n(sd,al)};T("3q").19("1a",()=>{5 rw=1L(T("3r").1d),un=T("3s").1d,bw=1L(d.3t(\'3u[3v="3w"]:3x\').1d);j(3y(rw)||rw<=0){1g("3z un 3A 3B.");7}5 tl=un==="3m"?rw*2.20462:rw;j(tl<bw){1g("El 3A 3C 3D ser 3E o 3F al 3A de la 3G.");7}5 sNet=(tl-bw)/2.0,opt=3n(sNet,V1);j(!opt){1g("No se 3H 3I una 3J 3K con el set 3L.");7}5 alt=3p(sNet,opt);3M(opt,alt,tl,bw);3N(opt);5 id=o.r(e.C),pr=o.g(e.P)||{},cP=(pr[id]&&pr[id][4])||0;j(T("3O").2h&&tl>cP){pr[id]=pr[id]||{};pr[id][4]=tl;o.s(e.P,pr);1J()}5 ht=o.g(e.H)||[];ht.1w({id:id,m:4,w:rw,un:un,dt:3P N().3Q()});o.s(e.H,ht);3b()});5 3M=(op,al,tot,bw)=>{T("3R").1H=`3S 3T: ${tot.1M(2)} 1N (3G: ${bw} 1N | Por 3U: ${((tot-bw)/2).1M(2)} 1N)`;5 ft=a=>{5 t={};a.1B(p=>{5 k=p.t==="1N"?`${p.w} 1N`:`${p.k} 3m`;t[k]=(t[k]||0)+1});7 3V.3W(t).2R(k=>`<b>${t[k]}x</b> ${k}`).3X(", ")};T("3Y").1A=ft(op)||"Sin 3Z 40";j(al&&al.Z){T("41").1A=ft(al)}16{T("41").1H="No se 42 43 44 o no hay 45 3L."}};5 3N=pl=>{5 l=T("46"),r=T("47");l.1A="";r.1A="";pl.1B(p=>{5 dV=d.1C("1D");dV.1E="3l "+p.c;dV.1X.48=p.h+"px";dV.1X.49=p.th+"px";l.1I(dV);r.1I(dV.4a(2r))})}})(window,document);
-    });
+    (function(){
+      const _0x1a=function(id){return document.getElementById(id);};
+      const _0x2b={
+        _i:"\x5f\x76\x68\x31\x31\x5f\x69",
+        _p:"\x5f\x76\x68\x31\x31\x5f\x70",
+        _u:"\x5f\x76\x68\x31\x31\x5f\x75",
+        _c:"\x5f\x76\x68\x31\x31\x5f\x63",
+        _h:"\x5f\x76\x68\x31\x31\x5f\x68",
+        _m:"\x5f\x76\x68\x31\x31\x5f\x6d"
+      };
+      const _0x3c={
+        g:k=>{try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}},
+        s:(k,v)=>localStorage.setItem(k,JSON.stringify(v)),
+        rg:k=>localStorage.getItem(k),
+        rs:(k,v)=>localStorage.setItem(k,v)
+      };
+
+      const _0x4d=[
+        {w:45,t:"lb",c:"plate-lb",h:125,th:14},
+        {w:35,t:"lb",c:"plate-lb",h:112,th:13},
+        {w:25,t:"lb",c:"plate-lb",h:100,th:11},
+        {w:15,t:"lb",c:"plate-lb",h:86,th:9},
+        {w:10,t:"lb",c:"plate-lb",h:76,th:7},
+        {w:2.5*2.20462,k:2.5,t:"kg",c:"plate-kg-25",h:68,th:8},
+        {w:2.0*2.20462,k:2.0,t:"kg",c:"plate-kg-20",h:62,th:7},
+        {w:1.5*2.20462,k:1.5,t:"kg",c:"plate-kg-15",h:56,th:6},
+        {w:1.0*2.20462,k:1.0,t:"kg",c:"plate-kg-10",h:50,th:5},
+        {w:0.5*2.20462,k:0.5,t:"kg",c:"plate-kg-05",h:45,th:5}
+      ];
+
+      let _0x5e=["Snatch","Clean & Jerk"],_0x6f="Snatch";
+      let _0x70=[],_0x81=1;
+
+      function _0x92(){
+        const ins=_0x3c.rg(_0x2b._i);
+        if(ins){
+          const df=(Date.now()-parseInt(ins,10))/(86400000);
+          if(df>2){
+            _0x1a("licenseBlock").classList.remove("hidden");
+            return;
+          }
+        }
+        const us=_0x3c.g(_0x2b._u)||[];
+        const cu=_0x3c.rg(_0x2b._c);
+        if(!ins||!us.length||!cu){
+          _0x1a("installOverlay").classList.remove("hidden");
+          _0x1a("stepStart").classList.remove("hidden");
+          _0x1a("stepPass").classList.add("hidden");
+          _0x1a("stepProfile").classList.add("hidden");
+        }else{
+          _0xa3();
+        }
+      }
+
+      _0x1a("btnLaunchInstallModal").onclick=()=>{
+        _0x1a("stepStart").classList.add("hidden");
+        _0x1a("stepPass").classList.remove("hidden");
+      };
+
+      _0x1a("btnCheckKey").onclick=()=>{
+        const p=_0x1a("installKeyInput").value.trim();
+        if(p==="\x4e\x61\x6c\x69\x74\x61\x42\x6f\x6e\x69\x74\x61"){
+          _0x3c.rs(_0x2b._i,Date.now().toString());
+          _0x1a("stepPass").classList.add("hidden");
+          _0x1a("stepProfile").classList.remove("hidden");
+        }else{
+          alert("Contraseña incorrecta.");
+        }
+      };
+
+      _0x1a("btnFinishInstall").onclick=()=>{
+        const fn=_0x1a("regFirstName").value.trim();
+        const ln=_0x1a("regLastName").value.trim();
+        const em=_0x1a("regEmail").value.trim();
+        if(!fn||!ln||!em){alert("Por favor complete todos los campos.");return;}
+        const uid="u_"+Date.now();
+        _0x3c.s(_0x2b._u,[{id:uid,fn:fn,ln:ln,email:em}]);
+        _0x3c.rs(_0x2b._c,uid);
+        _0x1a("installOverlay").classList.add("hidden");
+        _0xa3();
+      };
+
+      _0x1a("btnAddMove").onclick=()=>{
+        const val=_0x1a("customMoveInput").value.trim();
+        if(val&&!_0x5e.includes(val)){
+          _0x5e.push(val);
+          _0x3c.s(_0x2b._m,_0x5e);
+          _0xb4();
+          _0x1a("customMoveInput").value="";
+          _0xc5(val);
+        }
+      };
+
+      function _0xb4(){
+        const c=_0x1a("movementContainer");
+        c.innerHTML="";
+        _0x5e.forEach(m=>{
+          const b=document.createElement("div");
+          b.className="movement-btn"+(m===_0x6f?" active":"");
+          b.innerText=m;
+          b.onclick=()=>_0xc5(m);
+          c.appendChild(b);
+        });
+      }
+
+      function _0xc5(m){
+        _0x6f=m;
+        _0xb4();
+        _0xd6();
+      }
+
+      function _0xd6(){
+        const prs=_0x3c.g(_0x2b._p)||{};
+        const id=_0x3c.rg(_0x2b._c);
+        const v=(prs[id]&&prs[id][_0x6f])||0;
+        _0x1a("currentPrVal").innerText=parseFloat(v).toFixed(2)+" lbs";
+      }
+
+      _0x1a("btnOpenProfiles").onclick=()=>_0xe7();
+      _0x1a("btnCloseProfModal").onclick=()=>_0x1a("profilesModal").classList.add("hidden");
+
+      _0x1a("btnCreateNewUser").onclick=()=>{
+        const fn=_0x1a("newProfFirst").value.trim();
+        const ln=_0x1a("newProfLast").value.trim();
+        const em=_0x1a("newProfEmail").value.trim();
+        if(!fn||!ln||!em){alert("Por favor complete los campos.");return;}
+        const us=_0x3c.g(_0x2b._u)||[];
+        const uid="u_"+Date.now();
+        us.push({id:uid,fn:fn,ln:ln,email:em});
+        _0x3c.s(_0x2b._u,us);
+        _0x3c.rs(_0x2b._c,uid);
+        _0x1a("profilesModal").classList.add("hidden");
+        _0xa3();
+      };
+
+      function _0xe7(){
+        const us=_0x3c.g(_0x2b._u)||[];
+        const cur=_0x3c.rg(_0x2b._c);
+        const box=_0x1a("userListContainer");
+        box.innerHTML="";
+        us.forEach(u=>{
+          const r=document.createElement("div");
+          r.style.cssText="display:flex;justify-content:space-between;align-items:center;padding:6px;border-bottom:1px solid var(--border);";
+          r.innerHTML=`<span>${u.fn} ${u.ln}</span>`;
+          const b=document.createElement("button");
+          b.className="btn btn-sm "+(u.id===cur?"btn-secondary":"");
+          b.innerText=(u.id===cur?"Activo":"Cambiar");
+          b.disabled=(u.id===cur);
+          b.onclick=()=>{
+            _0x3c.rs(_0x2b._c,u.id);
+            _0x1a("profilesModal").classList.add("hidden");
+            _0xa3();
+          };
+          r.appendChild(b);
+          box.appendChild(r);
+        });
+        _0x1a("profilesModal").classList.remove("hidden");
+      }
+
+      _0x1a("btnOpenChart").onclick=()=>_0xf8();
+      _0x1a("btnCloseChartModal").onclick=()=>_0x1a("chartModal").classList.add("hidden");
+      _0x1a("chartDisciplineSelect").onchange=()=>_0x09();
+
+      function _0xf8(){
+        const sel=_0x1a("chartDisciplineSelect");
+        sel.innerHTML="";
+        _0x5e.forEach(m=>{
+          const o=document.createElement("option");
+          o.value = m;
+          o.innerText = m;
+          if(m===_0x6f)o.selected=true;
+          sel.appendChild(o);
+        });
+        _0x1a("chartModal").classList.remove("hidden");
+        setTimeout(()=>_0x09(),50);
+      }
+
+      function _0x09(){
+        const cv=_0x1a("performanceCanvas");
+        if(!cv)return;
+        const cx=cv.getContext("2d");
+        const id=_0x3c.rg(_0x2b._c);
+        const mv=_0x1a("chartDisciplineSelect").value;
+        const ht=_0x3c.g(_0x2b._h)||[];
+        const dh=ht.filter(x=>x.id===id&&x.m===mv);
+
+        const dpr=window.devicePixelRatio||1;
+        const rc=cv.getBoundingClientRect();
+        cv.width=rc.width*dpr;
+        cv.height=rc.height*dpr;
+        cx.scale(dpr,dpr);
+
+        const w=rc.width,h=rc.height;
+        cx.clearRect(0,0,w,h);
+
+        if(!dh.length){
+          cx.fillStyle="rgba(148,163,184,0.7)";
+          cx.font="14px system-ui";
+          cx.textAlign="center";
+          cx.fillText("Sin registros para "+mv,w/2,h/2);
+          return;
+        }
+
+        const ws=dh.map(x=>x.w);
+        let mx=Math.max(...ws)*1.1,mn=Math.min(...ws)*0.9;
+        if(mx===mn){mx+=10;mn=Math.max(0,mn-10);}
+
+        cx.lineWidth=1;
+        cx.strokeStyle="rgba(255,255,255,0.08)";
+        const st=4;
+        for(let i=0;i<=st;i++){
+          const y=h-30-(i/st)*(h-60);
+          cx.beginPath();
+          cx.moveTo(45,y);
+          cx.lineTo(w-15,y);
+          cx.stroke();
+
+          cx.fillStyle="#64748b";
+          cx.font="10px system-ui";
+          cx.textAlign="right";
+          cx.fillText((mn+(i/st)*(mx-mn)).toFixed(0),40,y+3);
+        }
+
+        cx.beginPath();
+        cx.lineWidth=2.5;
+        cx.strokeStyle="#38bdf8";
+        const dx=(w-70)/(dh.length>1?dh.length-1:1);
+        dh.forEach((pt,i)=>{
+          const x=50+(dh.length===1?(w-70)/2:i*dx);
+          const y=h-30-((pt.w-mn)/(mx-mn))*(h-60);
+          if(i===0)cx.moveTo(x,y);
+          else cx.lineTo(x,y);
+        });
+        cx.stroke();
+
+        dh.forEach((pt,i)=>{
+          const x=50+(dh.length===1?(w-70)/2:i*dx);
+          const y=h-30-((pt.w-mn)/(mx-mn))*(h-60);
+          cx.beginPath();
+          cx.arc(x,y,4,0,2*Math.PI);
+          cx.fillStyle="#38bdf8";
+          cx.fill();
+
+          cx.fillStyle="#f8fafc";
+          cx.font="bold 10px system-ui";
+          cx.textAlign="center";
+          cx.fillText(pt.w,x,y-8);
+
+          cx.fillStyle="#64748b";
+          cx.font="9px system-ui";
+          cx.fillText(pt.dt,x,h-12);
+        });
+      }
+
+      function _0xa3(){
+        const us=_0x3c.g(_0x2b._u)||[];
+        const id=_0x3c.rg(_0x2b._c);
+        const u=us.find(x=>x.id===id)||us[0];
+        if(!u){_0x1a("installOverlay").classList.remove("hidden");return;}
+        _0x1a("activeUserName").innerText=u.fn+" "+u.ln;
+        const sm=_0x3c.g(_0x2b._m);
+        if(sm&&Array.isArray(sm)&&sm.length)_0x5e=sm;
+        _0xb4();
+        _0xd6();
+        _0x11();
+      }
+
+      function _0x11(){
+        const ht=_0x3c.g(_0x2b._h)||[];
+        const id=_0x3c.rg(_0x2b._c);
+        const uh=ht.filter(x=>x.id===id).reverse().slice(0,10);
+        const bx=_0x1a("historyList");
+        bx.innerHTML="";
+        if(!uh.length){
+          bx.innerHTML='<span style="color:var(--text-dim);">Sin registros aún.</span>';
+          return;
+        }
+        uh.forEach(h=>{
+          const d=document.createElement("div");
+          d.style.cssText="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #334155;";
+          d.innerHTML=`<span>${h.dt} - <b>${h.m}</b></span><span style="color:var(--primary);font-weight:bold;">${h.w} ${h.un}</span>`;
+          bx.appendChild(d);
+        });
+      }
+
+      function _0x22(remNet){
+        const tol=2.20462;
+        const res=[];
+        const seen=new Set();
+        function bt(r,idx,cur){
+          if(r<=tol){
+            const sKey=cur.map(p=>p.t==="lb"?p.w+"L":p.k+"K").sort().join("|");
+            if(!seen.has(sKey)){
+              seen.add(sKey);
+              res.push([...cur]);
+            }
+            if(r<=0.05)return;
+          }
+          for(let i=idx;i<_0x4d.length;i++){
+            const p=_0x4d[i];
+            if(p.w<=r+tol&&cur.length<20&&res.length<60){
+              cur.push(p);
+              bt(r-p.w,i,cur);
+              cur.pop();
+            }
+          }
+        }
+        bt(remNet,0,[]);
+        res.sort((a,b)=>a.length-b.length);
+        return res;
+      }
+
+      const _0x33=arr=>{
+        const t={};
+        arr.forEach(p=>{
+          const k=p.t==="lb"?`${p.w} lb`:`${p.k} kg`;
+          t[k]=(t[k]||0)+1;
+        });
+        return Object.keys(t).map(k=>`<b>${t[k]}x</b> ${k}`).join(", ");
+      };
+
+      _0x1a("btnCalculate").onclick=()=>{
+        const rw=parseFloat(_0x1a("targetWeight").value);
+        const un=_0x1a("weightUnit").value;
+        const bw=parseFloat(document.querySelector('input[name="barType"]:checked').value);
+        if(isNaN(rw)||rw<=0){alert("Ingrese un peso válido.");return;}
+        let tl=un==="kgs"?rw*2.20462:rw;
+        if(tl<bw){alert("El peso objetivo debe ser mayor o igual al peso de la barra.");return;}
+
+        const sNet=(tl-bw)/2.0;
+        _0x70=_0x22(sNet);
+        if(!_0x70.length){
+          alert("No se pudo calcular una combinación dentro de la tolerancia de 1 kg.");
+          return;
+        }
+
+        _0x81=1;
+        _0x44(tl,bw);
+        _0x55(_0x70[0]);
+
+        const id=_0x3c.rg(_0x2b._c);
+        const pr=_0x3c.g(_0x2b._p)||{};
+        const cp=(pr[id]&&pr[id][_0x6f])||0;
+        if(_0x1a("checkUpdatePr").checked&&tl>cp){
+          pr[id]=pr[id]||{};
+          pr[id][_0x6f]=tl;
+          _0x3c.s(_0x2b._p,pr);
+          _0xd6();
+        }
+
+        const ht=_0x3c.g(_0x2b._h)||[];
+        ht.push({id:id,m:_0x6f,w:rw,un:un,dt:new Date().toLocaleDateString()});
+        _0x3c.s(_0x2b._h,ht);
+        _0x11();
+      };
+
+      function _0x44(tot,bw){
+        _0x1a("calcTotalSummary").innerText=`Total cargado: ${tot.toFixed(2)} lbs (Barra: ${bw} lbs | Por lado: ${((tot-bw)/2).toFixed(2)} lbs)`;
+        _0x1a("platesOptimal").innerHTML=_0x33(_0x70[0])||"Sin discos necesarios";
+        const btnOpt=_0x1a("btnSelectOptimal");
+        btnOpt.style.display="inline-block";
+        btnOpt.onclick=()=>_0x55(_0x70[0]);
+        _0x66();
+      }
+
+      function _0x66(){
+        const altBox=_0x1a("platesAlternative");
+        if(_0x70.length<=1){
+          altBox.innerHTML="No se requieren alternativas o no existen variantes viables.";
+          return;
+        }
+        altBox.innerHTML="";
+        const limit=Math.min(_0x70.length,_0x81+2);
+        for(let i=1;i<limit;i++){
+          const row=document.createElement("div");
+          row.className="alt-row";
+          
+          const info=document.createElement("div");
+          info.className="alt-info";
+          info.innerHTML=`<b>Opción ${i}:</b> ${_0x33(_0x70[i])}`;
+
+          const btn=document.createElement("button");
+          btn.className="btn btn-secondary btn-sm";
+          btn.innerText="Dibujar esta selección";
+          btn.onclick=()=>_0x55(_0x70[i]);
+
+          row.appendChild(info);
+          row.appendChild(btn);
+          altBox.appendChild(row);
+        }
+      }
+
+      _0x1a("btnMoreAlt").onclick=()=>{
+        if(!_0x70.length||_0x70.length<=1){
+          alert("No hay combinaciones calculadas o no existen alternativas.");
+          return;
+        }
+        if(_0x81+2>=_0x70.length){
+          alert("Ya se han desplegado todas las combinaciones alternativas encontradas.");
+          return;
+        }
+        _0x81+=2;
+        _0x66();
+      };
+
+      function _0x55(pl){
+        const l=_0x1a("visualSleeveLeft");
+        const r=_0x1a("visualSleeveRight");
+        l.innerHTML="";
+        r.innerHTML="";
+        pl.forEach(p=>{
+          const d=document.createElement("div");
+          d.className="plate "+p.c;
+          d.style.height=p.h+"px";
+          d.style.width=p.th+"px";
+          l.appendChild(d);
+          r.appendChild(d.cloneNode(true));
+        });
+      }
+
+      if(document.readyState==="loading"){
+        document.addEventListener("DOMContentLoaded",_0x92);
+      }else{
+        _0x92();
+      }
+    })();
   </script>
 </body>
 </html>
