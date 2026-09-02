@@ -2,703 +2,166 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Asistente de Halterofilia V11</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>🏋️ Asistente de Halterofilia V11</title>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   <style>
-    :root {
-      --bg: #090d16;
-      --card: #131d2e;
-      --card-alt: #1e293b;
-      --primary: #38bdf8;
-      --primary-hover: #0ea5e9;
-      --accent: #f59e0b;
-      --text: #f8fafc;
-      --text-dim: #94a3b8;
-      --border: #334155;
-      --danger: #ef4444;
-      --success: #10b981;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
-    .hidden { display: none !important; }
-    .container { width: 100%; max-width: 860px; padding: 20px; flex: 1; display: flex; flex-direction: column; gap: 20px; }
-
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px; box-shadow: 0 4px 14px rgba(0,0,0,0.45); }
-    h1, h2, h3 { font-weight: 700; color: var(--text); }
-    h1 { font-size: 1.55rem; text-align: center; letter-spacing: -0.5px; }
-
-    .btn { background: var(--primary); color: #090d16; font-weight: 600; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
-    .btn:hover { background: var(--primary-hover); }
-    .btn-secondary { background: var(--card-alt); color: var(--text); border: 1px solid var(--border); }
-    .btn-secondary:hover { background: #283548; }
-    .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
-
-    input, select { width: 100%; background: var(--card-alt); border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 8px; font-size: 1rem; margin-top: 6px; }
-    input:focus, select:focus { outline: 2px solid var(--primary); border-color: transparent; }
-
-    .header-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
-    .user-tag { font-size: 1rem; color: var(--primary); font-weight: 600; }
-
-    .movement-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
-    .movement-btn { flex: 1; min-width: 110px; text-align: center; background: var(--card-alt); padding: 10px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; font-weight: 600; transition: all 0.2s; color: var(--text); }
-    .movement-btn.active { border-color: var(--primary); background: rgba(56, 189, 248, 0.15); color: var(--primary); }
-
-    .radio-group { display: flex; gap: 20px; margin-top: 10px; }
-    .radio-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.95rem; }
-
-    .pr-badge { display: inline-block; background: rgba(245, 158, 11, 0.15); color: var(--accent); padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; border: 1px solid rgba(245, 158, 11, 0.3); }
-
-    .breakdown { background: var(--card-alt); border-radius: 8px; padding: 16px; margin-top: 12px; border: 1px solid var(--border); }
-    .breakdown h3 { color: var(--primary); margin-bottom: 8px; font-size: 1rem; }
-
-    .alt-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); gap: 10px; }
-    .alt-info { flex: 1; font-size: 0.9rem; }
-
-    /* Barra Visual Dinámica */
-    .bar-visual-container { background: #05070d; border: 1px solid var(--border); border-radius: 12px; padding: 35px 10px; overflow-x: auto; display: flex; justify-content: center; align-items: center; min-height: 180px; }
-    .barbell { display: flex; align-items: center; position: relative; height: 140px; }
-    .shaft { height: 16px; width: 140px; background: #94a3b8; border-top: 2px solid #cbd5e1; border-bottom: 2px solid #475569; }
-    .collar { height: 42px; width: 12px; background: #64748b; border: 1px solid #334155; }
-    .sleeve { display: flex; align-items: center; height: 26px; background: #64748b; min-width: 100px; border-top: 2px solid #94a3b8; border-bottom: 2px solid #334155; }
-    .sleeve.left { flex-direction: row-reverse; }
-    .sleeve.right { flex-direction: row; }
-
-    .plate { display: inline-block; border-radius: 3px; border: 1px solid rgba(0,0,0,0.8); box-shadow: 1px 0 3px rgba(0,0,0,0.5); flex-shrink: 0; }
-    .plate-lb { background: #111827; border: 1px solid #374151; }
-    .plate-kg-05 { background: #f8fafc; border: 1px solid #cbd5e1; }
-    .plate-kg-10 { background: #15803d; }
-    .plate-kg-15 { background: #eab308; }
-    .plate-kg-20 { background: #1d4ed8; }
-    .plate-kg-25 { background: #b91c1c; }
-
-    /* Gráfico Histórico */
-    .chart-container { background: var(--card-alt); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-top: 10px; width: 100%; height: 260px; position: relative; }
-    canvas { width: 100%; height: 100%; display: block; }
-
-    /* Modales */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.88); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 1000; }
-    .modal-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; width: 100%; max-width: 620px; padding: 24px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.7); }
-    .lockout-box { text-align: center; padding: 40px 20px; color: var(--danger); font-size: 1.25rem; font-weight: bold; border: 2px solid var(--danger); border-radius: 12px; background: rgba(239, 68, 68, 0.05); }
-
-    footer { width: 100%; text-align: center; font-size: 0.75rem; color: var(--text-dim); padding: 16px 10px; background: #05070d; border-top: 1px solid #1e293b; margin-top: auto; }
+    :root{--bg:#090d16;--card:#131b2e;--bl:#2563eb;--gr:#10b981;--rd:#ef4444;--tx:#f8fafc;--tm:#94a3b8;--bd:#1e293b}
+    *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+    body{background:var(--bg);color:var(--tx);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:14px}
+    .wrap{width:100%;max-width:580px;display:flex;flex-direction:column;gap:14px}
+    .panel{background:var(--card);border-radius:12px;padding:18px;border:1px solid var(--bd);box-shadow:0 4px 6px -1px rgba(0,0,0,.5)}
+    .tc{text-align:center} h1{font-size:1.4rem;margin-bottom:4px} h2{font-size:1.05rem;color:var(--tm);margin-bottom:12px}
+    .btn{padding:11px 16px;border-radius:8px;border:none;font-weight:600;cursor:pointer;color:#fff;font-size:.95rem}
+    .btn:active{opacity:.75} .btn-bl{background:var(--bl)} .btn-gr{background:var(--gr)} .btn-dk{background:#334155}
+    .inp,select{width:100%;padding:11px;border-radius:8px;border:1px solid var(--bd);background:#1e293b;color:#fff;font-size:1rem;margin-bottom:8px;outline:none}
+    .row{display:flex;gap:8px;align-items:center;margin-bottom:8px} .row>*{flex:1}
+    .modes{display:flex;gap:8px;margin-bottom:12px}
+    .tab{flex:1;padding:10px;border:2px solid var(--bd);background:#1e293b;color:#fff;border-radius:8px;font-weight:700;cursor:pointer;text-align:center}
+    .tab.act{border-color:var(--bl);background:var(--bl)}
+    .sl-wrap{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+    .sl-hdr{display:flex;justify-content:space-between;font-size:.8rem;color:var(--tm)}
+    .sl{width:100%;accent-color:var(--bl);cursor:pointer;height:6px;border-radius:3px;background:#334155;outline:none}
+    .bb-cvs{width:100%;height:160px;background:#050811;border-radius:10px;border:1px solid var(--bd);position:relative;display:flex;align-items:center;justify-content:center;overflow-x:auto;padding:0 10px;margin-top:10px}
+    .bb-cr{position:absolute;height:10px;width:88%;background:linear-gradient(180deg,#94a3b8 0%,#475569 100%);z-index:1;border-radius:4px}
+    .slv{position:absolute;height:100%;display:flex;align-items:center;z-index:2} .slv.l{left:24px;flex-direction:row-reverse} .slv.r{right:24px;flex-direction:row}
+    .pl{margin:0 1px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:700;writing-mode:vertical-rl;border:1px solid rgba(0,0,0,.6)}
+    .pl-lb{background:#0f172a;color:#f8fafc;border:1px solid #475569} .pl-2_5{background:#dc2626;color:#fff} .pl-2{background:#2563eb;color:#fff} .pl-1_5{background:#ca8a04;color:#000} .pl-1{background:#16a34a;color:#fff} .pl-0_5{background:#f8fafc;color:#000}
+    .res{background:#050811;padding:12px;border-radius:8px;border:1px solid var(--bd);margin-top:10px;font-size:.9rem}
+    .ftr{text-align:center;font-size:.68rem;color:var(--tm);padding:14px 4px;margin-top:auto;border-top:1px solid var(--bd);width:100%}
+    .mod-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:99;padding:16px}
+    .mod{background:var(--card);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;border-radius:12px;padding:20px;border:1px solid var(--bd)}
+    .hd{display:none!important}
+    .chart-box{background:#080d1a;border-radius:8px;padding:12px;margin-bottom:12px;border:1px solid var(--bd)}
+    .chart{width:100%;height:160px;background:#050811;border-radius:6px}
   </style>
 </head>
 <body>
 
-  <!-- PANTALLA LICENCIA BLOQUEADA -->
-  <div id="licenseBlock" class="modal-overlay hidden">
-    <div class="modal-box" style="text-align: center;">
-      <div class="lockout-box">
-        Para la Instalación definitiva, contactar al +56933395447
-      </div>
-    </div>
-  </div>
-
-  <!-- PANTALLA DE INSTALACIÓN -->
-  <div id="installOverlay" class="modal-overlay hidden">
-    <div class="modal-box" id="stepStart">
-      <h2>Asistente de Halterofilia</h2>
-      <p style="font-size: 0.9rem; color: var(--text-dim);">El sistema requiere instalación inicial en este equipo.</p>
-      <button class="btn" id="btnLaunchInstallModal">Instalación</button>
-    </div>
-    <div class="modal-box hidden" id="stepPass">
-      <h2>Instalación del Sistema</h2>
-      <p style="font-size: 0.9rem; color: var(--text-dim);">Ingrese la Contraseña Secreta para desbloquear:</p>
-      <input type="password" id="installKeyInput" placeholder="Contraseña Secreta">
-      <button class="btn" id="btnCheckKey">Validar Clave</button>
-    </div>
-    <div class="modal-box hidden" id="stepProfile">
-      <h2>Registro de Usuario</h2>
-      <div>
-        <label style="font-size:0.8rem; color:var(--text-dim);">Primer Nombre</label>
-        <input type="text" id="regFirstName" placeholder="Ej. Andres">
-      </div>
-      <div>
-        <label style="font-size:0.8rem; color:var(--text-dim);">Apellido</label>
-        <input type="text" id="regLastName" placeholder="Ej. Aguiar">
-      </div>
-      <div>
-        <label style="font-size:0.8rem; color:var(--text-dim);">Correo Electrónico</label>
-        <input type="email" id="regEmail" placeholder="correo@ejemplo.com">
-      </div>
-      <button class="btn" id="btnFinishInstall">Guardar y Continuar</button>
-    </div>
-  </div>
-
-  <!-- MODAL GESTIÓN DE PERFILES -->
-  <div id="profilesModal" class="modal-overlay hidden">
-    <div class="modal-box">
-      <h2>Gestión de Perfiles</h2>
-      <div id="userListContainer" style="display:flex; flex-direction:column; gap:8px; max-height:160px; overflow-y:auto;"></div>
-      <hr style="border:0; border-top:1px solid var(--border);">
-      <h3>Registrar Nuevo Perfil</h3>
-      <input type="text" id="newProfFirst" placeholder="Primer Nombre">
-      <input type="text" id="newProfLast" placeholder="Apellido">
-      <input type="email" id="newProfEmail" placeholder="Correo Electrónico">
-      <div style="display:flex; gap:10px;">
-        <button class="btn" id="btnCreateNewUser" style="flex:1;">Registrar Perfil</button>
-        <button class="btn btn-secondary" id="btnCloseProfModal">Cerrar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL GRÁFICO HISTÓRICO -->
-  <div id="chartModal" class="modal-overlay hidden">
-    <div class="modal-box">
-      <h2>Gráfico Histórico de Desempeño</h2>
-      <p style="font-size:0.85rem; color:var(--text-dim);">Evolución de marcas en el tiempo por disciplina para el atleta activo.</p>
-      
-      <div style="display:flex; gap:10px; align-items:center; margin-top:4px;">
-        <label style="font-size:0.85rem; color:var(--text-dim); min-width:80px;">Disciplina:</label>
-        <select id="chartDisciplineSelect" style="margin:0;"></select>
-      </div>
-
-      <div class="chart-container">
-        <canvas id="performanceCanvas"></canvas>
-      </div>
-
-      <button class="btn btn-secondary" id="btnCloseChartModal" style="align-self:flex-end;">Cerrar</button>
-    </div>
-  </div>
-
-  <!-- SPA PRINCIPAL -->
-  <div class="container" id="mainApp">
-    <header class="header-bar">
-      <div>
-        <span style="font-size:0.8rem; color:var(--text-dim); display:block;">Usuario Activo</span>
-        <span id="activeUserName" class="user-tag">Cargando...</span>
-      </div>
-      <div style="display:flex; gap:8px;">
-        <button class="btn btn-secondary btn-sm" id="btnOpenChart">Gráfico Histórico</button>
-        <button class="btn btn-secondary btn-sm" id="btnOpenProfiles">Perfiles</button>
+  <div class="wrap">
+    <header class="panel tc">
+      <h1>🏋️ Asistente de Halterofilia</h1>
+      <p id="usr-lbl" style="font-size:.85rem;color:var(--tm);margin-top:3px">Sin usuario activo</p>
+      <div style="margin-top:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <button id="b-inst" class="btn btn-dk">⚙️ Instalación</button>
+        <button id="b-sw" class="btn btn-dk hd">🔄 Cambio de Usuario</button>
+        <button id="b-rpt" class="btn btn-gr hd">📊 Avances</button>
       </div>
     </header>
 
-    <main class="card">
-      <h1>Asistente de Halterofilia</h1>
+    <div id="v-init" class="panel tc">
+      <h2>Bienvenido al Asistente de Halterofilia</h2>
+      <p style="font-size:.9rem;color:var(--tm);margin-bottom:15px">Realiza la instalación inicial con la contraseña de seguridad.</p>
+      <button id="b-st" class="btn btn-bl" style="width:100%">Instalación</button>
+    </div>
 
-      <div style="margin-top: 15px;">
-        <label style="font-size:0.85rem; color:var(--text-dim);">Disciplina / Movimiento</label>
-        <div class="movement-grid" id="movementContainer"></div>
-        <div style="display: flex; gap: 8px; margin-top: 6px;">
-          <input type="text" id="customMoveInput" placeholder="Agregar nuevo movimiento..." style="margin:0;">
-          <button class="btn btn-secondary btn-sm" id="btnAddMove">Agregar</button>
+    <main class="panel hd" id="v-calc">
+      <h2>Modo de Entrenamiento</h2>
+      <div class="modes">
+        <button id="t-sn" class="tab act">Snatch</button>
+        <button id="t-cj" class="tab">Clean & Jerk</button>
+      </div>
+
+      <div class="row">
+        <div>
+          <label style="font-size:.8rem;color:var(--tm)">PR Actual:</label>
+          <div id="v-pr" style="font-size:1.15rem;font-weight:700;color:var(--gr)">0 lb</div>
         </div>
       </div>
 
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
-        <span style="font-size:0.9rem; color:var(--text-dim);">Récord Personal (PR):</span>
-        <span id="currentPrVal" class="pr-badge">0.00 lbs</span>
-      </div>
-
-      <div style="margin-top: 15px;">
-        <label style="font-size:0.85rem; color:var(--text-dim);">Tipo de Barra</label>
-        <div class="radio-group">
-          <label class="radio-label">
-            <input type="radio" name="barType" value="45" checked> Barra Hombre (45 lb / ~20 kg)
-          </label>
-          <label class="radio-label">
-            <input type="radio" name="barType" value="35"> Barra Mujer (35 lb / ~15 kg)
-          </label>
+      <div class="row">
+        <div style="flex:2">
+          <label style="font-size:.8rem;color:var(--tm)">Peso Objetivo:</label>
+          <input type="number" id="i-wt" class="inp" placeholder="Ej: 135" step="0.5">
+        </div>
+        <div style="flex:1">
+          <label style="font-size:.8rem;color:var(--tm)">Unidad:</label>
+          <button id="b-un" class="btn btn-dk" style="width:100%">lbs</button>
         </div>
       </div>
 
-      <div style="margin-top: 15px;">
-        <label style="font-size:0.85rem; color:var(--text-dim);">Peso Total Objetivo</label>
-        <div style="display:flex; gap:10px;">
-          <input type="number" id="targetWeight" placeholder="0.0" step="0.5" style="margin:0;">
-          <select id="weightUnit" style="width: 110px; margin:0;">
-            <option value="lbs">Lbs</option>
-            <option value="kgs">Kgs</option>
-          </select>
+      <div class="sl-wrap">
+        <div class="sl-hdr"><span>Porcentaje del PR:</span><span id="sl-lbl" style="font-weight:700;color:var(--bl)">100%</span></div>
+        <input type="range" id="i-sl" class="sl" min="10" max="100" value="100" step="1">
+      </div>
+
+      <div class="row">
+        <div>
+          <label style="font-size:.8rem;color:var(--tm)">Tipo de Barra:</label>
+          <select id="i-bar" class="inp"><option value="45">Barra Pesada (45 lb)</option><option value="35">Barra Liviana (35 lb)</option></select>
         </div>
       </div>
 
-      <div style="margin-top: 15px; display:flex; align-items:center; gap:8px;">
-        <input type="checkbox" id="checkUpdatePr" style="width:auto; margin:0;">
-        <label for="checkUpdatePr" style="font-size:0.85rem; cursor:pointer;">Actualizar PR si supera la marca anterior</label>
+      <div style="display:flex;align-items:center;gap:8px;margin:6px 0 10px 0">
+        <input type="checkbox" id="c-pr" style="width:18px;height:18px">
+        <label for="c-pr" style="font-size:.85rem;color:var(--tx)">Actualizar el PR si el peso Logrado es mayor que el PR anterior</label>
       </div>
 
-      <button class="btn" id="btnCalculate" style="width:100%; margin-top:20px; padding:12px; font-size:1.05rem;">
-        Calcular Discos
-      </button>
+      <button id="b-comp" class="btn btn-bl" style="width:100%">Aceptar</button>
+
+      <div id="bx-res" class="res hd">
+        <div id="o-tot" style="font-weight:700;margin-bottom:4px"></div>
+        <div id="o-brk" style="font-size:.85rem;color:var(--tm)"></div>
+      </div>
+
+      <div class="bb-cvs">
+        <div class="bb-cr"></div>
+        <div id="slv-l" class="slv l"></div>
+        <div id="slv-r" class="slv r"></div>
+      </div>
     </main>
 
-    <!-- RESULTADOS -->
-    <section class="card" id="resultsSection">
-      <h2>Desglose por Lado</h2>
-      <div class="breakdown">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <h3>Combinación Principal (Óptima)</h3>
-          <button class="btn btn-secondary btn-sm" id="btnSelectOptimal" style="display:none;">Dibujar en Barra</button>
-        </div>
-        <p id="calcTotalSummary" style="font-size:0.85rem; color:var(--text-dim); margin-bottom:6px;"></p>
-        <div id="platesOptimal">Ingrese un peso y presione Calcular.</div>
-      </div>
-
-      <div class="breakdown" id="altContainer">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <h3 style="margin-bottom:0;">Combinaciones Alternativas</h3>
-          <button class="btn btn-secondary btn-sm" id="btnMoreAlt">Generar más opciones (+2)</button>
-        </div>
-        <div id="platesAlternative">No requerida o idéntica.</div>
-      </div>
-
-      <!-- REPRESENTACIÓN VISUAL -->
-      <h2 style="margin-top:20px; font-size:1.1rem;">Representación Visual</h2>
-      <div class="bar-visual-container">
-        <div class="barbell">
-          <div class="sleeve left" id="visualSleeveLeft"></div>
-          <div class="collar"></div>
-          <div class="shaft"></div>
-          <div class="collar"></div>
-          <div class="sleeve right" id="visualSleeveRight"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- HISTORIAL -->
-    <section class="card">
-      <h2 style="font-size:1.1rem; margin-bottom:10px;">Historial de Levantamientos</h2>
-      <div id="historyList" style="max-height:160px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; font-size:0.85rem;">
-        <span style="color:var(--text-dim);">Sin registros aún.</span>
-      </div>
-    </section>
+    <footer class="ftr">Análisis/Diseño de Andres Aguiar V 1.1 Santiago de Chile Agosto 2026 - Contacto +56933395447 - Whatsapp +56933395447</footer>
   </div>
 
-  <footer>
-    Análisis/Diseño de Andres Aguiar V 1.1 Santiago de Chile Agosto 2026 - Contacto +56933395447 - Whatsapp +56933395447
-  </footer>
+  <div id="m-inst" class="mod-bg hd">
+    <div class="mod">
+      <h2 style="color:#fff;margin-bottom:10px">Instalación</h2>
+      <div id="s-pw">
+        <label style="font-size:.8rem">Contraseña Secreta:</label>
+        <input type="password" id="i-pw" class="inp">
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px">
+          <button id="b-cx" class="btn btn-dk">Cancelar</button>
+          <button id="b-val" class="btn btn-bl">Validar</button>
+        </div>
+      </div>
+      <div id="s-reg" class="hd">
+        <input type="text" id="i-fn" class="inp" placeholder="Nombre">
+        <input type="text" id="i-ln" class="inp" placeholder="Apellido">
+        <input type="email" id="i-em" class="inp" placeholder="Correo">
+        <button id="b-sv" class="btn btn-gr" style="width:100%">Guardar</button>
+      </div>
+    </div>
+  </div>
 
-  <!-- LÓGICA DE CONTROL Y OPTIMIZACIÓN OFUSCADA -->
+  <div id="m-rpt" class="mod-bg hd">
+    <div class="mod">
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+        <h2 style="color:#fff;margin:0">📊 Reporte de Avances</h2>
+        <button id="b-cx-r" class="btn btn-dk" style="padding:4px 10px">✕</button>
+      </div>
+      <div id="p-area">
+        <p id="r-inf" style="font-size:.85rem;color:var(--tm);margin-bottom:10px"></p>
+        <div class="chart-box"><h3 style="font-size:.95rem;color:var(--bl)">PR: Snatch</h3><canvas id="c-sn" class="chart"></canvas></div>
+        <div class="chart-box"><h3 style="font-size:.95rem;color:var(--gr)">PR: Clean & Jerk</h3><canvas id="c-cj" class="chart"></canvas></div>
+      </div>
+      <button id="b-pdf" class="btn btn-bl" style="width:100%">📄 Descargar y Enviar</button>
+    </div>
+  </div>
+
+  <div id="m-exp" class="mod-bg hd">
+    <div class="mod tc">
+      <h2 style="color:var(--rd)">Evaluación Expirada</h2>
+      <p style="font-size:.95rem">Para la Instalación definitiva, contactar al +56933395447</p>
+    </div>
+  </div>
+
   <script>
-    (function(){
-      const _0x1a=function(id){return document.getElementById(id);};
-      const _0x2b={
-        _i:"\x5f\x76\x68\x31\x31\x5f\x69",
-        _p:"\x5f\x76\x68\x31\x31\x5f\x70",
-        _u:"\x5f\x76\x68\x31\x31\x5f\x75",
-        _c:"\x5f\x76\x68\x31\x31\x5f\x63",
-        _h:"\x5f\x76\x68\x31\x31\x5f\x68",
-        _m:"\x5f\x76\x68\x31\x31\x5f\x6d"
-      };
-      const _0x3c={
-        g:k=>{try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}},
-        s:(k,v)=>localStorage.setItem(k,JSON.stringify(v)),
-        rg:k=>localStorage.getItem(k),
-        rs:(k,v)=>localStorage.setItem(k,v)
-      };
-
-      const _0x4d=[
-        {w:45,t:"lb",c:"plate-lb",h:125,th:14},
-        {w:35,t:"lb",c:"plate-lb",h:112,th:13},
-        {w:25,t:"lb",c:"plate-lb",h:100,th:11},
-        {w:15,t:"lb",c:"plate-lb",h:86,th:9},
-        {w:10,t:"lb",c:"plate-lb",h:76,th:7},
-        {w:2.5*2.20462,k:2.5,t:"kg",c:"plate-kg-25",h:68,th:8},
-        {w:2.0*2.20462,k:2.0,t:"kg",c:"plate-kg-20",h:62,th:7},
-        {w:1.5*2.20462,k:1.5,t:"kg",c:"plate-kg-15",h:56,th:6},
-        {w:1.0*2.20462,k:1.0,t:"kg",c:"plate-kg-10",h:50,th:5},
-        {w:0.5*2.20462,k:0.5,t:"kg",c:"plate-kg-05",h:45,th:5}
-      ];
-
-      let _0x5e=["Snatch","Clean & Jerk"],_0x6f="Snatch";
-      let _0x70=[],_0x81=1;
-
-      function _0x92(){
-        const ins=_0x3c.rg(_0x2b._i);
-        if(ins){
-          const df=(Date.now()-parseInt(ins,10))/(86400000);
-          if(df>2){
-            _0x1a("licenseBlock").classList.remove("hidden");
-            return;
-          }
-        }
-        const us=_0x3c.g(_0x2b._u)||[];
-        const cu=_0x3c.rg(_0x2b._c);
-        if(!ins||!us.length||!cu){
-          _0x1a("installOverlay").classList.remove("hidden");
-          _0x1a("stepStart").classList.remove("hidden");
-          _0x1a("stepPass").classList.add("hidden");
-          _0x1a("stepProfile").classList.add("hidden");
-        }else{
-          _0xa3();
-        }
-      }
-
-      _0x1a("btnLaunchInstallModal").onclick=()=>{
-        _0x1a("stepStart").classList.add("hidden");
-        _0x1a("stepPass").classList.remove("hidden");
-      };
-
-      _0x1a("btnCheckKey").onclick=()=>{
-        const p=_0x1a("installKeyInput").value.trim();
-        if(p==="\x4e\x61\x6c\x69\x74\x61\x42\x6f\x6e\x69\x74\x61"){
-          _0x3c.rs(_0x2b._i,Date.now().toString());
-          _0x1a("stepPass").classList.add("hidden");
-          _0x1a("stepProfile").classList.remove("hidden");
-        }else{
-          alert("Contraseña incorrecta.");
-        }
-      };
-
-      _0x1a("btnFinishInstall").onclick=()=>{
-        const fn=_0x1a("regFirstName").value.trim();
-        const ln=_0x1a("regLastName").value.trim();
-        const em=_0x1a("regEmail").value.trim();
-        if(!fn||!ln||!em){alert("Por favor complete todos los campos.");return;}
-        const uid="u_"+Date.now();
-        _0x3c.s(_0x2b._u,[{id:uid,fn:fn,ln:ln,email:em}]);
-        _0x3c.rs(_0x2b._c,uid);
-        _0x1a("installOverlay").classList.add("hidden");
-        _0xa3();
-      };
-
-      _0x1a("btnAddMove").onclick=()=>{
-        const val=_0x1a("customMoveInput").value.trim();
-        if(val&&!_0x5e.includes(val)){
-          _0x5e.push(val);
-          _0x3c.s(_0x2b._m,_0x5e);
-          _0xb4();
-          _0x1a("customMoveInput").value="";
-          _0xc5(val);
-        }
-      };
-
-      function _0xb4(){
-        const c=_0x1a("movementContainer");
-        c.innerHTML="";
-        _0x5e.forEach(m=>{
-          const b=document.createElement("div");
-          b.className="movement-btn"+(m===_0x6f?" active":"");
-          b.innerText=m;
-          b.onclick=()=>_0xc5(m);
-          c.appendChild(b);
-        });
-      }
-
-      function _0xc5(m){
-        _0x6f=m;
-        _0xb4();
-        _0xd6();
-      }
-
-      function _0xd6(){
-        const prs=_0x3c.g(_0x2b._p)||{};
-        const id=_0x3c.rg(_0x2b._c);
-        const v=(prs[id]&&prs[id][_0x6f])||0;
-        _0x1a("currentPrVal").innerText=parseFloat(v).toFixed(2)+" lbs";
-      }
-
-      _0x1a("btnOpenProfiles").onclick=()=>_0xe7();
-      _0x1a("btnCloseProfModal").onclick=()=>_0x1a("profilesModal").classList.add("hidden");
-
-      _0x1a("btnCreateNewUser").onclick=()=>{
-        const fn=_0x1a("newProfFirst").value.trim();
-        const ln=_0x1a("newProfLast").value.trim();
-        const em=_0x1a("newProfEmail").value.trim();
-        if(!fn||!ln||!em){alert("Por favor complete los campos.");return;}
-        const us=_0x3c.g(_0x2b._u)||[];
-        const uid="u_"+Date.now();
-        us.push({id:uid,fn:fn,ln:ln,email:em});
-        _0x3c.s(_0x2b._u,us);
-        _0x3c.rs(_0x2b._c,uid);
-        _0x1a("profilesModal").classList.add("hidden");
-        _0xa3();
-      };
-
-      function _0xe7(){
-        const us=_0x3c.g(_0x2b._u)||[];
-        const cur=_0x3c.rg(_0x2b._c);
-        const box=_0x1a("userListContainer");
-        box.innerHTML="";
-        us.forEach(u=>{
-          const r=document.createElement("div");
-          r.style.cssText="display:flex;justify-content:space-between;align-items:center;padding:6px;border-bottom:1px solid var(--border);";
-          r.innerHTML=`<span>${u.fn} ${u.ln}</span>`;
-          const b=document.createElement("button");
-          b.className="btn btn-sm "+(u.id===cur?"btn-secondary":"");
-          b.innerText=(u.id===cur?"Activo":"Cambiar");
-          b.disabled=(u.id===cur);
-          b.onclick=()=>{
-            _0x3c.rs(_0x2b._c,u.id);
-            _0x1a("profilesModal").classList.add("hidden");
-            _0xa3();
-          };
-          r.appendChild(b);
-          box.appendChild(r);
-        });
-        _0x1a("profilesModal").classList.remove("hidden");
-      }
-
-      _0x1a("btnOpenChart").onclick=()=>_0xf8();
-      _0x1a("btnCloseChartModal").onclick=()=>_0x1a("chartModal").classList.add("hidden");
-      _0x1a("chartDisciplineSelect").onchange=()=>_0x09();
-
-      function _0xf8(){
-        const sel=_0x1a("chartDisciplineSelect");
-        sel.innerHTML="";
-        _0x5e.forEach(m=>{
-          const o=document.createElement("option");
-          o.value = m;
-          o.innerText = m;
-          if(m===_0x6f)o.selected=true;
-          sel.appendChild(o);
-        });
-        _0x1a("chartModal").classList.remove("hidden");
-        setTimeout(()=>_0x09(),50);
-      }
-
-      function _0x09(){
-        const cv=_0x1a("performanceCanvas");
-        if(!cv)return;
-        const cx=cv.getContext("2d");
-        const id=_0x3c.rg(_0x2b._c);
-        const mv=_0x1a("chartDisciplineSelect").value;
-        const ht=_0x3c.g(_0x2b._h)||[];
-        const dh=ht.filter(x=>x.id===id&&x.m===mv);
-
-        const dpr=window.devicePixelRatio||1;
-        const rc=cv.getBoundingClientRect();
-        cv.width=rc.width*dpr;
-        cv.height=rc.height*dpr;
-        cx.scale(dpr,dpr);
-
-        const w=rc.width,h=rc.height;
-        cx.clearRect(0,0,w,h);
-
-        if(!dh.length){
-          cx.fillStyle="rgba(148,163,184,0.7)";
-          cx.font="14px system-ui";
-          cx.textAlign="center";
-          cx.fillText("Sin registros para "+mv,w/2,h/2);
-          return;
-        }
-
-        const ws=dh.map(x=>x.w);
-        let mx=Math.max(...ws)*1.1,mn=Math.min(...ws)*0.9;
-        if(mx===mn){mx+=10;mn=Math.max(0,mn-10);}
-
-        cx.lineWidth=1;
-        cx.strokeStyle="rgba(255,255,255,0.08)";
-        const st=4;
-        for(let i=0;i<=st;i++){
-          const y=h-30-(i/st)*(h-60);
-          cx.beginPath();
-          cx.moveTo(45,y);
-          cx.lineTo(w-15,y);
-          cx.stroke();
-
-          cx.fillStyle="#64748b";
-          cx.font="10px system-ui";
-          cx.textAlign="right";
-          cx.fillText((mn+(i/st)*(mx-mn)).toFixed(0),40,y+3);
-        }
-
-        cx.beginPath();
-        cx.lineWidth=2.5;
-        cx.strokeStyle="#38bdf8";
-        const dx=(w-70)/(dh.length>1?dh.length-1:1);
-        dh.forEach((pt,i)=>{
-          const x=50+(dh.length===1?(w-70)/2:i*dx);
-          const y=h-30-((pt.w-mn)/(mx-mn))*(h-60);
-          if(i===0)cx.moveTo(x,y);
-          else cx.lineTo(x,y);
-        });
-        cx.stroke();
-
-        dh.forEach((pt,i)=>{
-          const x=50+(dh.length===1?(w-70)/2:i*dx);
-          const y=h-30-((pt.w-mn)/(mx-mn))*(h-60);
-          cx.beginPath();
-          cx.arc(x,y,4,0,2*Math.PI);
-          cx.fillStyle="#38bdf8";
-          cx.fill();
-
-          cx.fillStyle="#f8fafc";
-          cx.font="bold 10px system-ui";
-          cx.textAlign="center";
-          cx.fillText(pt.w,x,y-8);
-
-          cx.fillStyle="#64748b";
-          cx.font="9px system-ui";
-          cx.fillText(pt.dt,x,h-12);
-        });
-      }
-
-      function _0xa3(){
-        const us=_0x3c.g(_0x2b._u)||[];
-        const id=_0x3c.rg(_0x2b._c);
-        const u=us.find(x=>x.id===id)||us[0];
-        if(!u){_0x1a("installOverlay").classList.remove("hidden");return;}
-        _0x1a("activeUserName").innerText=u.fn+" "+u.ln;
-        const sm=_0x3c.g(_0x2b._m);
-        if(sm&&Array.isArray(sm)&&sm.length)_0x5e=sm;
-        _0xb4();
-        _0xd6();
-        _0x11();
-      }
-
-      function _0x11(){
-        const ht=_0x3c.g(_0x2b._h)||[];
-        const id=_0x3c.rg(_0x2b._c);
-        const uh=ht.filter(x=>x.id===id).reverse().slice(0,10);
-        const bx=_0x1a("historyList");
-        bx.innerHTML="";
-        if(!uh.length){
-          bx.innerHTML='<span style="color:var(--text-dim);">Sin registros aún.</span>';
-          return;
-        }
-        uh.forEach(h=>{
-          const d=document.createElement("div");
-          d.style.cssText="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #334155;";
-          d.innerHTML=`<span>${h.dt} - <b>${h.m}</b></span><span style="color:var(--primary);font-weight:bold;">${h.w} ${h.un}</span>`;
-          bx.appendChild(d);
-        });
-      }
-
-      function _0x22(remNet){
-        const tol=2.20462;
-        const res=[];
-        const seen=new Set();
-        function bt(r,idx,cur){
-          if(r<=tol){
-            const sKey=cur.map(p=>p.t==="lb"?p.w+"L":p.k+"K").sort().join("|");
-            if(!seen.has(sKey)){
-              seen.add(sKey);
-              res.push([...cur]);
-            }
-            if(r<=0.05)return;
-          }
-          for(let i=idx;i<_0x4d.length;i++){
-            const p=_0x4d[i];
-            if(p.w<=r+tol&&cur.length<20&&res.length<60){
-              cur.push(p);
-              bt(r-p.w,i,cur);
-              cur.pop();
-            }
-          }
-        }
-        bt(remNet,0,[]);
-        res.sort((a,b)=>a.length-b.length);
-        return res;
-      }
-
-      const _0x33=arr=>{
-        const t={};
-        arr.forEach(p=>{
-          const k=p.t==="lb"?`${p.w} lb`:`${p.k} kg`;
-          t[k]=(t[k]||0)+1;
-        });
-        return Object.keys(t).map(k=>`<b>${t[k]}x</b> ${k}`).join(", ");
-      };
-
-      _0x1a("btnCalculate").onclick=()=>{
-        const rw=parseFloat(_0x1a("targetWeight").value);
-        const un=_0x1a("weightUnit").value;
-        const bw=parseFloat(document.querySelector('input[name="barType"]:checked').value);
-        if(isNaN(rw)||rw<=0){alert("Ingrese un peso válido.");return;}
-        let tl=un==="kgs"?rw*2.20462:rw;
-        if(tl<bw){alert("El peso objetivo debe ser mayor o igual al peso de la barra.");return;}
-
-        const sNet=(tl-bw)/2.0;
-        _0x70=_0x22(sNet);
-        if(!_0x70.length){
-          alert("No se pudo calcular una combinación dentro de la tolerancia de 1 kg.");
-          return;
-        }
-
-        _0x81=1;
-        _0x44(tl,bw);
-        _0x55(_0x70[0]);
-
-        const id=_0x3c.rg(_0x2b._c);
-        const pr=_0x3c.g(_0x2b._p)||{};
-        const cp=(pr[id]&&pr[id][_0x6f])||0;
-        if(_0x1a("checkUpdatePr").checked&&tl>cp){
-          pr[id]=pr[id]||{};
-          pr[id][_0x6f]=tl;
-          _0x3c.s(_0x2b._p,pr);
-          _0xd6();
-        }
-
-        const ht=_0x3c.g(_0x2b._h)||[];
-        ht.push({id:id,m:_0x6f,w:rw,un:un,dt:new Date().toLocaleDateString()});
-        _0x3c.s(_0x2b._h,ht);
-        _0x11();
-      };
-
-      function _0x44(tot,bw){
-        _0x1a("calcTotalSummary").innerText=`Total cargado: ${tot.toFixed(2)} lbs (Barra: ${bw} lbs | Por lado: ${((tot-bw)/2).toFixed(2)} lbs)`;
-        _0x1a("platesOptimal").innerHTML=_0x33(_0x70[0])||"Sin discos necesarios";
-        const btnOpt=_0x1a("btnSelectOptimal");
-        btnOpt.style.display="inline-block";
-        btnOpt.onclick=()=>_0x55(_0x70[0]);
-        _0x66();
-      }
-
-      function _0x66(){
-        const altBox=_0x1a("platesAlternative");
-        if(_0x70.length<=1){
-          altBox.innerHTML="No se requieren alternativas o no existen variantes viables.";
-          return;
-        }
-        altBox.innerHTML="";
-        const limit=Math.min(_0x70.length,_0x81+2);
-        for(let i=1;i<limit;i++){
-          const row=document.createElement("div");
-          row.className="alt-row";
-          
-          const info=document.createElement("div");
-          info.className="alt-info";
-          info.innerHTML=`<b>Opción ${i}:</b> ${_0x33(_0x70[i])}`;
-
-          const btn=document.createElement("button");
-          btn.className="btn btn-secondary btn-sm";
-          btn.innerText="Dibujar esta selección";
-          btn.onclick=()=>_0x55(_0x70[i]);
-
-          row.appendChild(info);
-          row.appendChild(btn);
-          altBox.appendChild(row);
-        }
-      }
-
-      _0x1a("btnMoreAlt").onclick=()=>{
-        if(!_0x70.length||_0x70.length<=1){
-          alert("No hay combinaciones calculadas o no existen alternativas.");
-          return;
-        }
-        if(_0x81+2>=_0x70.length){
-          alert("Ya se han desplegado todas las combinaciones alternativas encontradas.");
-          return;
-        }
-        _0x81+=2;
-        _0x66();
-      };
-
-      function _0x55(pl){
-        const l=_0x1a("visualSleeveLeft");
-        const r=_0x1a("visualSleeveRight");
-        l.innerHTML="";
-        r.innerHTML="";
-        pl.forEach(p=>{
-          const d=document.createElement("div");
-          d.className="plate "+p.c;
-          d.style.height=p.h+"px";
-          d.style.width=p.th+"px";
-          l.appendChild(d);
-          r.appendChild(d.cloneNode(true));
-        });
-      }
-
-      if(document.readyState==="loading"){
-        document.addEventListener("DOMContentLoaded",_0x92);
-      }else{
-        _0x92();
-      }
-    })();
+    /* Lógica Estructurada y Ofuscada mediante Minificación Segura */
+    !function(){const e=document,t="NalitaBonita",n=2592e5,a=2.20462,r=[{t:"lb",n:45,w:45,h:130,wd:18,c:"pl-lb"},{t:"lb",n:35,w:35,h:130,wd:16,c:"pl-lb"},{t:"lb",n:25,w:25,h:110,wd:14,c:"pl-lb"},{t:"lb",n:15,w:15,h:95,wd:12,c:"pl-lb"},{t:"lb",n:10,w:10,h:80,wd:10,c:"pl-lb"},{t:"kg",n:2.5,w:2.5*a,h:70,wd:9,c:"pl-2_5"},{t:"kg",n:2,w:2*a,h:65,wd:8,c:"pl-2"},{t:"kg",n:1.5,w:1.5*a,h:60,wd:8,c:"pl-1_5"},{t:"kg",n:1,w:1*a,h:55,wd:7,c:"pl-1"},{t:"kg",n:.5,w:.5*a,h:50,wd:6,c:"pl-0_5"}];let i={m:"sn",u:"lbs",usr:null,usrs:[],ts:null};const s=t=>e.getElementById(t);function o(){const e=localStorage.getItem("_H_V11_");if(e)try{i=JSON.parse(e)}catch(e){}}function l(){localStorage.setItem("_H_V11_",JSON.stringify(i))}function c(){if(!i.ts)return!1;if(Date.now()-i.ts>n)return s("m-exp").classList.remove("hd"),!0;return!1}function d(){s("s-pw").classList.remove("hd"),s("s-reg").classList.add("hd"),s("i-pw").value="",s("m-inst").classList.remove("hd")}function m(){s("m-inst").classList.add("hd"),s("m-rpt").classList.add("hd")}function u(){s("i-pw").value===t?(i.ts||(i.ts=Date.now()),s("s-pw").classList.add("hd"),s("s-reg").classList.remove("hd")):alert("Clave incorrecta")}function p(){const e=s("i-fn").value.trim(),t=s("i-ln").value.trim(),n=s("i-em").value.trim();if(!e||!t||!n)return alert("Llene todos los campos");const a={id:Date.now(),fn:e,ln:t,em:n,pr:{sn:0,cj:0},hx:{sn:[],cj:[]}};i.usrs.push(a),i.usr=a,l(),s("i-fn").value="",s("i-ln").value="",s("i-em").value="",m(),v()}function g(){if(!c()){if(i.usrs.length<=1)return d();const e=i.usrs.findIndex((e=>e.id===i.usr.id));i.usr=i.usrs[(e+1)%i.usrs.length],l(),v()}}function h(e){i.m=e,s("t-sn").classList.toggle("act","sn"===e),s("t-cj").classList.toggle("act","cj"===e),v()}function f(){i.u="lbs"===i.u?"kg":"lbs",s("b-un").innerText=i.u,l(),v()}function x(e){if(s("sl-lbl").innerText=`${e}%`,!i.usr)return;const t=i.usr.pr[i.m]||0,n="kg"===i.u?t/a:t,r=n*e/100;s("i-wt").value=r>0?r.toFixed(1):""}function b(){if(!i.usr)return;const e=parseFloat(s("i-wt").value),t=i.usr.pr[i.m]||0,n="kg"===i.u?t/a:t;if(n>0&&!isNaN(e)&&e>0){let t=Math.round(e/n*100);t=Math.min(Math.max(t,10),100),s("i-sl").value=t,s("sl-lbl").innerText=`${t}%`}else s("i-sl").value=100,s("sl-lbl").innerText="100%"}function v(){if(c())return;if(!i.usr)return s("v-init").classList.remove("hd"),s("v-calc").classList.add("hd"),s("b-sw").classList.add("hd"),s("b-rpt").classList.add("hd"),void(s("usr-lbl").innerText="Sin usuario");s("v-init").classList.add("hd"),s("v-calc").classList.remove("hd"),s("b-sw").classList.remove("hd"),s("b-rpt").classList.remove("hd"),s("usr-lbl").innerText=`${i.usr.fn} ${i.usr.ln} (${i.usr.em})`;const e=i.usr.pr[i.m]||0;s("v-pr").innerText=`${e} lb`,s("b-un").innerText=i.u,s("i-sl").value=100,s("sl-lbl").innerText="100%";const t="kg"===i.u?e/a:e;s("i-wt").value=t>0?t.toFixed(1):""}function L(){if(c())return;if(!i.usr)return d();const t=parseFloat(s("i-wt").value),n=parseFloat(s("i-bar").value);if(isNaN(t)||t<=0)return alert("Peso inválido");const o="kg"===i.u?t*a:t;if(o<n)return alert(`Mínimo ${n} lb`);if(s("c-pr").checked){const e=i.usr.pr[i.m]||0;if(o>e){const e=Math.round(10*o)/10;i.usr.pr[i.m]=e,i.usr.hx||(i.usr.hx={sn:[],cj:[]});const t=new Date().toLocaleDateString("es-CL");i.usr.hx[i.m].push({d:t,w:e}),l(),v()}}let u=(o-n)/2;const p=[];for(const e of r){const t=Math.floor(u/e.w);t>0&&(p.push({d:e,c:t}),u=Math.round(1e3*(u-t*e.w))/1e3)}s("bx-res").classList.remove("hd"),s("o-tot").innerText=`Total: ${o.toFixed(1)} lb (~${(o/a).toFixed(1)} kg)`;let g=`Barra: ${n} lb | Lado: `;g+=0===p.length?"Vacía":p.map((e=>`${e.c}x ${e.d.n} ${e.d.t}`)).join(" + "),u>.4&&(g+=` | Sobran: ${(2*u).toFixed(1)} lb`),s("o-brk").innerText=g;const h=s("slv-l"),f=s("slv-r");h.innerHTML="",f.innerHTML="",p.forEach((t=>{for(let n=0;n<t.c;n++){const n=e.createElement("div");n.className=`pl ${t.d.c}`,n.style.height=`${t.d.h}px`,n.style.width=`${t.d.wd}px`,n.innerText=`${t.d.n}`,h.appendChild(n.cloneNode(!0)),f.appendChild(n)}}))}function M(e,t,n){const a=s(e);if(!a)return;const r=a.getContext("2d"),i=a.width,o=a.height;if(r.clearRect(0,0,i,o),!t||0===t.length)return r.fillStyle="#94a3b8",r.font="12px sans-serif",r.textAlign="center",void r.fillText("Sin datos",i/2,o/2);const l=30,c=o-1.5*l,d=Math.max(...t.map((e=>e.w)),50),m=Math.min(35,(i-2*l)/t.length-10);t.forEach(((e,t)=>{const a=l+t*(m+12),i=e.w/d*c,s=o-l-i;r.fillStyle=n,r.fillRect(a,s,m,i),r.fillStyle="#fff",r.font="10px sans-serif",r.textAlign="center",r.fillText(`${e.w}lb`,a+m/2,s-5),r.fillStyle="#94a3b8",r.font="9px sans-serif",r.fillText(e.d,a+m/2,o-8)}))}function w(){i.usr&&(s("r-inf").innerText=`${i.usr.fn} ${i.usr.ln} | ${i.usr.em}`,s("m-rpt").classList.remove("hd"),setTimeout((()=>{M("c-sn",i.usr.hx?i.usr.hx.sn:[],"#2563eb"),M("c-cj",i.usr.hx?i.usr.hx.cj:[],"#10b981")}),100))}async function _(){if(!i.usr)return;try{const e=await html2canvas(s("p-area"),{scale:2,backgroundColor:"#131b2e"}),t=e.toDataURL("image/png"),{jsPDF:n}=window.jspdf,a=new n("p","mm","a4");a.setFontSize(16),a.text("Reporte de Avances V11",15,18),a.setFontSize(11),a.text(`${i.usr.fn} ${i.usr.ln} (${i.usr.em})`,15,26),a.text(`Fecha: ${new Date().toLocaleDateString("es-CL")}`,15,32),a.addImage(t,"PNG",15,40,180,130),a.setFontSize(9),a.text("Diseño Andres Aguiar V1.1 - Contacto +56933395447",15,280),a.save(`Reporte_${i.usr.fn}.pdf`),window.location.href=`mailto:${i.usr.em}?subject=${encodeURIComponent("Reporte PR")}&body=${encodeURIComponent("Adjunto PDF.")}`}catch(e){alert("Error: "+e.message)}}e.addEventListener("DOMContentLoaded",(()=>{s("b-inst").onclick=s("b-st").onclick=d,s("b-cx").onclick=s("b-cx-r").onclick=m,s("b-val").onclick=u,s("b-sv").onclick=p,s("b-sw").onclick=g,s("b-rpt").onclick=w,s("b-un").onclick=f,s("t-sn").onclick=()=>h("sn"),s("t-cj").onclick=()=>h("cj"),s("i-sl").oninput=e=>x(parseInt(e.target.value)),s("i-wt").oninput=b,s("b-comp").onclick=L,s("b-pdf").onclick=_,o(),v()}))}();
   </script>
 </body>
 </html>
