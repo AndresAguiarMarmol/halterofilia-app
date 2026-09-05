@@ -5,45 +5,73 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>🏋️ Asistente de Halterofilia V11</title>
   
+  <!-- Dependencias CDN para Reporte PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
-    :root{--bg:#090d16;--card:#131b2e;--bl:#2563eb;--gr:#10b981;--rd:#ef4444;--tx:#f8fafc;--tm:#94a3b8;--bd:#1e293b}
-    *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
-    body{background:var(--bg);color:var(--tx);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:14px}
-    .wrap{width:100%;max-width:580px;display:flex;flex-direction:column;gap:14px}
-    .panel{background:var(--card);border-radius:12px;padding:18px;border:1px solid var(--bd);box-shadow:0 4px 6px -1px rgba(0,0,0,.5)}
-    .tc{text-align:center} h1{font-size:1.4rem;margin-bottom:4px} h2{font-size:1.05rem;color:var(--tm);margin-bottom:12px}
-    .btn{padding:11px 16px;border-radius:8px;border:none;font-weight:600;cursor:pointer;color:#fff;font-size:.95rem}
-    .btn:active{opacity:.75} .btn-bl{background:var(--bl)} .btn-gr{background:var(--gr)} .btn-dk{background:#334155}
-    .inp,select,textarea{width:100%;padding:11px;border-radius:8px;border:1px solid var(--bd);background:#1e293b;color:#fff;font-size:1rem;margin-bottom:8px;outline:none}
-    .row{display:flex;gap:8px;align-items:center;margin-bottom:8px} .row>*{flex:1}
-    .modes{display:flex;gap:8px;margin-bottom:12px}
-    .tab{flex:1;padding:10px;border:2px solid var(--bd);background:#1e293b;color:#fff;border-radius:8px;font-weight:700;cursor:pointer;text-align:center}
-    .tab.act{border-color:var(--bl);background:var(--bl)}
-    .sl-wrap{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
-    .sl-hdr{display:flex;justify-content:space-between;font-size:.8rem;color:var(--tm)}
-    .sl{width:100%;accent-color:var(--bl);cursor:pointer;height:6px;border-radius:3px;background:#334155;outline:none}
-    .bb-cvs{width:100%;height:160px;background:#050811;border-radius:10px;border:1px solid var(--bd);position:relative;display:flex;align-items:center;justify-content:center;overflow-x:auto;padding:0 10px;margin-top:10px}
-    .bb-cr{position:absolute;height:10px;width:88%;background:linear-gradient(180deg,#94a3b8 0%,#475569 100%);z-index:1;border-radius:4px}
-    .slv{position:absolute;height:100%;display:flex;align-items:center;z-index:2} .slv.l{left:24px;flex-direction:row-reverse} .slv.r{right:24px;flex-direction:row}
-    .pl{margin:0 1px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:700;writing-mode:vertical-rl;border:1px solid rgba(0,0,0,.6)}
-    .pl-lb{background:#0f172a;color:#f8fafc;border:1px solid #475569} .pl-2_5{background:#dc2626;color:#fff} .pl-2{background:#2563eb;color:#fff} .pl-1_5{background:#ca8a04;color:#000} .pl-1{background:#16a34a;color:#fff} .pl-0_5{background:#f8fafc;color:#000}
-    .res{background:#050811;padding:12px;border-radius:8px;border:1px solid var(--bd);margin-top:10px;font-size:.9rem}
-    .ftr{text-align:center;font-size:.68rem;color:var(--tm);padding:14px 4px;margin-top:auto;border-top:1px solid var(--bd);width:100%}
-    .mod-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:99;padding:16px}
-    .mod{background:var(--card);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;border-radius:12px;padding:20px;border:1px solid var(--bd)}
-    .hd{display:none!important}
-    .chart-box{background:#080d1a;border-radius:8px;padding:12px;margin-bottom:12px;border:1px solid var(--bd)}
-    .chart{width:100%;height:160px;background:#050811;border-radius:6px}
-    .badge-activa{background:var(--gr);color:#fff;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:700}
-    .badge-demo{background:#eab308;color:#000;padding:2px 8px;border-radius:4px;font-size:.75rem;font-weight:700}
+    :root {
+      --bg: #090d16; --card: #131b2e; --bl: #2563eb; --gr: #10b981; --rd: #ef4444;
+      --tx: #f8fafc; --tm: #94a3b8; --bd: #1e293b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--tx); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 14px; }
+    .wrap { width: 100%; max-width: 580px; display: flex; flex-direction: column; gap: 14px; }
+    .panel { background: var(--card); border-radius: 12px; padding: 18px; border: 1px solid var(--bd); box-shadow: 0 4px 6px -1px rgba(0,0,0,.5); }
+    .tc { text-align: center; }
+    h1 { font-size: 1.4rem; margin-bottom: 4px; }
+    h2 { font-size: 1.05rem; color: var(--tm); margin-bottom: 12px; }
+    .btn { padding: 11px 16px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; color: #fff; font-size: .95rem; }
+    .btn:active { opacity: .75; }
+    .btn-bl { background: var(--bl); } .btn-gr { background: var(--gr); } .btn-dk { background: #334155; }
+    .inp, select, textarea { width: 100%; padding: 11px; border-radius: 8px; border: 1px solid var(--bd); background: #1e293b; color: #fff; font-size: 1rem; margin-bottom: 8px; outline: none; }
+    .row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .row > * { flex: 1; }
+    .modes { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .tab { padding: 8px 14px; border: 2px solid var(--bd); background: #1e293b; color: #fff; border-radius: 8px; font-weight: 700; cursor: pointer; text-align: center; font-size: 0.9rem; }
+    .tab.act { border-color: var(--bl); background: var(--bl); }
+    
+    /* Inventario interactivo de stock */
+    .stock-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 10px 0 14px 0; }
+    .stock-chip { padding: 8px 4px; border-radius: 6px; text-align: center; font-size: 0.72rem; font-weight: bold; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; user-select: none; }
+    .stock-chip.disabled { opacity: 0.25; filter: grayscale(1); border: 2px dashed #475569 !important; text-decoration: line-through; }
+    .chip-lb { background: #0f172a; color: #f8fafc; border-color: #475569; }
+    .chip-2_5 { background: #dc2626; color: white; }
+    .chip-2 { background: #2563eb; color: white; }
+    .chip-1_5 { background: #ca8a04; color: black; }
+    .chip-1 { background: #16a34a; color: white; }
+    .chip-0_5 { background: #f8fafc; color: black; }
+
+    /* Contenedor destacado del Dropdown de alternativas */
+    .alt-container { background: #0f172a; padding: 12px; border-radius: 8px; border: 1px solid var(--bl); margin: 10px 0; }
+
+    .sl-wrap { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+    .sl-hdr { display: flex; justify-content: space-between; font-size: .8rem; color: var(--tm); }
+    .sl { width: 100%; accent-color: var(--bl); cursor: pointer; height: 6px; border-radius: 3px; background: #334155; outline: none; }
+    .bb-cvs { width: 100%; height: 160px; background: #050811; border-radius: 10px; border: 1px solid var(--bd); position: relative; display: flex; align-items: center; justify-content: center; overflow-x: auto; padding: 0 10px; margin-top: 10px; }
+    .bb-cr { position: absolute; height: 10px; width: 88%; background: linear-gradient(180deg,#94a3b8 0%,#475569 100%); z-index: 1; border-radius: 4px; }
+    .slv { position: absolute; height: 100%; display: flex; align-items: center; z-index: 2; }
+    .slv.l { left: 24px; flex-direction: row-reverse; } .slv.r { right: 24px; flex-direction: row; }
+    .pl { margin: 0 1px; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: .58rem; font-weight: 700; writing-mode: vertical-rl; border: 1px solid rgba(0,0,0,.6); }
+    .pl-lb { background: #0f172a; color: #f8fafc; border: 1px solid #475569; }
+    .pl-2_5 { background: #dc2626; color: #fff; } .pl-2 { background: #2563eb; color: #fff; }
+    .pl-1_5 { background: #ca8a04; color: #000; } .pl-1 { background: #16a34a; color: #fff; }
+    .pl-0_5 { background: #f8fafc; color: #000; }
+    .res { background: #050811; padding: 12px; border-radius: 8px; border: 1px solid var(--bd); margin-top: 10px; font-size: .9rem; }
+    .ftr { text-align: center; font-size: .68rem; color: var(--tm); padding: 14px 4px; margin-top: auto; border-top: 1px solid var(--bd); width: 100%; line-height: 1.4; }
+    .mod-bg { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: flex; align-items: center; justify-content: center; z-index: 99; padding: 16px; }
+    .mod { background: var(--card); width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 20px; border: 1px solid var(--bd); }
+    .hd { display: none !important; }
+    .chart-box { background: #080d1a; border-radius: 8px; padding: 12px; margin-bottom: 12px; border: 1px solid var(--bd); }
+    .chart { width: 100%; height: 160px; background: #050811; border-radius: 6px; }
+    .badge-activa { background: var(--gr); color: #fff; padding: 2px 8px; border-radius: 4px; font-size: .75rem; font-weight: 700; }
+    .badge-demo { background: #eab308; color: #000; padding: 2px 8px; border-radius: 4px; font-size: .75rem; font-weight: 700; }
   </style>
 </head>
 <body>
 
   <div class="wrap">
+    <!-- Encabezado de Sesión -->
     <header class="panel tc">
       <h1>🏋️ Asistente de Halterofilia</h1>
       <p id="usr-lbl" style="font-size:.85rem;color:var(--tm);margin-top:3px">Sin usuario activo</p>
@@ -55,18 +83,21 @@
       </div>
     </header>
 
+    <!-- Pantalla Inicial -->
     <div id="v-init" class="panel tc">
       <h2>Bienvenido al Asistente de Halterofilia</h2>
       <p style="font-size:.9rem;color:var(--tm);margin-bottom:15px">Realiza la instalación inicial con la contraseña de seguridad.</p>
       <button id="b-st" class="btn btn-bl" style="width:100%">Instalación</button>
     </div>
 
+    <!-- Panel de Operaciones (Calculadora) -->
     <main class="panel hd" id="v-calc">
-      <h2>Modo de Entrenamiento</h2>
-      <div class="modes">
-        <button id="t-sn" class="tab act">Snatch</button>
-        <button id="t-cj" class="tab">Clean & Jerk</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <h2>Movimiento Seleccionado</h2>
+        <button id="b-add-mov" class="btn btn-dk" style="padding:4px 8px;font-size:0.75rem">+ Movimiento</button>
       </div>
+      
+      <div id="mov-container" class="modes"></div>
 
       <div class="row">
         <div>
@@ -94,9 +125,15 @@
       <div class="row">
         <div>
           <label style="font-size:.8rem;color:var(--tm)">Tipo de Barra:</label>
-          <select id="i-bar" class="inp"><option value="45">Barra Pesada (45 lb)</option><option value="35">Barra Liviana (35 lb)</option></select>
+          <select id="i-bar" class="inp">
+            <option value="45">Barra Hombre (45 lb / 20 kg)</option>
+            <option value="35">Barra Mujer (35 lb / 15 kg)</option>
+          </select>
         </div>
       </div>
+
+      <label style="font-size:.8rem;color:var(--tm);display:block;margin-top:6px">Disponibilidad en Rack (Toca las pesas para activarlas o desactivarlas):</label>
+      <div id="stock-panel" class="stock-grid"></div>
 
       <div style="display:flex;align-items:center;gap:8px;margin:6px 0 10px 0">
         <input type="checkbox" id="c-pr" style="width:18px;height:18px">
@@ -105,11 +142,21 @@
 
       <button id="b-comp" class="btn btn-bl" style="width:100%">Aceptar</button>
 
+      <!-- Menú Desplegable (Dropdown) de Alternativas de Carga -->
+      <div id="box-alternatives" class="alt-container hd">
+        <label for="sel-alternatives" style="font-size:.85rem;color:#38bdf8;font-weight:bold;display:block;margin-bottom:6px">
+          🔽 Selecciona una Alternativa de Carga (Dropdown):
+        </label>
+        <select id="sel-alternatives" class="inp" style="margin-bottom:0;border-color:var(--bl)"></select>
+      </div>
+
+      <!-- Panel de Resultados -->
       <div id="bx-res" class="res hd">
         <div id="o-tot" style="font-weight:700;margin-bottom:4px"></div>
         <div id="o-brk" style="font-size:.85rem;color:var(--tm)"></div>
       </div>
 
+      <!-- Barra Gráfica -->
       <div class="bb-cvs">
         <div class="bb-cr"></div>
         <div id="slv-l" class="slv l"></div>
@@ -117,16 +164,17 @@
       </div>
     </main>
 
+    <!-- Footer Estático -->
     <footer class="ftr">Análisis/Diseño de Andres Aguiar V 1.1 Santiago de Chile Agosto 2026 - Contacto +56933395447 - Whatsapp +56933395447</footer>
   </div>
 
-  <!-- Modal de Instalación Inicial -->
+  <!-- Modales de Instalación, Licencia y Reporte -->
   <div id="m-inst" class="mod-bg hd">
     <div class="mod">
-      <h2 style="color:#fff;margin-bottom:10px">Instalación</h2>
+      <h2 style="color:#fff;margin-bottom:10px">Instalación del Sistema</h2>
       <div id="s-pw">
         <label style="font-size:.8rem">Contraseña Secreta:</label>
-        <input type="password" id="i-pw" class="inp">
+        <input type="password" id="i-pw" class="inp" placeholder="Ingrese contraseña">
         <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px">
           <button id="b-cx" class="btn btn-dk">Cancelar</button>
           <button id="b-val" class="btn btn-bl">Validar</button>
@@ -136,32 +184,28 @@
         <input type="text" id="i-fn" class="inp" placeholder="Nombre">
         <input type="text" id="i-ln" class="inp" placeholder="Apellido">
         <input type="email" id="i-em" class="inp" placeholder="Correo">
-        <button id="b-sv" class="btn btn-gr" style="width:100%">Guardar</button>
+        <button id="b-sv" class="btn btn-gr" style="width:100%">Guardar Perfil</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal de Solicitud y Activación de Licencia -->
   <div id="m-lic" class="mod-bg hd">
     <div class="mod">
       <div style="display:flex;justify-content:space-between;margin-bottom:12px">
         <h2 style="color:#fff;margin:0">🔑 Gestión de Licencia</h2>
         <button id="b-cx-lic" class="btn btn-dk" style="padding:4px 10px">✕</button>
       </div>
-
-      <label style="font-size:.8rem;color:var(--tm)">1. Código de Solicitud (Envíalo al administrador):</label>
+      <label style="font-size:.8rem;color:var(--tm)">1. Código de Solicitud (Envíalo al vendedor):</label>
       <div style="display:flex;gap:6px;margin-bottom:12px">
         <input type="text" id="i-req-code" class="inp" readonly style="color:#38bdf8;font-size:0.85rem">
         <button id="b-copy-req" class="btn btn-dk">Copiar</button>
       </div>
-
       <label style="font-size:.8rem;color:var(--tm)">2. Clave de Activación Recibida:</label>
       <textarea id="i-act-key" class="inp" rows="3" placeholder="Pega aquí la clave entregada por el administrador..."></textarea>
       <button id="b-val-act" class="btn btn-bl" style="width:100%">Activar Licencia</button>
     </div>
   </div>
 
-  <!-- Modal de Reporte -->
   <div id="m-rpt" class="mod-bg hd">
     <div class="mod">
       <div style="display:flex;justify-content:space-between;margin-bottom:12px">
@@ -170,14 +214,12 @@
       </div>
       <div id="p-area">
         <p id="r-inf" style="font-size:.85rem;color:var(--tm);margin-bottom:10px"></p>
-        <div class="chart-box"><h3 style="font-size:.95rem;color:var(--bl)">PR: Snatch</h3><canvas id="c-sn" class="chart"></canvas></div>
-        <div class="chart-box"><h3 style="font-size:.95rem;color:var(--gr)">PR: Clean & Jerk</h3><canvas id="c-cj" class="chart"></canvas></div>
+        <div id="charts-wrapper"></div>
       </div>
-      <button id="b-pdf" class="btn btn-bl" style="width:100%">📄 Descargar y Enviar</button>
+      <button id="b-pdf" class="btn btn-bl" style="width:100%">📄 Descargar PDF y Enviar</button>
     </div>
   </div>
 
-  <!-- Modal Expirado -->
   <div id="m-exp" class="mod-bg hd">
     <div class="mod tc">
       <h2 style="color:var(--rd);margin-bottom:8px">Evaluación Expirada</h2>
@@ -186,366 +228,578 @@
     </div>
   </div>
 
+  <!-- JavaScript Seguro y Reactivo -->
   <script>
-    // Módulo de Licenciamiento del Cliente
-    const SistemaLicencia = {
-      CLAVE_SECRETA_ADMIN: "Halterofilia-SuperSecret-Salt-2026",
+    document.addEventListener("DOMContentLoaded", () => {
+      // 1. Constantes
+      const PASS_SECRET = "NalitaBonita";
+      const EXPIRATION_MS = 3 * 24 * 60 * 60 * 1000;
+      const KG_TO_LB = 2.20462;
+      const SALT_SECRET = "Halterofilia-SuperSecret-Salt-2026";
 
-      obtenerDeviceID: function() {
+      // 2. Inventario Base
+      const discCatalog = [
+        { id: 0, t: "lb", n: 45, w: 45, h: 130, wd: 18, c: "pl-lb", cl: "chip-lb", available: true },
+        { id: 1, t: "lb", n: 35, w: 35, h: 130, wd: 16, c: "pl-lb", cl: "chip-lb", available: true },
+        { id: 2, t: "lb", n: 25, w: 25, h: 110, wd: 14, c: "pl-lb", cl: "chip-lb", available: true },
+        { id: 3, t: "lb", n: 15, w: 15, h: 95,  wd: 12, c: "pl-lb", cl: "chip-lb", available: true },
+        { id: 4, t: "lb", n: 10, w: 10, h: 80,  wd: 10, c: "pl-lb", cl: "chip-lb", available: true },
+        { id: 5, t: "kg", n: 2.5, w: 2.5 * KG_TO_LB, h: 70, wd: 9, c: "pl-2_5", cl: "chip-2_5", available: true },
+        { id: 6, t: "kg", n: 2.0, w: 2.0 * KG_TO_LB, h: 65, wd: 8, c: "pl-2", cl: "chip-2", available: true },
+        { id: 7, t: "kg", n: 1.5, w: 1.5 * KG_TO_LB, h: 60, wd: 8, c: "pl-1_5", cl: "chip-1_5", available: true },
+        { id: 8, t: "kg", n: 1.0, w: 1.0 * KG_TO_LB, h: 55, wd: 7, c: "pl-1", cl: "chip-1", available: true },
+        { id: 9, t: "kg", n: 0.5, w: 0.5 * KG_TO_LB, h: 50, wd: 6, c: "pl-0_5", cl: "chip-0_5", available: true }
+      ];
+
+      // 3. Estado de la Aplicación
+      let appState = {
+        mode: "snatch",
+        movs: ["snatch", "cj"],
+        mNames: { snatch: "Snatch", cj: "Clean & Jerk" },
+        unit: "lbs",
+        activeUser: null,
+        users: [],
+        installedAt: null
+      };
+
+      let calculatedOptions = [];
+      const el = id => document.getElementById(id);
+
+      // 4. Criptografía y Licencias
+      function getDeviceID() {
         let id = localStorage.getItem("__DEV_ID__");
         if (!id) {
           id = "DEV-" + Math.random().toString(36).substring(2, 8).toUpperCase();
           localStorage.setItem("__DEV_ID__", id);
         }
         return id;
-      },
+      }
 
-      generarSolicitud: function(correo) {
-        const devId = this.obtenerDeviceID();
-        const em = (correo || "atleta").trim().toLowerCase();
-        return `REQ|${devId}|${em}`;
-      },
-
-      sha256: async function(str) {
-        const buffer = new TextEncoder().encode(str);
+      async function sha256(text) {
+        const buffer = new TextEncoder().encode(text);
         const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
         const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-      },
+        return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+      }
 
-      activarLicencia: async function(correoUsuario, claveBase64) {
-        try {
-          const decodificado = atob(claveBase64.trim());
-          const partes = decodificado.split("|");
-          // Formato esperado: REQ|DEV-XXXX|correo|EXP:YYYY-MM-DD|SIG:FIRMA
-          if (partes.length < 5) return { ok: false, msg: "Formato de clave inválido." };
-
-          const [prefijo, devId, email, expParte, sigParte] = partes;
-          const fechaExpStr = expParte.replace("EXP:", "");
-          const firmaRecibida = sigParte.replace("SIG:", "");
-
-          // 1. Validar identidad del dispositivo y correo
-          if (devId !== this.obtenerDeviceID()) {
-            return { ok: false, msg: "Esta clave pertenece a otro dispositivo físico." };
-          }
-          if (email !== (correoUsuario || "atleta").trim().toLowerCase()) {
-            return { ok: false, msg: "Esta clave está asociada a otro correo electrónico." };
-          }
-
-          // 2. Comprobar firma criptográfica
-          const payloadEsperado = `${prefijo}|${devId}|${email}|EXP:${fechaExpStr}`;
-          const firmaEsperada = (await this.sha256(payloadEsperado + this.CLAVE_SECRETA_ADMIN)).substring(0, 16).toUpperCase();
-
-          if (firmaRecibida !== firmaEsperada) {
-            return { ok: false, msg: "La firma digital no es válida o fue manipulada." };
-          }
-
-          // 3. Comprobar vencimiento
-          if (new Date() > new Date(fechaExpStr)) {
-            return { ok: false, msg: "La clave de licencia suministrada ya ha caducado." };
-          }
-
-          localStorage.setItem("__APP_ACTIVATED__", "true");
-          localStorage.setItem("__APP_EXP_DATE__", fechaExpStr);
-          return { ok: true, exp: fechaExpStr };
-        } catch (e) {
-          return { ok: false, msg: "Error al descifrar la clave: " + e.message };
-        }
-      },
-
-      estaActiva: function() {
-        const activada = localStorage.getItem("__APP_ACTIVATED__") === "true";
+      function isLicenseActive() {
+        const act = localStorage.getItem("__APP_ACTIVATED__") === "true";
         const exp = localStorage.getItem("__APP_EXP_DATE__");
-        if (!activada || !exp) return false;
+        if (!act || !exp) return false;
         return new Date() <= new Date(exp);
       }
-    };
 
-    // Lógica principal de la aplicación
-    !function(){
-      const e=document,t="NalitaBonita",n=2592e5,a=2.20462,r=[
-        {t:"lb",n:45,w:45,h:130,wd:18,c:"pl-lb"},
-        {t:"lb",n:35,w:35,h:130,wd:16,c:"pl-lb"},
-        {t:"lb",n:25,w:25,h:110,wd:14,c:"pl-lb"},
-        {t:"lb",n:15,w:15,h:95,wd:12,c:"pl-lb"},
-        {t:"lb",n:10,w:10,h:80,wd:10,c:"pl-lb"},
-        {t:"kg",n:2.5,w:2.5*a,h:70,wd:9,c:"pl-2_5"},
-        {t:"kg",n:2,w:2*a,h:65,wd:8,c:"pl-2"},
-        {t:"kg",n:1.5,w:1.5*a,h:60,wd:8,c:"pl-1_5"},
-        {t:"kg",n:1,w:1*a,h:55,wd:7,c:"pl-1"},
-        {t:"kg",n:.5,w:.5*a,h:50,wd:6,c:"pl-0_5"}
-      ];
-      let i={m:"sn",u:"lbs",usr:null,usrs:[],ts:null};
-      const s=t=>e.getElementById(t);
+      function loadStorage() {
+        try {
+          const raw = localStorage.getItem("_H_V11_APP_STATE_");
+          if (raw) appState = JSON.parse(raw);
+        } catch (e) {
+          console.error("Error al cargar estado:", e);
+        }
+      }
 
-      function o(){const e=localStorage.getItem("_H_V11_");if(e)try{i=JSON.parse(e)}catch(e){}}
-      function l(){localStorage.setItem("_H_V11_",JSON.stringify(i))}
+      function saveStorage() {
+        try {
+          localStorage.setItem("_H_V11_APP_STATE_", JSON.stringify(appState));
+        } catch (e) {
+          console.error("Error al guardar estado:", e);
+        }
+      }
 
-      function c(){
-        if(SistemaLicencia.estaActiva()) return false;
-        if(!i.ts) return false;
-        if(Date.now()-i.ts>n){
-          s("m-exp").classList.remove("hd");
+      function checkTrial() {
+        if (isLicenseActive()) return false;
+        if (!appState.installedAt) return false;
+        if (Date.now() - appState.installedAt > EXPIRATION_MS) {
+          el("m-exp").classList.remove("hd");
           return true;
         }
         return false;
       }
 
-      function d(){
-        s("s-pw").classList.remove("hd");
-        s("s-reg").classList.add("hd");
-        s("i-pw").value="";
-        s("m-inst").classList.remove("hd");
+      // 5. Modales y Autenticación
+      function openInstallModal() {
+        el("s-pw").classList.remove("hd");
+        el("s-reg").classList.add("hd");
+        el("i-pw").value = "";
+        el("m-inst").classList.remove("hd");
       }
 
-      function m(){
-        s("m-inst").classList.add("hd");
-        s("m-rpt").classList.add("hd");
-        s("m-lic").classList.add("hd");
+      function closeModals() {
+        el("m-inst").classList.add("hd");
+        el("m-rpt").classList.add("hd");
+        el("m-lic").classList.add("hd");
       }
 
-      function u(){
-        if(s("i-pw").value===t){
-          i.ts||(i.ts=Date.now());
-          s("s-pw").classList.add("hd");
-          s("s-reg").classList.remove("hd");
-        }else alert("Clave incorrecta");
-      }
-
-      function p(){
-        const fn=s("i-fn").value.trim(),tn=s("i-ln").value.trim(),n=s("i-em").value.trim();
-        if(!fn||!tn||!n) return alert("Llene todos los campos");
-        const a={id:Date.now(),fn:fn,ln:tn,em:n,pr:{sn:0,cj:0},hx:{sn:[],cj:[]}};
-        i.usrs.push(a);
-        i.usr=a;
-        l();
-        s("i-fn").value="";s("i-ln").value="";s("i-em").value="";
-        m();
-        v();
-      }
-
-      function g(){
-        if(c()) return;
-        if(i.usrs.length<=1) return d();
-        const e=i.usrs.findIndex((e=>e.id===i.usr.id));
-        i.usr=i.usrs[(e+1)%i.usrs.length];
-        l();
-        v();
-      }
-
-      function h(e){
-        i.m=e;
-        s("t-sn").classList.toggle("act","sn"===e);
-        s("t-cj").classList.toggle("act","cj"===e);
-        v();
-      }
-
-      function f(){
-        i.u="lbs"===i.u?"kg":"lbs";
-        s("b-un").innerText=i.u;
-        l();
-        v();
-      }
-
-      function x(e){
-        s("sl-lbl").innerText=`${e}%`;
-        if(!i.usr) return;
-        const t=i.usr.pr[i.m]||0,n="kg"===i.u?t/a:t,r=n*e/100;
-        s("i-wt").value=r>0?r.toFixed(1):"";
-      }
-
-      function b(){
-        if(!i.usr) return;
-        const e=parseFloat(s("i-wt").value),t=i.usr.pr[i.m]||0,n="kg"===i.u?t/a:t;
-        if(n>0&&!isNaN(e)&&e>0){
-          let t=Math.round(e/n*100);
-          t=Math.min(Math.max(t,10),100);
-          s("i-sl").value=t;
-          s("sl-lbl").innerText=`${t}%`;
-        }else{
-          s("i-sl").value=100;
-          s("sl-lbl").innerText="100%";
+      function validateSecret() {
+        if (el("i-pw").value === PASS_SECRET) {
+          if (!appState.installedAt) appState.installedAt = Date.now();
+          el("s-pw").classList.add("hd");
+          el("s-reg").classList.remove("hd");
+        } else {
+          alert("Contraseña incorrecta.");
         }
       }
 
-      function v(){
-        if(c()) return;
-        if(!i.usr){
-          s("v-init").classList.remove("hd");
-          s("v-calc").classList.add("hd");
-          s("b-sw").classList.add("hd");
-          s("b-rpt").classList.add("hd");
-          s("b-lic").classList.add("hd");
-          s("usr-lbl").innerText="Sin usuario";
+      function saveUser() {
+        const fn = el("i-fn").value.trim();
+        const ln = el("i-ln").value.trim();
+        const em = el("i-em").value.trim();
+        if (!fn || !ln || !em) return alert("Por favor completa todos los campos.");
+
+        const newUser = {
+          id: Date.now(),
+          fname: fn,
+          lname: ln,
+          mail: em,
+          pr: { snatch: 0, cj: 0 },
+          history: { snatch: [], cj: [] }
+        };
+
+        appState.users.push(newUser);
+        appState.activeUser = newUser;
+        saveStorage();
+
+        el("i-fn").value = "";
+        el("i-ln").value = "";
+        el("i-em").value = "";
+        closeModals();
+        updateUI();
+      }
+
+      function switchUser() {
+        if (checkTrial()) return;
+        if (appState.users.length <= 1) return openInstallModal();
+        const idx = appState.users.findIndex(u => u.id === appState.activeUser.id);
+        appState.activeUser = appState.users[(idx + 1) % appState.users.length];
+        saveStorage();
+        updateUI();
+      }
+
+      // 6. Configuración de Movimientos y Stock
+      function renderMovements() {
+        const container = el("mov-container");
+        container.innerHTML = "";
+        appState.movs.forEach(mKey => {
+          const btn = document.createElement("button");
+          btn.className = `tab ${appState.mode === mKey ? "act" : ""}`;
+          btn.innerText = appState.mNames[mKey] || mKey;
+          btn.onclick = () => {
+            appState.mode = mKey;
+            renderMovements();
+            updateUI();
+          };
+          container.appendChild(btn);
+        });
+      }
+
+      function addNewMovement() {
+        const name = prompt("Nombre del nuevo movimiento (ej: Front Squat):");
+        if (name && name.trim()) {
+          const mKey = "m_" + Date.now();
+          appState.movs.push(mKey);
+          appState.mNames[mKey] = name.trim();
+          appState.mode = mKey;
+          saveStorage();
+          renderMovements();
+          updateUI();
+        }
+      }
+
+      function renderStockPanel() {
+        const panel = el("stock-panel");
+        panel.innerHTML = "";
+        discCatalog.forEach(d => {
+          const chip = document.createElement("div");
+          chip.className = `stock-chip ${d.cl} ${d.available ? "" : "disabled"}`;
+          chip.innerText = `${d.n} ${d.t}`;
+          chip.onclick = () => {
+            d.available = !d.available;
+            renderStockPanel();
+          };
+          panel.appendChild(chip);
+        });
+      }
+
+      function toggleUnit() {
+        appState.unit = (appState.unit === "lbs") ? "kg" : "lbs";
+        el("b-un").innerText = appState.unit;
+        saveStorage();
+        updateUI();
+      }
+
+      function onSliderChange(pct) {
+        el("sl-lbl").innerText = `${pct}%`;
+        if (!appState.activeUser) return;
+        const pr = (appState.activeUser.pr && appState.activeUser.pr[appState.mode]) || 0;
+        const base = (appState.unit === "kg") ? pr / KG_TO_LB : pr;
+        const calc = (base * pct) / 100;
+        el("i-wt").value = calc > 0 ? calc.toFixed(1) : "";
+      }
+
+      function onWeightInput() {
+        if (!appState.activeUser) return;
+        const val = parseFloat(el("i-wt").value);
+        const pr = (appState.activeUser.pr && appState.activeUser.pr[appState.mode]) || 0;
+        const base = (appState.unit === "kg") ? pr / KG_TO_LB : pr;
+
+        if (base > 0 && !isNaN(val) && val > 0) {
+          let pct = Math.round((val / base) * 100);
+          pct = Math.min(Math.max(pct, 10), 100);
+          el("i-sl").value = pct;
+          el("sl-lbl").innerText = `${pct}%`;
+        } else {
+          el("i-sl").value = 100;
+          el("sl-lbl").innerText = "100%";
+        }
+      }
+
+      // 7. Actualización de Interfaz
+      function updateUI() {
+        if (checkTrial()) return;
+
+        if (!appState.activeUser) {
+          el("v-init").classList.remove("hd");
+          el("v-calc").classList.add("hd");
+          el("b-sw").classList.add("hd");
+          el("b-rpt").classList.add("hd");
+          el("b-lic").classList.add("hd");
+          el("usr-lbl").innerText = "Sin usuario activo";
           return;
         }
 
-        s("v-init").classList.add("hd");
-        s("v-calc").classList.remove("hd");
-        s("b-sw").classList.remove("hd");
-        s("b-rpt").classList.remove("hd");
-        s("b-lic").classList.remove("hd");
+        el("v-init").classList.add("hd");
+        el("v-calc").classList.remove("hd");
+        el("b-sw").classList.remove("hd");
+        el("b-rpt").classList.remove("hd");
+        el("b-lic").classList.remove("hd");
 
-        const licBadge = SistemaLicencia.estaActiva() 
-          ? '<span class="badge-activa">ACTIVA</span>' 
+        const badge = isLicenseActive()
+          ? '<span class="badge-activa">ACTIVA</span>'
           : '<span class="badge-demo">EVALUACIÓN</span>';
-        
-        s("usr-lbl").innerHTML=`${i.usr.fn} ${i.usr.ln} (${i.usr.em}) - ${licBadge}`;
 
-        const e=i.usr.pr[i.m]||0;
-        s("v-pr").innerText=`${e} lb`;
-        s("b-un").innerText=i.u;
-        s("i-sl").value=100;
-        s("sl-lbl").innerText="100%";
-        const t="kg"===i.u?e/a:e;
-        s("i-wt").value=t>0?t.toFixed(1):"";
+        el("usr-lbl").innerHTML = `${appState.activeUser.fname} ${appState.activeUser.lname} (${appState.activeUser.mail}) - ${badge}`;
+
+        const pr = (appState.activeUser.pr && appState.activeUser.pr[appState.mode]) || 0;
+        el("v-pr").innerText = `${pr} lb`;
+        el("b-un").innerText = appState.unit;
+        el("i-sl").value = 100;
+        el("sl-lbl").innerText = "100%";
+
+        const unitVal = (appState.unit === "kg") ? pr / KG_TO_LB : pr;
+        el("i-wt").value = unitVal > 0 ? unitVal.toFixed(1) : "";
       }
 
-      function L(){
-        if(c()) return;
-        if(!i.usr) return d();
-        const t=parseFloat(s("i-wt").value),n=parseFloat(s("i-bar").value);
-        if(isNaN(t)||t<=0) return alert("Peso inválido");
-        const o="kg"===i.u?t*a:t;
-        if(o<n) return alert(`Mínimo ${n} lb`);
+      // 8. Algoritmo Generador de Combinaciones y Menú Desplegable
+      function computeLoad() {
+        if (checkTrial() || !appState.activeUser) return openInstallModal();
 
-        if(s("c-pr").checked){
-          const e=i.usr.pr[i.m]||0;
-          if(o>e){
-            const e=Math.round(10*o)/10;
-            i.usr.pr[i.m]=e;
-            i.usr.hx||(i.usr.hx={sn:[],cj:[]});
-            const t=new Date().toLocaleDateString("es-CL");
-            i.usr.hx[i.m].push({d:t,w:e});
-            l();
-            v();
+        const inputVal = parseFloat(el("i-wt").value);
+        const barWeight = parseFloat(el("i-bar").value);
+
+        if (isNaN(inputVal) || inputVal <= 0) return alert("Ingresa un peso numérico válido.");
+
+        const totalLb = (appState.unit === "kg") ? inputVal * KG_TO_LB : inputVal;
+        if (totalLb < barWeight) return alert(`El peso total debe ser al menos el de la barra (${barWeight} lb).`);
+
+        // Actualizar PR si la casilla está marcada
+        if (el("c-pr").checked) {
+          appState.activeUser.pr = appState.activeUser.pr || {};
+          const currentPR = appState.activeUser.pr[appState.mode] || 0;
+          if (totalLb > currentPR) {
+            const rounded = Math.round(totalLb * 10) / 10;
+            appState.activeUser.pr[appState.mode] = rounded;
+            
+            appState.activeUser.history = appState.activeUser.history || {};
+            appState.activeUser.history[appState.mode] = appState.activeUser.history[appState.mode] || [];
+            appState.activeUser.history[appState.mode].push({
+              date: new Date().toLocaleDateString("es-CL"),
+              weight: rounded
+            });
+
+            saveStorage();
+            updateUI();
           }
         }
 
-        let u=(o-n)/2;
-        const p=[];
-        for(const e of r){
-          const t=Math.floor(u/e.w);
-          t>0&&(p.push({d:e,c:t}),u=Math.round(1e3*(u-t*e.w))/1e3);
+        const targetPerSide = (totalLb - barWeight) / 2.0;
+        const activeDiscs = discCatalog.filter(d => d.available);
+
+        if (activeDiscs.length === 0) {
+          return alert("No hay discos marcados como disponibles en el Rack.");
         }
 
-        s("bx-res").classList.remove("hd");
-        s("o-tot").innerText=`Total: ${o.toFixed(1)} lb (~${(o/a).toFixed(1)} kg)`;
-        let g=`Barra: ${n} lb | Lado: `;
-        g+=0===p.length?"Vacía":p.map((e=>`${e.c}x ${e.d.n} ${e.d.t}`)).join(" + ");
-        u>.4&&(g+=` | Sobran: ${(2*u).toFixed(1)} lb`);
-        s("o-brk").innerText=g;
+        // Generar combinaciones alternativas
+        calculatedOptions = generateCombinations(targetPerSide, activeDiscs, barWeight);
 
-        const h=s("slv-l"),k=s("slv-r");
-        h.innerHTML="";k.innerHTML="";
-        p.forEach((t=>{
-          for(let n=0;n<t.c;n++){
-            const n=e.createElement("div");
-            n.className=`pl ${t.d.c}`;
-            n.style.height=`${t.d.h}px`;
-            n.style.width=`${t.d.wd}px`;
-            n.innerText=`${t.d.n}`;
-            h.appendChild(n.cloneNode(!0));
-            k.appendChild(n);
+        if (calculatedOptions.length === 0) {
+          return alert("No es posible armar esta carga con los discos disponibles.");
+        }
+
+        // Poblar y MOSTRAR la Ventana Desplegable (Dropdown)
+        const selAlt = el("sel-alternatives");
+        selAlt.innerHTML = "";
+        calculatedOptions.forEach((opt, idx) => {
+          const optionEl = document.createElement("option");
+          optionEl.value = idx;
+          optionEl.innerText = `Opción ${idx + 1}: ${opt.desc} (Total: ${opt.totalWeight.toFixed(1)} lb)`;
+          selAlt.appendChild(optionEl);
+        });
+
+        // Retirar la clase de ocultamiento (.hd) para que el dropdown aparezca de inmediato
+        el("box-alternatives").classList.remove("hd");
+
+        // Aplicar la primera opción calculada
+        applySelectedOption(0);
+      }
+
+      function generateCombinations(target, discs, barWeight) {
+        const results = [];
+        const seen = new Set();
+
+        function addOption(sol) {
+          if (!sol) return;
+          const platesWeight = sol.selected.reduce((acc, item) => acc + item.count * item.disc.w, 0);
+          const totalWeight = barWeight + (platesWeight * 2);
+          const key = sol.selected.map(item => `${item.count}x${item.disc.n}`).join("|") + `|rem:${sol.remainder.toFixed(1)}`;
+          
+          if (!seen.has(key)) {
+            seen.add(key);
+            let desc = sol.selected.length === 0 ? "Solo barra" : sol.selected.map(i => `${i.count}x ${i.disc.n} ${i.disc.t}`).join(" + ");
+            if (sol.remainder > 0.4) desc += ` (Faltan ${(sol.remainder * 2).toFixed(1)} lb)`;
+            results.push({ selected: sol.selected, totalWeight, desc, remainder: sol.remainder, barWeight });
           }
-        }));
-      }
-
-      function M(e,t,n){
-        const a=s(e);if(!a)return;
-        const r=a.getContext("2d"),i=a.width,o=a.height;
-        if(r.clearRect(0,0,i,o),!t||0===t.length){
-          r.fillStyle="#94a3b8";r.font="12px sans-serif";r.textAlign="center";
-          return r.fillText("Sin datos",i/2,o/2);
         }
-        const l=30,c=o-1.5*l,d=Math.max(...t.map((e=>e.w)),50),m=Math.min(35,(i-2*l)/t.length-10);
-        t.forEach(((e,t)=>{
-          const a=l+t*(m+12),i=e.w/d*c,s=o-l-i;
-          r.fillStyle=n;r.fillRect(a,s,m,i);
-          r.fillStyle="#fff";r.font="10px sans-serif";r.textAlign="center";r.fillText(`${e.w}lb`,a+m/2,s-5);
-          r.fillStyle="#94a3b8";r.font="9px sans-serif";r.fillText(e.d,a+m/2,o-8);
-        }));
+
+        // 1. Alternativa Principal: Distribución Voraz estándar
+        addOption(solveGreedy(target, discs));
+
+        // 2. Alternativa Secundaria: Omitiendo el disco más pesado disponible
+        if (discs.length > 1) {
+          addOption(solveGreedy(target, discs.slice(1)));
+        }
+
+        // 3. Alternativa Terciaria: Omitiendo los dos primeros discos
+        if (discs.length > 2) {
+          addOption(solveGreedy(target, discs.slice(2)));
+        }
+
+        // 4. Alternativa Cuarta: Priorizando fraccionales si existen
+        const fractionals = discs.filter(d => d.t === "kg");
+        if (fractionals.length > 0) {
+          addOption(solveGreedy(target, fractionals));
+        }
+
+        return results;
       }
 
-      function w(){
-        if(!i.usr) return;
-        s("r-inf").innerText=`${i.usr.fn} ${i.usr.ln} | ${i.usr.em}`;
-        s("m-rpt").classList.remove("hd");
-        setTimeout((()=>{
-          M("c-sn",i.usr.hx?i.usr.hx.sn:[],"#2563eb");
-          M("c-cj",i.usr.hx?i.usr.hx.cj:[],"#10b981");
-        }),100);
+      function solveGreedy(target, discs) {
+        let rem = target;
+        const selected = [];
+        for (const disc of discs) {
+          const count = Math.floor(rem / disc.w);
+          if (count > 0) {
+            selected.push({ disc, count });
+            rem = Math.round((rem - count * disc.w) * 1000) / 1000;
+          }
+        }
+        return { selected, remainder: rem };
       }
 
-      async function _(){
-        if(!i.usr) return;
-        try{
-          const e=await html2canvas(s("p-area"),{scale:2,backgroundColor:"#131b2e"}),
-                t=e.toDataURL("image/png"),
-                {jsPDF:n}=window.jspdf,
-                a=new n("p","mm","a4");
-          a.setFontSize(16);
-          a.text("Reporte de Avances V11",15,18);
-          a.setFontSize(11);
-          a.text(`${i.usr.fn} ${i.usr.ln} (${i.usr.em})`,15,26);
-          a.text(`Fecha: ${new Date().toLocaleDateString("es-CL")}`,15,32);
-          a.addImage(t,"PNG",15,40,180,130);
-          a.setFontSize(9);
-          a.text("Diseño Andres Aguiar V1.1 - Contacto +56933395447",15,280);
-          a.save(`Reporte_${i.usr.fn}.pdf`);
-          window.location.href=`mailto:${i.usr.em}?subject=${encodeURIComponent("Reporte PR")}&body=${encodeURIComponent("Adjunto PDF.")}`;
-        }catch(e){alert("Error: "+e.message)}
+      function applySelectedOption(index) {
+        const opt = calculatedOptions[index];
+        if (!opt) return;
+
+        el("bx-res").classList.remove("hd");
+        el("o-tot").innerText = `Carga Total: ${opt.totalWeight.toFixed(1)} lb (~${(opt.totalWeight / KG_TO_LB).toFixed(1)} kg)`;
+        el("o-brk").innerText = `Barra: ${opt.barWeight} lb | Por lado: ${opt.desc}`;
+
+        // Renderizar simulación gráfica en la barra
+        const sleeveL = el("slv-l");
+        const sleeveR = el("slv-r");
+        sleeveL.innerHTML = "";
+        sleeveR.innerHTML = "";
+
+        opt.selected.forEach(item => {
+          for (let k = 0; k < item.count; k++) {
+            const plate = document.createElement("div");
+            plate.className = `pl ${item.disc.c}`;
+            plate.style.height = `${item.disc.h}px`;
+            plate.style.width = `${item.disc.wd}px`;
+            plate.innerText = `${item.disc.n}`;
+            sleeveL.appendChild(plate.cloneNode(true));
+            sleeveR.appendChild(plate);
+          }
+        });
       }
 
-      function abrirModalLicencia(){
-        if(!i.usr) return;
-        s("i-req-code").value = SistemaLicencia.generarSolicitud(i.usr.em);
-        s("i-act-key").value = "";
-        s("m-lic").classList.remove("hd");
+      // 9. Reportes y PDF
+      function drawChart(canvasId, list, color) {
+        const cvs = el(canvasId);
+        if (!cvs) return;
+        const ctx = cvs.getContext("2d");
+        const w = cvs.width;
+        const h = cvs.height;
+
+        ctx.clearRect(0, 0, w, h);
+        if (!list || list.length === 0) {
+          ctx.fillStyle = "#94a3b8";
+          ctx.font = "12px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("Sin registros de PR.", w / 2, h / 2);
+          return;
+        }
+
+        const pad = 30;
+        const chartH = h - 1.5 * pad;
+        const maxWeight = Math.max(...list.map(d => d.weight), 50);
+        const barW = Math.min(35, (w - 2 * pad) / list.length - 10);
+
+        list.forEach((item, idx) => {
+          const x = pad + idx * (barW + 12);
+          const barH = (item.weight / maxWeight) * chartH;
+          const y = h - pad - barH;
+
+          ctx.fillStyle = color;
+          ctx.fillRect(x, y, barW, barH);
+
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "10px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(`${item.weight}lb`, x + barW / 2, y - 5);
+
+          ctx.fillStyle = "#94a3b8";
+          ctx.font = "9px sans-serif";
+          ctx.fillText(item.date, x + barW / 2, h - 8);
+        });
       }
 
-      async function procesarActivacion(){
-        if(!i.usr) return;
-        const clave = s("i-act-key").value;
-        const res = await SistemaLicencia.activarLicencia(i.usr.em, clave);
-        if(res.ok){
-          alert("¡Licencia activada con éxito hasta: " + res.exp + "!");
-          s("m-lic").classList.add("hd");
-          s("m-exp").classList.add("hd");
-          v();
-        }else{
-          alert("Error: " + res.msg);
+      function openReportModal() {
+        if (!appState.activeUser) return;
+        el("r-inf").innerText = `Atleta: ${appState.activeUser.fname} ${appState.activeUser.lname} | Correo: ${appState.activeUser.mail}`;
+
+        const wrapper = el("charts-wrapper");
+        wrapper.innerHTML = "";
+
+        appState.movs.forEach(mKey => {
+          const box = document.createElement("div");
+          box.className = "chart-box";
+          box.innerHTML = `
+            <h3 style="font-size:.95rem;color:var(--bl);margin-bottom:6px">${appState.mNames[mKey] || mKey}</h3>
+            <canvas id="cvs_${mKey}" class="chart" width="400" height="160"></canvas>
+          `;
+          wrapper.appendChild(box);
+        });
+
+        el("m-rpt").classList.remove("hd");
+
+        setTimeout(() => {
+          appState.movs.forEach(mKey => {
+            const hist = (appState.activeUser.history && appState.activeUser.history[mKey]) || [];
+            drawChart(`cvs_${mKey}`, hist, "#2563eb");
+          });
+        }, 100);
+      }
+
+      async function generatePDF() {
+        if (!appState.activeUser) return;
+        const printable = el("p-area");
+        try {
+          const canvas = await html2canvas(printable, { scale: 2, backgroundColor: "#131b2e" });
+          const img = canvas.toDataURL("image/png");
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF("p", "mm", "a4");
+
+          doc.setFontSize(16);
+          doc.text("Reporte de Avances - Halterofilia V11", 15, 18);
+          doc.setFontSize(11);
+          doc.text(`Atleta: ${appState.activeUser.fname} ${appState.activeUser.lname} (${appState.activeUser.mail})`, 15, 26);
+          doc.text(`Fecha: ${new Date().toLocaleDateString("es-CL")}`, 15, 32);
+          doc.addImage(img, "PNG", 15, 40, 180, 130);
+          doc.setFontSize(9);
+          doc.text("Análisis/Diseño de Andres Aguiar V 1.1 Santiago de Chile Agosto 2026 - Contacto +56933395447", 15, 280);
+
+          doc.save(`Reporte_PR_${appState.activeUser.fname}_${appState.activeUser.lname}.pdf`);
+
+          const subj = encodeURIComponent(`Reporte de Avances PR - ${appState.activeUser.fname} ${appState.activeUser.lname}`);
+          const body = encodeURIComponent(`Hola ${appState.activeUser.fname},\n\nSe adjunta el reporte generado de tus avances.\n\nSaludos,\n🏋️ Asistente de Halterofilia V11`);
+          window.location.href = `mailto:${appState.activeUser.mail}?subject=${subj}&body=${body}`;
+        } catch (err) {
+          alert("Error al generar PDF: " + err.message);
         }
       }
 
-      e.addEventListener("DOMContentLoaded",(()=>{
-        s("b-inst").onclick=s("b-st").onclick=d;
-        s("b-cx").onclick=s("b-cx-r").onclick=s("b-cx-lic").onclick=m;
-        s("b-val").onclick=u;
-        s("b-sv").onclick=p;
-        s("b-sw").onclick=g;
-        s("b-rpt").onclick=w;
-        s("b-un").onclick=f;
-        s("t-sn").onclick=()=>h("sn");
-        s("t-cj").onclick=()=>h("cj");
-        s("i-sl").oninput=e=>x(parseInt(e.target.value));
-        s("i-wt").oninput=b;
-        s("b-comp").onclick=L;
-        s("b-pdf").onclick=_;
+      // 10. Módulo de Licenciamiento Offline
+      function openLicenseModal() {
+        if (!appState.activeUser) return;
+        const devId = getDeviceID();
+        const em = (appState.activeUser.mail || "atleta").trim().toLowerCase();
+        el("i-req-code").value = `REQ|${devId}|${em}`;
+        el("i-act-key").value = "";
+        el("m-lic").classList.remove("hd");
+      }
 
-        // Eventos de Licencia
-        s("b-lic").onclick=abrirModalLicencia;
-        s("b-exp-open-lic").onclick=()=>{ s("m-exp").classList.add("hd"); abrirModalLicencia(); };
-        s("b-copy-req").onclick=()=>{
-          navigator.clipboard.writeText(s("i-req-code").value);
-          alert("¡Código de solicitud copiado al portapapeles!");
-        };
-        s("b-val-act").onclick=procesarActivacion;
+      async function processActivation() {
+        if (!appState.activeUser) return;
+        const raw = el("i-act-key").value.trim();
+        try {
+          const parts = atob(raw).split("|");
+          if (parts.length < 5) return alert("Formato de clave inválido.");
 
-        o();
-        v();
-      }));
-    }();
+          const [prefix, devId, email, expPart, sigPart] = parts;
+          const expDate = expPart.replace("EXP:", "");
+          const receivedSig = sigPart.replace("SIG:", "");
+
+          if (devId !== getDeviceID()) return alert("Esta clave pertenece a otro dispositivo físico.");
+          if (email !== (appState.activeUser.mail || "atleta").trim().toLowerCase()) return alert("Esta clave está asociada a otro correo.");
+
+          const payload = `${prefix}|${devId}|${email}|EXP:${expDate}`;
+          const expectedSig = (await sha256(payload + SALT_SECRET)).substring(0, 16).toUpperCase();
+
+          if (receivedSig !== expectedSig) return alert("La firma digital no es válida o fue manipulada.");
+          if (new Date() > new Date(expDate)) return alert("La licencia ya ha caducado.");
+
+          localStorage.setItem("__APP_ACTIVATED__", "true");
+          localStorage.setItem("__APP_EXP_DATE__", expDate);
+          alert(`¡Licencia activada con éxito hasta: ${expDate}!`);
+          el("m-lic").classList.add("hd");
+          el("m-exp").classList.add("hd");
+          updateUI();
+        } catch (e) {
+          alert("Error al procesar la clave: Verifica el texto copiado.");
+        }
+      }
+
+      // 11. Conexión de Eventos del DOM
+      el("b-inst").onclick = openInstallModal;
+      el("b-st").onclick = openInstallModal;
+      el("b-cx").onclick = closeModals;
+      el("b-cx-r").onclick = closeModals;
+      el("b-cx-lic").onclick = closeModals;
+      el("b-val").onclick = validateSecret;
+      el("b-sv").onclick = saveUser;
+      el("b-sw").onclick = switchUser;
+      el("b-rpt").onclick = openReportModal;
+      el("b-un").onclick = toggleUnit;
+      el("b-add-mov").onclick = addNewMovement;
+      el("i-sl").oninput = e => onSliderChange(parseInt(e.target.value));
+      el("i-wt").oninput = onWeightInput;
+      el("b-comp").onclick = computeLoad;
+      el("b-pdf").onclick = generatePDF;
+      el("b-lic").onclick = openLicenseModal;
+      el("b-exp-open-lic").onclick = () => { el("m-exp").classList.add("hd"); openLicenseModal(); };
+      el("b-copy-req").onclick = () => {
+        navigator.clipboard.writeText(el("i-req-code").value);
+        alert("¡Código copiado al portapapeles!");
+      };
+      el("b-val-act").onclick = processActivation;
+      el("sel-alternatives").onchange = e => applySelectedOption(parseInt(e.target.value));
+
+      // 12. Inicialización
+      loadStorage();
+      renderMovements();
+      renderStockPanel();
+      updateUI();
+    });
   </script>
 </body>
 </html>
