@@ -2,1046 +2,657 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Halterofilia Pro - App Cliente</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Halterofilia Pro - Atleta & Barra Olímpica</title>
   <style>
     :root {
-      --bg-main: #0a0d14;
-      --bg-card: #121824;
-      --bg-card-alt: #182232;
-      --accent-cyan: #00e5ff;
-      --accent-gold: #ffb703;
-      --accent-red: #ff3366;
-      --accent-green: #10b981;
-      --text-primary: #f0f4f8;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
-      --border-color: #223044;
-      --font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --bg-dark: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --accent-cyan: #06b6d4;
+      --accent-blue: #3b82f6;
+      --accent-gold: #f59e0b;
+      --accent-red: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: var(--font-family);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      background-color: var(--bg-main);
-      color: var(--text-primary);
+      background-color: var(--bg-dark);
+      color: var(--text-main);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow-x: hidden;
+      align-items: center;
+      padding-bottom: 75px;
     }
 
     header {
-      background: rgba(18, 24, 36, 0.96);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border-color);
-      padding: 12px 20px;
+      width: 100%;
+      background: #111827;
+      border-bottom: 1px solid var(--card-border);
+      padding: 10px 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       position: sticky;
       top: 0;
-      z-index: 100;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .brand-logo {
-      width: 38px;
-      height: 38px;
-      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-gold));
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      color: #000;
-      font-size: 18px;
-      box-shadow: 0 0 15px rgba(0, 229, 255, 0.35);
-    }
-
-    .brand-text h1 {
-      font-size: 1.15rem;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-      background: linear-gradient(to right, #ffffff, var(--text-secondary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .brand-text span {
-      font-size: 0.72rem;
-      color: var(--accent-cyan);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      font-weight: 600;
-    }
-
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      z-index: 50;
       flex-wrap: wrap;
-    }
-
-    .btn {
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1px solid transparent;
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
       gap: 6px;
     }
 
-    .btn-cyan { background: var(--accent-cyan); color: #001219; }
-    .btn-cyan:hover { background: #33ecff; box-shadow: 0 0 14px rgba(0, 229, 255, 0.45); }
-
-    .btn-outline { background: transparent; border-color: var(--border-color); color: var(--text-primary); }
-    .btn-outline:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
-    .btn-outline.active { background: rgba(0, 229, 255, 0.15); border-color: var(--accent-cyan); color: var(--accent-cyan); }
-
-    .btn-gold { background: var(--accent-gold); color: #000; font-weight: 700; }
-    .btn-gold:hover { background: #ffc229; box-shadow: 0 0 14px rgba(255, 183, 3, 0.4); }
-
-    .btn-danger { background: var(--accent-red); color: #fff; }
-
-    .badge {
-      font-size: 0.7rem;
-      padding: 3px 8px;
-      border-radius: 12px;
+    .brand-title {
+      font-size: 1rem;
       font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-    .badge-trial { background: rgba(255, 183, 3, 0.2); color: var(--accent-gold); border: 1px solid var(--accent-gold); }
-    .badge-licensed { background: rgba(0, 229, 255, 0.2); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
-    .badge-expired { background: rgba(255, 51, 102, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
-
-    main {
-      flex: 1;
-      padding: 20px;
-      max-width: 1320px;
-      margin: 0 auto;
-      width: 100%;
-    }
-
-    .view-container {
-      display: none;
-      animation: fadeIn 0.3s ease-out;
-    }
-    .view-container.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .alert-banner {
-      padding: 14px 18px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 0.9rem;
-    }
-    .alert-danger {
-      background: rgba(255, 51, 102, 0.15);
-      border: 1px solid var(--accent-red);
-      color: #ff85a1;
-      font-weight: 600;
-    }
-
-    /* Rotary Selector */
-    .rotary-wrapper {
-      background: linear-gradient(180deg, var(--bg-card), var(--bg-card-alt));
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 18px;
-      margin-bottom: 22px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    }
-    .rotary-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    .rotary-title {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
       color: var(--accent-cyan);
-      font-weight: 800;
     }
-    .rotary-controls {
+
+    .header-actions {
       display: flex;
-      gap: 8px;
-    }
-    .wheel-container {
-      display: flex;
+      gap: 5px;
       align-items: center;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      scrollbar-width: none;
-      gap: 12px;
-      padding: 8px 2px;
-      user-select: none;
     }
-    .wheel-container::-webkit-scrollbar { display: none; }
-    .wheel-item {
-      flex: 0 0 auto;
-      scroll-snap-align: center;
-      padding: 12px 20px;
-      background: var(--bg-main);
-      border: 2px solid var(--border-color);
-      border-radius: 12px;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.2s ease;
-      min-width: 145px;
-    }
-    .wheel-item:hover {
-      border-color: rgba(0, 229, 255, 0.4);
-      transform: translateY(-2px);
-    }
-    .wheel-item.selected {
-      background: linear-gradient(135deg, rgba(0, 229, 255, 0.16), rgba(255, 183, 3, 0.12));
-      border-color: var(--accent-cyan);
-      box-shadow: 0 0 18px rgba(0, 229, 255, 0.35);
-      transform: scale(1.04);
-    }
-    .wheel-item h4 {
-      font-size: 0.92rem;
-      font-weight: 700;
+
+    .btn-header {
+      background: #27272a;
+      border: 1px solid #3f3f46;
       color: #fff;
-    }
-    .wheel-item p {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      margin-top: 3px;
-    }
-    .wheel-item.selected p {
-      color: var(--accent-cyan);
-      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
     }
 
-    /* Grid layout */
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: 360px 1fr;
-      gap: 20px;
-    }
-    @media (max-width: 992px) {
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-      }
+    .container {
+      width: 100%;
+      max-width: 680px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
 
-    .config-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 20px;
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
 
     .section-title {
-      font-size: 0.92rem;
+      font-size: 1rem;
       font-weight: 700;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 14px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .form-group {
-      margin-bottom: 14px;
-    }
-    .form-group label {
-      display: block;
-      font-size: 0.76rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .form-control {
-      width: 100%;
-      padding: 10px 14px;
-      background: var(--bg-main);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      color: #fff;
-      font-size: 0.9rem;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .form-control:focus {
-      border-color: var(--accent-cyan);
-    }
-    .form-hint {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      margin-top: 4px;
-      line-height: 1.4;
-    }
-
-    /* Horizontal PR Percentage Slider Styling */
-    .pr-slider-box {
-      background: var(--bg-card-alt);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 14px;
-      margin-top: 10px;
-      margin-bottom: 16px;
-    }
-    .slider-header {
+      margin-bottom: 12px;
+      color: var(--accent-cyan);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
     }
-    .slider-title {
-      font-size: 0.75rem;
+
+    .option-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .selectable-item {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .selectable-item.active {
+      border-color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.12);
+    }
+
+    .radio-circle {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .selectable-item.active .radio-circle {
+      border-color: var(--accent-cyan);
+    }
+
+    .selectable-item.active .radio-circle::after {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+    }
+
+    .btn-action-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      border: none;
+      color: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .btn-add-center {
+      background: transparent;
+      border: 1px dashed var(--accent-cyan);
+      color: var(--accent-cyan);
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 14px;
+    }
+
+    .wheel-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 12px;
+    }
+
+    .wheel-text {
+      text-align: center;
+      font-size: 1.1rem;
       font-weight: 700;
       color: var(--accent-cyan);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
-    .slider-badge {
-      font-size: 0.95rem;
-      font-weight: 800;
-      color: var(--accent-gold);
-      background: rgba(255, 183, 3, 0.12);
-      padding: 2px 8px;
-      border-radius: 6px;
-      border: 1px solid rgba(255, 183, 3, 0.4);
+
+    .btn-wheel {
+      background: #334155;
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      cursor: pointer;
     }
-    .custom-range {
+
+    .slider-track {
       width: 100%;
-      -webkit-appearance: none;
-      appearance: none;
       height: 8px;
       border-radius: 4px;
-      background: linear-gradient(to right, #2563eb, var(--accent-cyan), var(--accent-gold), var(--accent-red));
+      background: #334155;
       outline: none;
-      cursor: pointer;
-      margin: 8px 0;
-    }
-    .custom-range::-webkit-slider-thumb {
       -webkit-appearance: none;
-      appearance: none;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: #ffffff;
-      border: 3px solid var(--accent-cyan);
-      box-shadow: 0 0 10px rgba(0, 229, 255, 0.7);
-      cursor: pointer;
-      transition: transform 0.1s ease;
     }
-    .custom-range::-webkit-slider-thumb:hover {
-      transform: scale(1.15);
-    }
-    .custom-range::-moz-range-thumb {
-      width: 22px;
-      height: 22px;
+
+    .slider-track::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
-      background: #ffffff;
-      border: 3px solid var(--accent-cyan);
-      box-shadow: 0 0 10px rgba(0, 229, 255, 0.7);
+      background: var(--accent-cyan);
       cursor: pointer;
     }
-    .quick-pct-grid {
+
+    .quick-chips {
       display: flex;
       flex-wrap: wrap;
       gap: 5px;
-      margin-top: 10px;
+      margin-top: 8px;
     }
-    .pct-btn {
-      flex: 1 0 calc(20% - 6px);
-      padding: 5px 2px;
-      background: var(--bg-main);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      color: var(--text-secondary);
-      font-size: 0.72rem;
-      font-weight: 700;
+
+    .chip-btn {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 5px 8px;
+      border-radius: 5px;
+      font-size: 0.75rem;
+      font-weight: 600;
       cursor: pointer;
-      text-align: center;
-      transition: all 0.15s ease;
     }
-    .pct-btn:hover {
-      border-color: var(--accent-cyan);
-      color: var(--accent-cyan);
-      background: rgba(0, 229, 255, 0.08);
-    }
-    .pct-btn.active {
+
+    .chip-btn.active {
       background: var(--accent-cyan);
-      color: #001219;
+      color: #000;
       border-color: var(--accent-cyan);
-      box-shadow: 0 2px 8px rgba(0, 229, 255, 0.4);
-    }
-
-    .segmented-control {
-      display: flex;
-      background: var(--bg-main);
-      padding: 4px;
-      border-radius: 10px;
-      border: 1px solid var(--border-color);
-      gap: 4px;
-    }
-    .segmented-control button {
-      flex: 1;
-      padding: 8px 10px;
-      background: none;
-      border: none;
-      color: var(--text-secondary);
-      border-radius: 7px;
-      font-weight: 700;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .segmented-control button.active {
-      background: var(--bg-card-alt);
-      color: var(--accent-cyan);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-    }
-
-    /* Inventory interactive grid */
-    .inventory-plates {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(62px, 1fr));
-      gap: 8px;
-      margin-top: 10px;
-    }
-    .plate-chip {
-      padding: 8px 2px;
-      border-radius: 8px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      position: relative;
-      border: 2px solid rgba(255,255,255,0.15);
-      user-select: none;
-    }
-    .plate-chip:hover {
-      transform: translateY(-2px);
-    }
-    .plate-chip.disabled {
-      opacity: 0.22;
-      filter: grayscale(1);
-      border-style: dashed;
-      transform: none;
-    }
-    .plate-chip .weight-val {
-      font-size: 0.92rem;
-      font-weight: 800;
-      line-height: 1;
-    }
-    .plate-chip .unit-val {
-      font-size: 0.62rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-top: 3px;
-    }
-
-    /* Plate Colors */
-    .plate-lb-black { background: #161a22; color: #fff; border-color: #384252; }
-    .plate-kg-orange { background: #ea580c; color: #fff; border-color: #ff782e; }
-    .plate-kg-blue { background: #2563eb; color: #fff; border-color: #4f87ff; }
-    .plate-kg-yellow { background: #eab308; color: #000; border-color: #facc15; }
-    .plate-kg-green { background: #16a34a; color: #fff; border-color: #22c55e; }
-    .plate-kg-white { background: #f8fafc; color: #0f172a; border-color: #cbd5e1; }
-    .plate-kg-red { background: #dc2626; color: #fff; border-color: #ef4444; }
-
-    /* Realistic Barbell Studio */
-    .barbell-studio {
-      background: radial-gradient(circle at center, #1b2638 0%, #0c1017 100%);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 24px 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      overflow-x: auto;
-      min-height: 300px;
-      justify-content: center;
     }
 
     .barbell-stage {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      height: 200px;
-      width: 100%;
-      min-width: 680px;
-    }
-
-    .bar-shaft {
-      height: 18px;
-      width: 200px;
-      background: linear-gradient(180deg, #b0b7c3, #5a6473, #3b424d, #b0b7c3);
-      border-radius: 2px;
-      position: relative;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.6);
-      z-index: 1;
-    }
-    .knurl-mark {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 32px;
-      background: repeating-linear-gradient(45deg, rgba(0,0,0,0.25), rgba(0,0,0,0.25) 2px, transparent 2px, transparent 4px);
-    }
-    .knurl-left { left: 24px; }
-    .knurl-right { right: 24px; }
-
-    .bar-collar {
-      width: 16px;
-      height: 44px;
-      background: linear-gradient(180deg, #d8dee9, #707b8e, #3d4554);
-      border-radius: 4px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.7);
-      z-index: 2;
-    }
-    .sleeve-cap {
-      width: 14px;
-      height: 26px;
-      background: #475569;
-      border-radius: 3px;
-      box-shadow: inset 0 0 4px rgba(0,0,0,0.6);
-      z-index: 2;
-    }
-
-    .plate-group {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      z-index: 3;
-    }
-    .plate-group.left {
-      flex-direction: row-reverse;
-      padding-right: 4px;
-    }
-    .plate-group.right {
-      flex-direction: row;
-      padding-left: 4px;
-    }
-
-    .css-plate {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border-radius: 5px;
-      font-size: 0.65rem;
-      font-weight: 900;
-      writing-mode: vertical-lr;
-      transform: rotate(180deg);
-      box-shadow: inset 0 0 8px rgba(0,0,0,0.45), 2px 0 6px rgba(0,0,0,0.6);
-      border: 1px solid rgba(255,255,255,0.2);
-      user-select: none;
-      transition: all 0.25s ease;
-    }
-
-    .load-summary {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      margin-top: 20px;
-      padding: 12px 18px;
-      background: rgba(0,0,0,0.45);
+      background: #090d16;
+      border: 1px solid var(--card-border);
       border-radius: 10px;
-      border: 1px solid var(--border-color);
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .load-metric {
+      padding: 20px 6px;
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: auto;
+      margin: 12px 0;
+      min-height: 120px;
     }
-    .metric-label {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+
+    .bar-steel {
+      height: 12px;
+      background: linear-gradient(180deg, #e2e8f0 0%, #64748b 100%);
+      display: flex;
+      align-items: center;
+      border-radius: 3px;
     }
-    .metric-val {
-      font-size: 1.28rem;
+
+    .collar {
+      width: 10px;
+      height: 26px;
+      background: #94a3b8;
+      border: 1px solid #475569;
+    }
+
+    .plate-stack {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .plate-visual {
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.55rem;
       font-weight: 800;
       color: #fff;
-    }
-    .metric-val span {
-      font-size: 0.82rem;
-      color: var(--accent-cyan);
+      text-shadow: 0 1px 2px #000;
+      writing-mode: vertical-lr;
     }
 
-    .combos-container {
-      margin-top: 18px;
-      width: 100%;
-    }
-    .combo-select {
-      width: 100%;
-      background: var(--bg-card-alt);
-      border: 1px solid var(--accent-cyan);
-      color: #fff;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-weight: 600;
-      outline: none;
-      font-size: 0.9rem;
+    .plate-45lb, .plate-35lb, .plate-25lb, .plate-15lb, .plate-10lb { background: #18181b; border: 1px solid #3f3f46; color: #a1a1aa; }
+    .plate-25kg { background: #ea580c; border: 1px solid #c2410c; }
+    .plate-20kg { background: #2563eb; border: 1px solid #1d4ed8; }
+    .plate-15kg { background: #eab308; border: 1px solid #ca8a04; color: #000; }
+    .plate-10kg { background: #16a34a; border: 1px solid #15803d; }
+    .plate-5kg  { background: #f8fafc; border: 1px solid #cbd5e1; color: #000; }
+    .plate-2_5kg { background: #dc2626; border: 1px solid #b91c1c; }
+    .plate-2kg   { background: #3b82f6; border: 1px solid #2563eb; }
+    .plate-1_5kg { background: #facc15; border: 1px solid #eab308; color: #000; }
+    .plate-1kg   { background: #22c55e; border: 1px solid #16a34a; }
+    .plate-0_5kg { background: #f1f5f9; border: 1px solid #94a3b8; color: #000; }
+
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+      gap: 6px;
+      margin-top: 8px;
     }
 
-    /* Tables & Charts */
-    .pr-table-container {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      overflow-x: auto;
-      margin-top: 20px;
-    }
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-    }
-    .data-table th {
-      background: var(--bg-card-alt);
-      padding: 12px 16px;
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-secondary);
-      border-bottom: 1px solid var(--border-color);
-    }
-    .data-table td {
-      padding: 12px 16px;
-      font-size: 0.88rem;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .data-table tr:hover td {
-      background: rgba(255,255,255,0.02);
+    .inv-chip {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 6px 3px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 0.7rem;
+      font-weight: 700;
     }
 
-    .chart-container {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 20px;
-      margin-top: 20px;
-    }
-    canvas#prChart {
-      width: 100%;
-      height: 270px;
-      max-height: 270px;
+    .inv-chip.inactive {
+      opacity: 0.3;
+      text-decoration: line-through;
+      border-color: #334155;
     }
 
-    /* Modal Windows */
-    .modal-backdrop {
+    .modal-overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(4, 7, 12, 0.85);
-      backdrop-filter: blur(8px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 200;
-      padding: 16px;
-    }
-    .modal-backdrop.hidden {
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(3px);
       display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
     }
+
+    .modal-overlay.open { display: flex; }
+
     .modal-box {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 14px;
-      max-width: 520px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
       width: 100%;
-      padding: 24px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-      position: relative;
+      max-width: 440px;
+      padding: 18px;
       max-height: 90vh;
       overflow-y: auto;
     }
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 18px;
-    }
-    .modal-header h3 {
-      font-size: 1.25rem;
-      color: #fff;
-    }
-    .modal-close {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-    .modal-close:hover { color: #fff; }
 
-    footer {
-      background: #070a0e;
-      border-top: 1px solid var(--border-color);
-      padding: 18px 20px;
-      text-align: center;
+    .form-group {
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-group label {
       font-size: 0.8rem;
       color: var(--text-muted);
-      line-height: 1.6;
-      margin-top: 32px;
     }
 
-    @media print {
-      header, footer, .rotary-wrapper, .config-card, .btn, .nav-actions, .modal-backdrop, #lockoutBanner {
-        display: none !important;
-      }
-      body, main {
-        background: #fff !important;
-        color: #000 !important;
-        padding: 0 !important;
-      }
-      .view-container {
-        display: block !important;
-      }
-      .chart-container, .pr-table-container {
-        border: 1px solid #ddd !important;
-        box-shadow: none !important;
-        page-break-inside: avoid;
-      }
+    .form-group input, .form-group select, .form-group textarea {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      color: #fff;
+      padding: 9px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    #licenseLockBanner {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.96);
+      z-index: 200;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #020617;
+      border-top: 1px solid #1e293b;
+      padding: 8px;
+      text-align: center;
+      font-size: 0.7rem;
+      color: #64748b;
+      z-index: 40;
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="brand">
-      <div class="brand-logo">HP</div>
-      <div class="brand-text">
-        <h1>Halterofilia Pro <span id="wodHeaderBadge">[CENTRAL]</span></h1>
-        <span id="licenseStatusText">Validando...</span>
-      </div>
+  <!-- BANNER DE BLOQUEO POR TRIAL -->
+  <div id="licenseLockBanner">
+    <div style="font-size: 3rem; margin-bottom: 12px;">🔒</div>
+    <h2 style="color: var(--accent-red); margin-bottom: 10px;">Período de Prueba Expirado</h2>
+    <p style="margin-bottom: 14px; font-size: 0.95rem; color: #cbd5e1;">
+      Para la Instalación definitiva, contactar al <strong>+56933395447</strong>
+    </p>
+    <div style="background: #1e293b; padding: 12px; border-radius: 8px; margin-bottom: 14px; width: 100%; max-width: 360px;">
+      <small style="color: var(--text-muted); display: block; margin-bottom: 4px;">Código de Solicitud (REQ):</small>
+      <input type="text" id="lockReqCode" readonly style="width: 100%; font-size: 0.75rem; text-align: center;">
     </div>
-    <div class="nav-actions">
-      <button class="btn btn-outline active" id="btnNavWorkout">🏋️ Barra & Carga</button>
-      <button class="btn btn-outline" id="btnNavPR">🏆 Récords (PR)</button>
-      <button class="btn btn-outline" id="btnNavReports">📊 Reportes</button>
-      <button class="btn btn-outline" id="btnSwitchProfile">👤 <span id="profileDisplayName">Atleta</span></button>
-      <button class="btn btn-gold" id="btnOpenInstallModal">🔑 Instalación / Licencia</button>
+    <div class="form-group" style="width: 100%; max-width: 360px;">
+      <input type="text" id="lockActivationKey" placeholder="Pega tu Clave de Activación Base64">
+      <button class="btn-action-primary" id="btnUnlockFromLock" style="margin-top: 8px;">Activar Licencia</button>
+    </div>
+  </div>
+
+  <header>
+    <div class="brand-title">🏋️ <span>Halterofilia Pro</span></div>
+    <div class="header-actions">
+      <button class="btn-header" id="btnSwitchAthlete">👤 <span id="currentAthleteLabel">Atleta</span></button>
+      <button class="btn-header" id="btnOpenReports">📊 Reportes</button>
+      <button class="btn-header" id="btnOpenPRModal">🏆 PRs</button>
+      <button class="btn-header" id="btnOpenLicenseModal">🔑 Licencia</button>
+      <button class="btn-header" id="btnSwitchParams">⚙️ Parámetros</button>
     </div>
   </header>
 
-  <div id="lockoutBanner" class="alert-banner alert-danger" style="display: none; margin: 20px auto; max-width: 1320px;">
-    ⚠️ <strong>ACCESO BLOQUEADO:</strong> Para la Instalación definitiva, contactar al +56933395447.
+  <div class="container">
+
+    <!-- PASO 1: SELECCIÓN PREVIA -->
+    <section id="step1Screen" class="card">
+      <div class="section-title">
+        <span>Paso 1 de 2 • Configuración de Sesión</span>
+      </div>
+
+      <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; display: block;">Centro de Entrenamiento (WOD)</label>
+      <div class="option-grid" id="centersContainer"></div>
+
+      <button class="btn-add-center" id="btnOpenAddCenter">+ Agregar Nuevo Centro de Entrenamiento</button>
+
+      <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; display: block;">Unidad Objetivo</label>
+      <div class="option-grid">
+        <div class="selectable-item active" data-type="unit" data-val="kg" id="unitKg">
+          <div><strong>Kilogramos (KG)</strong><br><small style="color:var(--text-muted)">1 kg = 2.20462 lbs</small></div>
+          <div class="radio-circle"></div>
+        </div>
+        <div class="selectable-item" data-type="unit" data-val="lbs" id="unitLbs">
+          <div><strong>Libras (LBS)</strong><br><small style="color:var(--text-muted)">Estándar imperial</small></div>
+          <div class="radio-circle"></div>
+        </div>
+      </div>
+
+      <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; display: block;">Barra Olímpica</label>
+      <div class="option-grid">
+        <div class="selectable-item active" data-type="bar" data-val="men" id="barMen">
+          <div><strong>Barra Hombre (20 kg / 45 lb)</strong><br><small style="color:var(--text-muted)">28 mm • Estándar</small></div>
+          <div class="radio-circle"></div>
+        </div>
+        <div class="selectable-item" data-type="bar" data-val="women" id="barWomen">
+          <div><strong>Barra Mujer (15 kg / 35 lb)</strong><br><small style="color:var(--text-muted)">25 mm • Estándar</small></div>
+          <div class="radio-circle"></div>
+        </div>
+      </div>
+
+      <button class="btn-action-primary" id="btnStartWorkout">Comenzar Entrenamiento ➔</button>
+    </section>
+
+    <!-- PASO 2: ENTORNO PRINCIPAL -->
+    <section id="step2Screen" class="card" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--card-border);">
+        <div style="font-size: 0.85rem;">
+          <strong id="badgeCenterName" style="color: var(--accent-cyan);">Box Central</strong> • 
+          <span id="badgeUnit">KG</span> • 
+          <span id="badgeBar">20 kg</span>
+        </div>
+        <button class="btn-header" id="btnQuickEdit">Editar</button>
+      </div>
+
+      <!-- Selector rotativo de movimientos -->
+      <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; display: block;">Movimiento de Halterofilia</label>
+      <div class="wheel-container">
+        <button class="btn-wheel" id="btnPrevMove">◀</button>
+        <div>
+          <div class="wheel-text" id="activeMoveTitle">Snatch</div>
+          <small id="activeMovePR" style="color: var(--text-muted);">PR: 100 kg</small>
+        </div>
+        <button class="btn-wheel" id="btnNextMove">▶</button>
+      </div>
+
+      <!-- Control de Porcentaje -->
+      <div style="margin: 12px 0;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Porcentaje de Carga:</span>
+          <strong id="pctLabel" style="color: var(--accent-cyan); font-size: 1.1rem;">80%</strong>
+        </div>
+        <input type="range" min="0" max="120" value="80" class="slider-track" id="prSlider">
+        <div class="quick-chips" id="quickChipsContainer"></div>
+      </div>
+
+      <!-- Peso Calculado -->
+      <div style="text-align: center; padding: 10px; background: #0f172a; border-radius: 8px; border: 1px solid var(--card-border);">
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Peso Objetivo en Barra:</span>
+        <div style="font-size: 1.9rem; font-weight: 800; color: #fff;" id="targetWeightValue">80.0 kg</div>
+      </div>
+
+      <!-- Barra Olímpica -->
+      <div class="barbell-stage">
+        <div class="plate-stack" id="leftPlates"></div>
+        <div class="collar"></div>
+        <div class="bar-steel" style="width: 70px;"></div>
+        <div class="collar"></div>
+        <div class="plate-stack" id="rightPlates"></div>
+      </div>
+
+      <!-- Alternativas Viables Generadas -->
+      <div style="margin-bottom: 12px;">
+        <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 4px;">
+          Alternativas de Carga (<span id="solutionsCount">0</span> opciones disponibles):
+        </label>
+        <select id="loadAlternativesDropdown" style="width: 100%; background: #0f172a; border: 1px solid var(--card-border); color: #fff; padding: 9px; border-radius: 6px;"></select>
+      </div>
+
+      <!-- Inventario de Discos -->
+      <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 12px;">Inventario Disponible (Toca para alternar):</label>
+      <div class="inventory-grid" id="inventoryGrid"></div>
+    </section>
+
   </div>
 
-  <main id="mainAppContent">
-    <!-- VIEW 1: WORKOUT STUDIO -->
-    <section id="viewWorkout" class="view-container active">
-      <!-- Rotary Selector -->
-      <div class="rotary-wrapper">
-        <div class="rotary-header">
-          <div class="rotary-title">🔄 Selector Rotativo de Movimientos Olímpicos</div>
-          <div class="rotary-controls">
-            <button class="btn btn-outline" id="btnWheelPrev">◀</button>
-            <button class="btn btn-outline" id="btnWheelNext">▶</button>
-          </div>
-        </div>
-        <div class="wheel-container" id="movementWheelContainer"></div>
-      </div>
-
-      <div class="dashboard-grid">
-        <!-- Configuration Column -->
-        <div class="config-card">
-          <div class="section-title">⚙️ Entorno y Parámetros</div>
-
-          <div class="form-group">
-            <label for="wodSelect">Centro de Entrenamiento (WOD / Box)</label>
-            <select id="wodSelect" class="form-control">
-              <option value="central">WOD Central Box (Inventario Completo Lbs + Kgs)</option>
-              <option value="katsu">WOD Katsu Egaña (Lbs + Fraccionales Kgs)</option>
-              <option value="elite">WOD Elite Barbell (Competición Estándar Kgs)</option>
-            </select>
-            <div class="form-hint">Carga el stock específico de discos físicos del lugar.</div>
-          </div>
-
-          <div class="form-group">
-            <label>Unidad Objetivo</label>
-            <div class="segmented-control" id="unitToggle">
-              <button type="button" data-unit="kg" class="active">KILOGRAMOS (KG)</button>
-              <button type="button" data-unit="lbs">LIBRAS (LBS)</button>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="barbellSelect">Barra Olímpica</label>
-            <select id="barbellSelect" class="form-control">
-              <option value="male">Barra Hombre (20 kg / 45 lb)</option>
-              <option value="female">Barra Mujer (15 kg / 35 lb)</option>
-            </select>
-          </div>
-
-          <!-- PR Horizontal Percentage Slider -->
-          <div class="pr-slider-box">
-            <div class="slider-header">
-              <span class="slider-title">📊 % de Récord Personal (PR)</span>
-              <span class="slider-badge" id="sliderPctDisplay">100%</span>
-            </div>
-            <input type="range" min="0" max="120" value="100" step="1" class="custom-range" id="prPercentSlider">
-            <div style="display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--text-muted); margin-top: 2px;">
-              <span>0%</span>
-              <span>50%</span>
-              <span>75%</span>
-              <span>100% (PR)</span>
-              <span>120%</span>
-            </div>
-
-            <!-- Common percentages quick buttons -->
-            <div class="quick-pct-grid" id="quickPctButtons">
-              <button type="button" class="pct-btn" data-pct="50">50%</button>
-              <button type="button" class="pct-btn" data-pct="60">60%</button>
-              <button type="button" class="pct-btn" data-pct="70">70%</button>
-              <button type="button" class="pct-btn" data-pct="75">75%</button>
-              <button type="button" class="pct-btn" data-pct="80">80%</button>
-              <button type="button" class="pct-btn" data-pct="85">85%</button>
-              <button type="button" class="pct-btn" data-pct="90">90%</button>
-              <button type="button" class="pct-btn" data-pct="95">95%</button>
-              <button type="button" class="pct-btn active" data-pct="100">100%</button>
-            </div>
-
-            <div id="prReferenceNote" class="form-hint" style="color: var(--accent-cyan); font-weight: 600; margin-top: 8px;">
-              PR de referencia: 100.0 kg
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="targetWeightInput">Carga Objetivo Total</label>
-            <div style="display: flex; gap: 8px;">
-              <input type="number" id="targetWeightInput" class="form-control" value="100" step="0.5" min="15">
-              <button class="btn btn-cyan" id="btnApplyPR">Cargar 100% PR</button>
-            </div>
-            <div class="form-hint" id="unitConversionHint">100.0 kg = 220.5 lbs</div>
-          </div>
-
-          <!-- Interactive Inventory -->
-          <div class="section-title" style="margin-top: 22px;">
-            📦 Inventario Físico (Toca para Activar/Desactivar)
-          </div>
-          <div class="inventory-plates" id="inventoryContainer"></div>
-        </div>
-
-        <!-- Barbell Visualization and Combos -->
-        <div>
-          <div class="barbell-studio">
-            <div class="barbell-stage">
-              <!-- Left Sleeves & Plates -->
-              <div class="sleeve-cap"></div>
-              <div class="plate-group left" id="leftPlatesGroup"></div>
-              <div class="bar-collar"></div>
-
-              <!-- Bar Shaft -->
-              <div class="bar-shaft">
-                <div class="knurl-mark knurl-left"></div>
-                <div class="knurl-mark knurl-right"></div>
-              </div>
-
-              <!-- Right Sleeves & Plates -->
-              <div class="bar-collar"></div>
-              <div class="plate-group right" id="rightPlatesGroup"></div>
-              <div class="sleeve-cap"></div>
-            </div>
-
-            <div class="load-summary">
-              <div class="load-metric">
-                <span class="metric-label">Movimiento Activo</span>
-                <span class="metric-val" id="dispActiveMoveName">Snatch</span>
-              </div>
-              <div class="load-metric">
-                <span class="metric-label">Peso Barra</span>
-                <span class="metric-val" id="dispBarWeight">20.0 <span>kg</span></span>
-              </div>
-              <div class="load-metric">
-                <span class="metric-label">Carga Por Lado</span>
-                <span class="metric-val" id="dispSideWeight">40.0 <span>kg</span></span>
-              </div>
-              <div class="load-metric">
-                <span class="metric-label">Carga Total Real</span>
-                <span class="metric-val" style="color: var(--accent-cyan);" id="dispTotalCalculated">100.0 <span>kg</span></span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Dropdown of Hybrid Alternatives -->
-          <div class="config-card combos-container">
-            <div class="section-title">🔀 Alternativas de Carga Simétrica Híbrida</div>
-            <p class="form-hint" style="margin-bottom: 10px;">
-              Combinaciones exactas encontradas combinando libras y kilos según inventario disponible:
-            </p>
-            <select id="alternativeCombosSelect" class="combo-select"></select>
-            <div id="comboDetailsText" style="margin-top: 10px; font-size: 0.86rem; color: var(--accent-gold);"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- VIEW 2: PERSONAL RECORDS -->
-    <section id="viewPR" class="view-container">
-      <div class="config-card">
-        <div class="section-title">🏆 Actualizar Récord Personal (PR)</div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; align-items: flex-end;">
-          <div class="form-group" style="margin: 0;">
-            <label for="prMovementSelect">Movimiento Halterofilia</label>
-            <select id="prMovementSelect" class="form-control"></select>
-          </div>
-          <div class="form-group" style="margin: 0;">
-            <label for="prWeightInput">Peso Levantado (KG)</label>
-            <input type="number" id="prWeightInput" class="form-control" step="0.5" placeholder="Ej: 115.0">
-          </div>
-          <div class="form-group" style="margin: 0;">
-            <label for="prDateInput">Fecha de Registro</label>
-            <input type="date" id="prDateInput" class="form-control">
-          </div>
-          <button class="btn btn-cyan" id="btnSavePR" style="height: 42px;">💾 Guardar Récord</button>
-        </div>
-      </div>
-
-      <div class="pr-table-container">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Movimiento</th>
-              <th>Récord (KG)</th>
-              <th>Equivalente (LBS)</th>
-              <th>Fecha de Registro</th>
-              <th>Atleta</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
-          <tbody id="prTableBody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- VIEW 3: REPORTS & EXPORT -->
-    <section id="viewReports" class="view-container">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
-        <div>
-          <h2>📊 Reporte Comparativo de Desempeño</h2>
-          <p class="form-hint">Evolución de mejores marcas registradas y balance deportivo.</p>
-        </div>
-        <div style="display: flex; gap: 8px;">
-          <button class="btn btn-outline" id="btnPrintReport">🖨️ Exportar / Imprimir PDF</button>
-          <button class="btn btn-gold" id="btnEmailReport">✉️ Enviar por Correo</button>
-        </div>
-      </div>
-
-      <div class="chart-container">
-        <canvas id="prChart"></canvas>
-      </div>
-
-      <div class="pr-table-container" style="margin-top: 24px;">
-        <div class="section-title" style="padding: 16px 16px 0 16px; border: none;">📋 Resumen de Mejores Marcas</div>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Movimiento Halterofilia</th>
-              <th>Mejor Marca (KG)</th>
-              <th>Mejor Marca (LBS)</th>
-              <th>Fecha de la Marca</th>
-            </tr>
-          </thead>
-          <tbody id="reportsTableBody"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
-
-  <!-- MODAL: INSTALLATION & OFFLINE ACTIVATION -->
-  <div id="modalInstall" class="modal-backdrop hidden">
+  <!-- MODAL: GESTIÓN DE ATLETAS -->
+  <div class="modal-overlay" id="athletesModal">
     <div class="modal-box">
-      <div class="modal-header">
-        <h3>🚀 Instalación y Licenciamiento</h3>
-        <button class="modal-close" id="btnCloseInstallModal">&times;</button>
+      <h3 style="margin-bottom: 10px; color: var(--accent-cyan);">👥 Perfiles de Atletas</h3>
+      <div class="option-grid" id="athletesListContainer"></div>
+      
+      <div style="border-top: 1px solid var(--card-border); padding-top: 12px; margin-top: 12px;">
+        <h4 style="font-size: 0.85rem; margin-bottom: 8px;">Agregar Nuevo Perfil:</h4>
+        <div class="form-group">
+          <input type="text" id="newAthleteName" placeholder="Nombre y Apellido">
+        </div>
+        <div class="form-group">
+          <input type="email" id="newAthleteEmail" placeholder="Correo Electrónico">
+        </div>
+        <button class="btn-action-primary" id="btnSaveNewAthlete">Guardar Atleta</button>
       </div>
-
-      <div id="installSection">
-        <div class="form-group">
-          <label for="installKeyInput">Clave Maestra de Instalación</label>
-          <input type="password" id="installKeyInput" class="form-control" placeholder="Ingrese clave para desbloquear">
-        </div>
-        <div class="form-group">
-          <label for="regFirstName">Nombre del Atleta</label>
-          <input type="text" id="regFirstName" class="form-control" placeholder="Ej: Roberto">
-        </div>
-        <div class="form-group">
-          <label for="regLastName">Apellido</label>
-          <input type="text" id="regLastName" class="form-control" placeholder="Ej: Muñoz">
-        </div>
-        <div class="form-group">
-          <label for="regEmail">Correo Electrónico</label>
-          <input type="email" id="regEmail" class="form-control" placeholder="roberto@halterofilia.cl">
-        </div>
-        <div id="installErrorMsg" style="color: var(--accent-red); font-size: 0.8rem; margin-bottom: 12px; display: none;"></div>
-        <button class="btn btn-cyan" id="btnSubmitInstall" style="width: 100%; justify-content: center; padding: 12px;">Comenzar Periodo de Prueba (3 Días Gratis)</button>
-      </div>
-
-      <!-- Offline License Activation Box -->
-      <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border-color);">
-        <h4 style="font-size: 0.95rem; margin-bottom: 8px; color: var(--accent-cyan);">🔑 Activación Definitiva Offline</h4>
-        <div class="form-group">
-          <label>Código de Solicitud (REQ)</label>
-          <input type="text" id="reqCodeDisplay" class="form-control" readonly style="font-family: monospace; font-size: 0.8rem; background: #070a0e;">
-          <div class="form-hint">Envía este código al administrador (+56933395447) para recibir tu token.</div>
-        </div>
-        <div class="form-group">
-          <label for="activationTokenInput">Pegar Token de Activación (Base64)</label>
-          <textarea id="activationTokenInput" class="form-control" rows="3" placeholder="Pegar token provisto por el panel administrador"></textarea>
-        </div>
-        <button class="btn btn-gold" id="btnValidateOfflineLicense" style="width: 100%; justify-content: center; padding: 10px;">Validar y Activar Licencia</button>
+      <div style="margin-top: 10px;">
+        <button class="btn-header" style="width: 100%;" id="btnCloseAthletesModal">Cerrar</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: SWITCH PROFILES -->
-  <div id="modalProfiles" class="modal-backdrop hidden">
+  <!-- MODAL: INSTALACIÓN INICIAL -->
+  <div class="modal-overlay" id="installModal">
     <div class="modal-box">
-      <div class="modal-header">
-        <h3>👥 Gestión de Perfiles de Atletas</h3>
-        <button class="modal-close" id="btnCloseProfilesModal">&times;</button>
+      <h3 style="margin-bottom: 10px; color: var(--accent-cyan);">⚙️ Instalación de la Aplicación</h3>
+      <div class="form-group">
+        <label>Clave de Instalación:</label>
+        <input type="password" id="installPassInput" placeholder="Ingresa la clave maestra">
       </div>
       <div class="form-group">
-        <label>Perfiles Registrados en este Dispositivo</label>
-        <div id="profilesListContainer" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;"></div>
+        <label>Nombre del Atleta:</label>
+        <input type="text" id="installFirstName" placeholder="Nombre">
       </div>
-      <button class="btn btn-outline" id="btnAddNewProfile" style="width: 100%; justify-content: center;">+ Registrar Nuevo Perfil</button>
+      <div class="form-group">
+        <label>Apellido:</label>
+        <input type="text" id="installLastName" placeholder="Apellido">
+      </div>
+      <div class="form-group">
+        <label>Correo Electrónico:</label>
+        <input type="email" id="installEmail" placeholder="correo@ejemplo.com">
+      </div>
+      <button class="btn-action-primary" id="btnConfirmInstall">Completar Instalación</button>
+    </div>
+  </div>
+
+  <!-- MODAL: LICENCIA -->
+  <div class="modal-overlay" id="licenseModal">
+    <div class="modal-box">
+      <h3 style="margin-bottom: 10px; color: var(--accent-gold);">🔑 Licencia & Activación Offline</h3>
+      <div style="background: #0f172a; padding: 10px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--card-border);">
+        <small style="color: var(--text-muted); display: block;">Estado de Licencia:</small>
+        <strong id="licenseStatusText" style="color: var(--accent-cyan);">Trial Activo</strong>
+        <small id="licenseExpiryText" style="display: block; color: var(--text-muted); margin-top: 2px;"></small>
+      </div>
+      <div class="form-group">
+        <label>Código de Solicitud (REQ):</label>
+        <input type="text" id="modalReqCode" readonly>
+      </div>
+      <div class="form-group">
+        <label>Clave de Activación (Token Base64):</label>
+        <textarea id="activationTokenInput" rows="3" placeholder="Pega el token generado por el Administrador"></textarea>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 10px;">
+        <button class="btn-header" style="flex:1;" id="btnCloseLicenseModal">Cerrar</button>
+        <button class="btn-action-primary" style="flex:1; padding: 8px;" id="btnActivateToken">Activar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: REPORTES -->
+  <div class="modal-overlay" id="reportsModal">
+    <div class="modal-box">
+      <h3 style="margin-bottom: 10px; color: var(--accent-cyan);">📊 Reporte de Rendimiento</h3>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">
+        Historial de PRs para: <strong id="reportAthleteName" style="color: #fff;"></strong>
+      </p>
+
+      <div style="background: #090d16; border: 1px solid var(--card-border); border-radius: 8px; padding: 10px; margin-bottom: 12px;">
+        <canvas id="prChartCanvas" width="380" height="200" style="width: 100%; height: auto;"></canvas>
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-top: 10px;">
+        <button class="btn-header" style="flex:1;" id="btnPrintReport">📄 Exportar / Imprimir PDF</button>
+        <button class="btn-header" style="flex:1;" id="btnEmailReport">✉️ Enviar por Correo</button>
+      </div>
+      <button class="btn-header" style="width: 100%; margin-top: 8px;" id="btnCloseReportsModal">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- MODAL: AGREGAR CENTRO -->
+  <div class="modal-overlay" id="addCenterModal">
+    <div class="modal-box">
+      <h3 style="margin-bottom: 12px; color: var(--accent-cyan);">Nuevo Centro de Entrenamiento</h3>
+      <div class="form-group">
+        <label>Nombre del Centro / Box:</label>
+        <input type="text" id="newCenterName" placeholder="Ej. Katsu Fitness Egaña">
+      </div>
+      <div class="form-group">
+        <label>Descripción:</label>
+        <input type="text" id="newCenterDesc" placeholder="Ej. Zona de Levantamiento Olímpico">
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 14px;">
+        <button class="btn-header" style="flex:1;" id="btnCloseModal">Cancelar</button>
+        <button class="btn-action-primary" style="flex:1; padding: 8px;" id="btnSaveCenter">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ACTUALIZACIÓN PR -->
+  <div class="modal-overlay" id="prModal">
+    <div class="modal-box">
+      <h3 style="margin-bottom: 12px; color: var(--accent-cyan);">🏆 Actualizar Récord Personal (PR)</h3>
+      <div class="form-group">
+        <label>Movimiento:</label>
+        <select id="prMovementSelect"></select>
+      </div>
+      <div class="form-group">
+        <label>Nuevo PR (<span id="prModalUnitText">kg</span>):</label>
+        <input type="number" step="0.5" id="prModalValue" placeholder="100">
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 14px;">
+        <button class="btn-header" style="flex:1;" id="btnClosePRModal">Cerrar</button>
+        <button class="btn-action-primary" style="flex:1; padding: 8px;" id="btnSavePR">Guardar PR</button>
+      </div>
     </div>
   </div>
 
@@ -1050,937 +661,742 @@
   </footer>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      'use strict';
-
-      // CONSTANTS
-      const INSTALL_PASS = "NalitaBonita";
-      const SECRET_SALT = "Halterofilia-SuperSecret-Salt-2026";
+    document.addEventListener("DOMContentLoaded", () => {
       const KG_TO_LBS = 2.20462;
-      const TRIAL_DAYS = 3;
+      const MASTER_SALT = "Halterofilia-SuperSecret-Salt-2026";
+      const INSTALL_KEY = "NalitaBonita";
 
-      const OLYMPIC_MOVEMENTS = [
-        { id: "snatch", name: "Snatch", desc: "Arrancada Olímpica" },
-        { id: "clean_jerk", name: "Clean & Jerk", desc: "Cargada y Envión" },
-        { id: "power_snatch", name: "Power Snatch", desc: "Arrancada de Potencia" },
-        { id: "power_clean", name: "Power Clean", desc: "Cargada de Potencia" },
-        { id: "hang_snatch", name: "Hang Snatch", desc: "Arrancada Colgante" },
-        { id: "hang_clean", name: "Hang Clean", desc: "Cargada Colgante" },
-        { id: "push_press", name: "Push Press", desc: "Empuje de Fuerza" },
-        { id: "split_jerk", name: "Split Jerk", desc: "Envión en Tijera" },
-        { id: "back_squat", name: "Back Squat", desc: "Sentadilla Trasera" },
-        { id: "front_squat", name: "Front Squat", desc: "Sentadilla Frontal" }
+      // 1. Movimientos olímpicos
+      const movements = [
+        "Snatch", "Clean & Jerk", "Power Snatch", "Power Clean", 
+        "Hang Snatch", "Hang Clean", "Push Jerk", "Split Jerk", 
+        "Back Squat", "Front Squat"
+      ];
+      let currentMoveIndex = 0;
+
+      // 2. Inventario de discos oficiales
+      const basePlates = [
+        { id: "lb45", name: "45 lb", weightKg: 45 / KG_TO_LBS, weightLb: 45, unit: "lb", cssClass: "plate-45lb", height: 85, width: 14, active: true },
+        { id: "lb35", name: "35 lb", weightKg: 35 / KG_TO_LBS, weightLb: 35, unit: "lb", cssClass: "plate-35lb", height: 85, width: 12, active: true },
+        { id: "lb25", name: "25 lb", weightKg: 25 / KG_TO_LBS, weightLb: 25, unit: "lb", cssClass: "plate-25lb", height: 75, width: 10, active: true },
+        { id: "lb15", name: "15 lb", weightKg: 15 / KG_TO_LBS, weightLb: 15, unit: "lb", cssClass: "plate-15lb", height: 65, width: 9, active: true },
+        { id: "lb10", name: "10 lb", weightKg: 10 / KG_TO_LBS, weightLb: 10, unit: "lb", cssClass: "plate-10lb", height: 60, width: 8, active: true },
+        { id: "kg25", name: "25 kg", weightKg: 25, weightLb: 25 * KG_TO_LBS, unit: "kg", cssClass: "plate-25kg", height: 90, width: 15, active: true },
+        { id: "kg20", name: "20 kg", weightKg: 20, weightLb: 20 * KG_TO_LBS, unit: "kg", cssClass: "plate-20kg", height: 90, width: 13, active: true },
+        { id: "kg15", name: "15 kg", weightKg: 15, weightLb: 15 * KG_TO_LBS, unit: "kg", cssClass: "plate-15kg", height: 80, width: 11, active: true },
+        { id: "kg10", name: "10 kg", weightKg: 10, weightLb: 10 * KG_TO_LBS, unit: "kg", cssClass: "plate-10kg", height: 70, width: 9, active: true },
+        { id: "kg5",  name: "5 kg",  weightKg: 5,  weightLb: 5 * KG_TO_LBS,  unit: "kg", cssClass: "plate-5kg",  height: 55, width: 8, active: true },
+        { id: "kg2_5", name: "2.5 kg", weightKg: 2.5, weightLb: 2.5 * KG_TO_LBS, unit: "kg", cssClass: "plate-2_5kg", height: 46, width: 7, active: true },
+        { id: "kg2_0", name: "2.0 kg", weightKg: 2.0, weightLb: 2.0 * KG_TO_LBS, unit: "kg", cssClass: "plate-2kg",   height: 42, width: 7, active: true },
+        { id: "kg1_5", name: "1.5 kg", weightKg: 1.5, weightLb: 1.5 * KG_TO_LBS, unit: "kg", cssClass: "plate-1_5kg", height: 38, width: 6, active: true },
+        { id: "kg1_0", name: "1.0 kg", weightKg: 1.0, weightLb: 1.0 * KG_TO_LBS, unit: "kg", cssClass: "plate-1kg",   height: 34, width: 6, active: true },
+        { id: "kg0_5", name: "0.5 kg", weightKg: 0.5, weightLb: 0.5 * KG_TO_LBS, unit: "kg", cssClass: "plate-0_5kg", height: 30, width: 5, active: true }
       ];
 
-      // COMPLETE PLATE CATALOG (Pounds + Standard Kgs + Fractional Kgs)
-      const BASE_PLATES = [
-        // Pounds (Black)
-        { id: 'lb45', weight: 45, unit: 'lbs', kgEquiv: 45 / KG_TO_LBS, color: 'plate-lb-black', height: 165, width: 22 },
-        { id: 'lb35', weight: 35, unit: 'lbs', kgEquiv: 35 / KG_TO_LBS, color: 'plate-lb-black', height: 152, width: 19 },
-        { id: 'lb25', weight: 25, unit: 'lbs', kgEquiv: 25 / KG_TO_LBS, color: 'plate-lb-black', height: 138, width: 17 },
-        { id: 'lb15', weight: 15, unit: 'lbs', kgEquiv: 15 / KG_TO_LBS, color: 'plate-lb-black', height: 114, width: 14 },
-        { id: 'lb10', weight: 10, unit: 'lbs', kgEquiv: 10 / KG_TO_LBS, color: 'plate-lb-black', height: 98,  width: 12 },
-        // Standard Competition Kilograms
-        { id: 'kg25', weight: 25, unit: 'kg', kgEquiv: 25.0, color: 'plate-kg-orange', height: 170, width: 24 },
-        { id: 'kg20', weight: 20, unit: 'kg', kgEquiv: 20.0, color: 'plate-kg-blue',   height: 160, width: 21 },
-        { id: 'kg15', weight: 15, unit: 'kg', kgEquiv: 15.0, color: 'plate-kg-yellow', height: 145, width: 18 },
-        { id: 'kg10', weight: 10, unit: 'kg', kgEquiv: 10.0, color: 'plate-kg-green',  height: 125, width: 15 },
-        { id: 'kg5',  weight: 5,  unit: 'kg', kgEquiv: 5.0,  color: 'plate-kg-white',  height: 100, width: 13 },
-        // Fractional Kilograms
-        { id: 'kg2_5', weight: 2.5, unit: 'kg', kgEquiv: 2.5, color: 'plate-kg-red',    height: 84,  width: 11 },
-        { id: 'kg2_0', weight: 2.0, unit: 'kg', kgEquiv: 2.0, color: 'plate-kg-blue',   height: 76,  width: 10 },
-        { id: 'kg1_5', weight: 1.5, unit: 'kg', kgEquiv: 1.5, color: 'plate-kg-yellow', height: 68,  width: 9 },
-        { id: 'kg1_0', weight: 1.0, unit: 'kg', kgEquiv: 1.0, color: 'plate-kg-green',  height: 60,  width: 8 },
-        { id: 'kg0_5', weight: 0.5, unit: 'kg', kgEquiv: 0.5, color: 'plate-kg-white',  height: 52,  width: 7 }
+      // 3. Centros de entrenamiento
+      const defaultCenters = [
+        { id: "box_central", name: "Box CrossFit Central", desc: "Inventario olímpico completo", isCustom: false },
+        { id: "garage_gym", name: "Garage Gym Pro", desc: "Discos estándar en libras y kilos", isCustom: false },
+        { id: "halterofilia_club", name: "Halterofilia Club", desc: "Equipamiento de competición IWF", isCustom: false }
       ];
 
-      // WOD default equipment profiles
-      const WOD_INVENTORIES = {
-        central: ['lb45','lb35','lb25','lb15','lb10','kg25','kg20','kg15','kg10','kg5','kg2_5','kg2_0','kg1_5','kg1_0','kg0_5'],
-        katsu:   ['lb45','lb35','lb25','lb15','lb10','kg2_5','kg2_0','kg1_5','kg1_0','kg0_5'],
-        elite:   ['kg25','kg20','kg15','kg10','kg5','kg2_5','kg2_0','kg1_5','kg1_0','kg0_5']
-      };
+      function getStoredCenters() {
+        const s = localStorage.getItem("halterofilia_custom_centers");
+        return s ? JSON.parse(s) : [];
+      }
+      function saveStoredCenters(list) {
+        localStorage.setItem("halterofilia_custom_centers", JSON.stringify(list));
+      }
 
-      // STATE
-      let state = {
-        deviceId: '',
-        profiles: [],
-        activeProfileId: null,
-        activeMovement: 'snatch',
-        activeWod: 'central',
-        targetUnit: 'kg',
-        barbell: 'male',
-        targetWeight: 100,
-        activePlates: new Set(),
-        calculatedCombos: [],
-        selectedComboIndex: 0,
-        currentPRPercent: 100
-      };
+      // 4. Perfiles de atletas
+      function getAthletes() {
+        const a = localStorage.getItem("halterofilia_athletes");
+        return a ? JSON.parse(a) : [];
+      }
+      function saveAthletes(list) {
+        localStorage.setItem("halterofilia_athletes", JSON.stringify(list));
+      }
+      function getActiveAthleteId() {
+        return localStorage.getItem("halterofilia_active_athlete_id");
+      }
+      function setActiveAthleteId(id) {
+        localStorage.setItem("halterofilia_active_athlete_id", id);
+      }
 
-      // LOCAL STORAGE HELPERS
-      const Storage = {
-        get(k, def) {
+      function getAthletePRs(athleteId) {
+        const all = localStorage.getItem("halterofilia_prs_by_athlete");
+        const map = all ? JSON.parse(all) : {};
+        if (!map[athleteId]) {
+          map[athleteId] = {};
+          movements.forEach(m => map[athleteId][m] = 100);
+        }
+        return map[athleteId];
+      }
+
+      function saveAthletePR(athleteId, movement, value) {
+        const all = localStorage.getItem("halterofilia_prs_by_athlete");
+        const map = all ? JSON.parse(all) : {};
+        if (!map[athleteId]) map[athleteId] = {};
+        map[athleteId][movement] = value;
+        localStorage.setItem("halterofilia_prs_by_athlete", JSON.stringify(map));
+      }
+
+      // 5. Criptografía y Device ID
+      function getOrCreateDeviceId() {
+        let devId = localStorage.getItem("halterofilia_device_id");
+        if (!devId) {
+          devId = "DEV-" + Math.random().toString(36).substring(2, 9).toUpperCase() + "-" + Date.now().toString(36).toUpperCase();
+          localStorage.setItem("halterofilia_device_id", devId);
+        }
+        return devId;
+      }
+
+      async function sha256(str) {
+        const buffer = new TextEncoder().encode(str);
+        const hash = await crypto.subtle.digest("SHA-256", buffer);
+        return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+
+      // 6. Validación de Trial y Licencia
+      function checkLicenseStatus() {
+        const installDate = parseInt(localStorage.getItem("halterofilia_install_date") || "0", 10);
+        const licenseToken = localStorage.getItem("halterofilia_license_token");
+        const lockBanner = document.getElementById("licenseLockBanner");
+
+        const devId = getOrCreateDeviceId();
+        const athletes = getAthletes();
+        const activeId = getActiveAthleteId();
+        const currentAthlete = athletes.find(a => a.id === activeId) || athletes[0];
+        const email = currentAthlete ? currentAthlete.email : "atleta@halterofilia.com";
+        const reqCode = `REQ|${devId}|${email}`;
+
+        document.getElementById("modalReqCode").value = reqCode;
+        document.getElementById("lockReqCode").value = reqCode;
+
+        if (licenseToken) {
           try {
-            const v = localStorage.getItem('hp_cli_' + k);
-            return v ? JSON.parse(v) : def;
-          } catch(e) { return def; }
-        },
-        set(k, v) {
-          try {
-            localStorage.setItem('hp_cli_' + k, JSON.stringify(v));
+            const data = JSON.parse(atob(licenseToken));
+            if (data.expiryDate && Date.now() < data.expiryDate) {
+              lockBanner.style.display = "none";
+              document.getElementById("licenseStatusText").innerText = "Licencia Activa ✅";
+              document.getElementById("licenseExpiryText").innerText = "Vence: " + new Date(data.expiryDate).toLocaleDateString();
+              return true;
+            }
           } catch(e) {}
         }
-      };
 
-      // SHA-256 via Web Crypto API with robust fallback
-      async function sha256(str) {
-        if (window.crypto && crypto.subtle) {
-          const buf = new TextEncoder().encode(str);
-          const hashBuf = await crypto.subtle.digest('SHA-256', buf);
-          return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-          hash = (hash << 5) - hash + str.charCodeAt(i);
-          hash |= 0;
-        }
-        return 'fallback_' + Math.abs(hash).toString(16);
-      }
-
-      function getOrCreateDeviceId() {
-        let id = Storage.get('deviceId', null);
-        if (!id) {
-          id = 'DEV-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
-          Storage.set('deviceId', id);
-        }
-        return id;
-      }
-
-      function getCurrentProfile() {
-        if (!state.activeProfileId) return null;
-        return state.profiles.find(p => p.id === state.activeProfileId) || null;
-      }
-
-      function checkLicenseStatus() {
-        const profile = getCurrentProfile();
-        if (!profile) return { valid: false, reason: 'unregistered' };
-
+        const threeDaysMs = 259200000;
         const now = Date.now();
-
-        // 1. Offline Verified License Check
-        if (profile.license) {
-          if (now <= profile.license.exp) {
-            return { valid: true, type: 'licensed', exp: profile.license.exp };
-          }
-        }
-
-        // 2. Strict 3-day Trial Check
-        if (profile.trialStartDate) {
-          const trialDuration = TRIAL_DAYS * 24 * 60 * 60 * 1000;
-          const timeLeft = (profile.trialStartDate + trialDuration) - now;
-          if (timeLeft > 0) {
-            return { valid: true, type: 'trial', timeLeft };
-          }
-        }
-
-        return { valid: false, reason: 'expired' };
-      }
-
-      function updateLicenseUI() {
-        const status = checkLicenseStatus();
-        const profile = getCurrentProfile();
-        const badge = document.getElementById('licenseStatusText');
-        const lockout = document.getElementById('lockoutBanner');
-        const mainContent = document.getElementById('mainAppContent');
-
-        if (!profile) {
-          badge.textContent = "Instalación Requerida";
-          badge.className = "badge badge-expired";
-          showModal('modalInstall');
-          return;
-        }
-
-        document.getElementById('profileDisplayName').textContent = `${profile.firstName} ${profile.lastName}`;
-        document.getElementById('reqCodeDisplay').value = `REQ|${state.deviceId}|${profile.email}`;
-
-        if (status.valid) {
-          lockout.style.display = 'none';
-          mainContent.style.pointerEvents = 'auto';
-          mainContent.style.opacity = '1';
-
-          if (status.type === 'licensed') {
-            const days = Math.round((status.exp - Date.now()) / (1000 * 60 * 60 * 24));
-            badge.textContent = days > 900 ? "Licencia Vitalicia" : `Licencia Activa (${days}d)`;
-            badge.className = "badge badge-licensed";
-          } else {
-            const hours = Math.max(1, Math.round(status.timeLeft / (1000 * 60 * 60)));
-            badge.textContent = `Trial Activo (${hours}h restantes)`;
-            badge.className = "badge badge-trial";
-          }
+        if (installDate > 0 && (now - installDate > threeDaysMs)) {
+          lockBanner.style.display = "flex";
+          document.getElementById("licenseStatusText").innerText = "Trial Expirado ❌";
+          document.getElementById("licenseExpiryText").innerText = "Contactar al +56933395447";
+          return false;
         } else {
-          badge.textContent = "Licencia Vencida";
-          badge.className = "badge badge-expired";
-          lockout.style.display = 'block';
-          lockout.innerHTML = `⚠️ <strong>ACCESO BLOQUEADO:</strong> Tu periodo para <em>${profile.firstName}</em> ha finalizado. Para la Instalación definitiva, contactar al +56933395447.`;
-          mainContent.style.pointerEvents = 'none';
-          mainContent.style.opacity = '0.4';
+          lockBanner.style.display = "none";
+          const remainingDays = Math.ceil((threeDaysMs - (now - installDate)) / (1000 * 60 * 60 * 24));
+          document.getElementById("licenseStatusText").innerText = `Trial Activo (${remainingDays} días restantes)`;
+          return true;
         }
       }
 
-      function initMovementWheel() {
-        const container = document.getElementById('movementWheelContainer');
-        container.innerHTML = '';
-
-        OLYMPIC_MOVEMENTS.forEach(mov => {
-          const div = document.createElement('div');
-          div.className = `wheel-item ${mov.id === state.activeMovement ? 'selected' : ''}`;
-          div.dataset.id = mov.id;
-          div.innerHTML = `
-            <h4>${mov.name}</h4>
-            <p>${mov.desc}</p>
-          `;
-          div.addEventListener('click', () => selectMovement(mov.id));
-          container.appendChild(div);
-        });
-
-        // Sync PR Select options
-        const prSelect = document.getElementById('prMovementSelect');
-        prSelect.innerHTML = '';
-        OLYMPIC_MOVEMENTS.forEach(mov => {
-          const opt = document.createElement('option');
-          opt.value = mov.id;
-          opt.textContent = mov.name;
-          prSelect.appendChild(opt);
-        });
-      }
-
-      function selectMovement(movId) {
-        state.activeMovement = movId;
-        document.querySelectorAll('.wheel-item').forEach(el => {
-          const isCurrent = el.dataset.id === movId;
-          el.classList.toggle('selected', isCurrent);
-          if (isCurrent) {
-            el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-          }
-        });
-
-        const movData = OLYMPIC_MOVEMENTS.find(m => m.id === movId);
-        document.getElementById('dispActiveMoveName').textContent = movData ? movData.name : movId;
-        document.getElementById('prMovementSelect').value = movId;
-
-        // Automatically update the percentage reference and recalculated weight
-        applyPercentageToTarget(state.currentPRPercent);
-      }
-
-      function getCurrentMovementPRKg() {
-        const profile = getCurrentProfile();
-        if (profile && profile.prs && profile.prs[state.activeMovement]) {
-          return profile.prs[state.activeMovement].weightKg;
-        }
-        return 100.0; // Default baseline if not yet recorded
-      }
-
-      function applyPercentageToTarget(percent) {
-        state.currentPRPercent = percent;
-        const prKg = getCurrentMovementPRKg();
-        const basePrInCurrentUnit = state.targetUnit === 'kg' ? prKg : (prKg * KG_TO_LBS);
-
-        // Target = PR * (percentage / 100) rounded to 1 decimal place
-        const calculatedTarget = Math.round((basePrInCurrentUnit * (percent / 100)) * 10) / 10;
-
-        // Update Slider UI
-        document.getElementById('prPercentSlider').value = percent;
-        document.getElementById('sliderPctDisplay').textContent = `${percent}%`;
-
-        // Update Note
-        const profile = getCurrentProfile();
-        const hasCustomPR = profile && profile.prs && profile.prs[state.activeMovement];
-        document.getElementById('prReferenceNote').textContent =
-          `${hasCustomPR ? 'PR Actual' : 'PR Base'}: ${basePrInCurrentUnit.toFixed(1)} ${state.targetUnit} (${percent}% = ${calculatedTarget.toFixed(1)} ${state.targetUnit})`;
-
-        // Update target input and recalculate
-        document.getElementById('targetWeightInput').value = calculatedTarget.toFixed(1);
-
-        // Highlight matching quick button if exact
-        document.querySelectorAll('.pct-btn').forEach(btn => {
-          btn.classList.toggle('active', parseInt(btn.dataset.pct, 10) === percent);
-        });
-
-        triggerHybridCalculation();
-      }
-
-      function loadCurrentMovementPR() {
-        applyPercentageToTarget(100);
-      }
-
-      function initWodInventory(wodKey) {
-        state.activeWod = wodKey;
-        const defaultPlates = WOD_INVENTORIES[wodKey] || WOD_INVENTORIES.central;
-        state.activePlates = new Set(defaultPlates);
-
-        const container = document.getElementById('inventoryContainer');
-        container.innerHTML = '';
-
-        BASE_PLATES.forEach(p => {
-          const isEnabled = state.activePlates.has(p.id);
-          const chip = document.createElement('div');
-          chip.className = `plate-chip ${p.color} ${isEnabled ? '' : 'disabled'}`;
-          chip.id = `chip-${p.id}`;
-          chip.innerHTML = `
-            <div class="weight-val">${p.weight}</div>
-            <div class="unit-val">${p.unit}</div>
-          `;
-          chip.title = `Clic para ${isEnabled ? 'desactivar' : 'activar'} disco de ${p.weight} ${p.unit}`;
-          chip.addEventListener('click', () => {
-            if (state.activePlates.has(p.id)) {
-              state.activePlates.delete(p.id);
-              chip.classList.add('disabled');
-            } else {
-              state.activePlates.add(p.id);
-              chip.classList.remove('disabled');
-            }
-            triggerHybridCalculation();
-          });
-          container.appendChild(chip);
-        });
-
-        document.getElementById('wodHeaderBadge').textContent = `[${wodKey.toUpperCase()}]`;
-      }
-
-      function triggerHybridCalculation() {
-        const inputVal = parseFloat(document.getElementById('targetWeightInput').value) || 0;
-        state.targetWeight = inputVal;
-
-        const targetKg = state.targetUnit === 'kg' ? inputVal : (inputVal / KG_TO_LBS);
-        const barKg = state.barbell === 'male' ? 20.0 : 15.0;
-
-        // Update conversion hint
-        if (state.targetUnit === 'kg') {
-          document.getElementById('unitConversionHint').textContent = `${inputVal.toFixed(1)} kg = ${(inputVal * KG_TO_LBS).toFixed(1)} lbs`;
-          document.getElementById('dispBarWeight').innerHTML = `${barKg.toFixed(1)} <span>kg</span>`;
-        } else {
-          document.getElementById('unitConversionHint').textContent = `${inputVal.toFixed(1)} lbs = ${(inputVal / KG_TO_LBS).toFixed(1)} kg`;
-          document.getElementById('dispBarWeight').innerHTML = `${(barKg * KG_TO_LBS).toFixed(1)} <span>lbs</span>`;
-        }
-
-        if (targetKg < barKg) {
-          renderBarbell([], 0, barKg);
-          updateCombosDropdown([]);
-          return;
-        }
-
-        const perSideKg = (targetKg - barKg) / 2.0;
-        const usablePlates = BASE_PLATES.filter(p => state.activePlates.has(p.id));
-
-        const combinations = findHybridCombinations(usablePlates, perSideKg, 6);
-        state.calculatedCombos = combinations;
-        state.selectedComboIndex = 0;
-
-        updateCombosDropdown(combinations);
-
-        if (combinations.length > 0) {
-          applyCombo(combinations[0], barKg);
-        } else {
-          renderBarbell([], 0, barKg);
-          document.getElementById('comboDetailsText').textContent = "⚠️ No se encontró combinación simétrica exacta. Habilita más discos en el inventario físico.";
-        }
-      }
-
-      function findHybridCombinations(plates, targetSideKg, maxResults = 5) {
-        const results = [];
-        const currentCombo = [];
-        const tolerance = 0.05; // 50 grams max tolerance
-        const sorted = [...plates].sort((a, b) => b.kgEquiv - a.kgEquiv);
-
-        function backtrack(index, remainingKg) {
-          if (results.length >= maxResults) return;
-
-          if (Math.abs(remainingKg) <= tolerance) {
-            results.push([...currentCombo]);
-            return;
-          }
-
-          if (remainingKg < -tolerance) return;
-
-          for (let i = index; i < sorted.length; i++) {
-            const p = sorted[i];
-            const count = currentCombo.filter(item => item.id === p.id).length;
-            // Physical capacity limit per side
-            if (count < 4 && remainingKg >= (p.kgEquiv - tolerance)) {
-              currentCombo.push(p);
-              backtrack(i, remainingKg - p.kgEquiv);
-              currentCombo.pop();
-            }
-          }
-        }
-
-        backtrack(0, targetSideKg);
-        return results;
-      }
-
-      function updateCombosDropdown(combos) {
-        const select = document.getElementById('alternativeCombosSelect');
-        select.innerHTML = '';
-
-        if (combos.length === 0) {
-          const opt = document.createElement('option');
-          opt.textContent = "Sin combinaciones viables";
-          select.appendChild(opt);
-          select.disabled = true;
-          return;
-        }
-
-        select.disabled = false;
-        combos.forEach((combo, idx) => {
-          const counts = {};
-          combo.forEach(p => {
-            const key = `${p.weight} ${p.unit}`;
-            counts[key] = (counts[key] || 0) + 1;
-          });
-          const summary = Object.entries(counts).map(([k, c]) => `${c}x${k}`).join(' + ');
-
-          const opt = document.createElement('option');
-          opt.value = idx;
-          opt.textContent = `Opción ${idx + 1}: ${summary} (por lado)`;
-          select.appendChild(opt);
-        });
-
-        select.onchange = (e) => {
-          const idx = parseInt(e.target.value, 10);
-          state.selectedComboIndex = idx;
-          const barKg = state.barbell === 'male' ? 20.0 : 15.0;
-          applyCombo(state.calculatedCombos[idx], barKg);
-        };
-      }
-
-      function applyCombo(comboPlates, barKg) {
-        const sideWeightKg = comboPlates.reduce((acc, p) => acc + p.kgEquiv, 0);
-        const totalKg = barKg + (sideWeightKg * 2);
-        renderBarbell(comboPlates, sideWeightKg, totalKg);
-
-        const counts = {};
-        comboPlates.forEach(p => {
-          const key = `${p.weight} ${p.unit}`;
-          counts[key] = (counts[key] || 0) + 1;
-        });
-        const details = Object.entries(counts).map(([k, count]) => `${count * 2} discos de ${k} en total`).join(', ');
-        document.getElementById('comboDetailsText').innerHTML = `<strong>Distribución por lado:</strong> ${details || 'Barra vacía'}`;
-      }
-
-      function renderBarbell(sidePlates, sideKg, totalKg) {
-        const leftGroup = document.getElementById('leftPlatesGroup');
-        const rightGroup = document.getElementById('rightPlatesGroup');
-
-        leftGroup.innerHTML = '';
-        rightGroup.innerHTML = '';
-
-        if (state.targetUnit === 'kg') {
-          document.getElementById('dispSideWeight').innerHTML = `${sideKg.toFixed(2)} <span>kg</span>`;
-          document.getElementById('dispTotalCalculated').innerHTML = `${totalKg.toFixed(2)} <span>kg</span>`;
-        } else {
-          document.getElementById('dispSideWeight').innerHTML = `${(sideKg * KG_TO_LBS).toFixed(1)} <span>lbs</span>`;
-          document.getElementById('dispTotalCalculated').innerHTML = `${(totalKg * KG_TO_LBS).toFixed(1)} <span>lbs</span>`;
-        }
-
-        // Render realistic symmetric plates
-        sidePlates.forEach(p => {
-          const elL = document.createElement('div');
-          elL.className = `css-plate ${p.color}`;
-          elL.style.height = `${p.height}px`;
-          elL.style.width = `${p.width}px`;
-          elL.textContent = `${p.weight}`;
-          leftGroup.appendChild(elL);
-
-          const elR = document.createElement('div');
-          elR.className = `css-plate ${p.color}`;
-          elR.style.height = `${p.height}px`;
-          elR.style.width = `${p.width}px`;
-          elR.textContent = `${p.weight}`;
-          rightGroup.appendChild(elR);
-        });
-      }
-
-      function savePR(movId, weightKg, dateStr) {
-        const profile = getCurrentProfile();
-        if (!profile) return;
-
-        if (!profile.prs) profile.prs = {};
-        if (!profile.prHistory) profile.prHistory = [];
-
-        const entry = {
-          movementId: movId,
-          weightKg: parseFloat(weightKg),
-          weightLbs: parseFloat(weightKg) * KG_TO_LBS,
-          date: dateStr || new Date().toISOString().split('T')[0],
-          timestamp: Date.now()
-        };
-
-        const currentPr = profile.prs[movId];
-        if (!currentPr || entry.weightKg >= currentPr.weightKg) {
-          profile.prs[movId] = entry;
-        }
-
-        profile.prHistory.unshift(entry);
-        saveProfiles();
-        renderPRTable();
-        renderReportsTable();
-        drawPrChart();
-
-        // Refresh reference note if current active movement was updated
-        if (movId === state.activeMovement) {
-          applyPercentageToTarget(state.currentPRPercent);
-        }
-      }
-
-      function renderPRTable() {
-        const profile = getCurrentProfile();
-        const tbody = document.getElementById('prTableBody');
-        tbody.innerHTML = '';
-
-        if (!profile || !profile.prHistory || profile.prHistory.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: var(--text-muted);">Sin récords guardados aún. Registra tu primera marca arriba.</td></tr>';
-          return;
-        }
-
-        profile.prHistory.forEach((rec, idx) => {
-          const mov = OLYMPIC_MOVEMENTS.find(m => m.id === rec.movementId);
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td><strong>${mov ? mov.name : rec.movementId}</strong></td>
-            <td style="color: var(--accent-cyan); font-weight: 700;">${rec.weightKg.toFixed(1)} kg</td>
-            <td>${rec.weightLbs.toFixed(1)} lbs</td>
-            <td>${rec.date}</td>
-            <td>${profile.firstName} ${profile.lastName}</td>
-            <td><button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.72rem;" onclick="window.hpDeletePR(${idx})">Eliminar</button></td>
-          `;
-          tbody.appendChild(tr);
-        });
-      }
-
-      window.hpDeletePR = function(index) {
-        const profile = getCurrentProfile();
-        if (!profile || !profile.prHistory) return;
-        profile.prHistory.splice(index, 1);
-
-        profile.prs = {};
-        profile.prHistory.forEach(r => {
-          if (!profile.prs[r.movementId] || r.weightKg > profile.prs[r.movementId].weightKg) {
-            profile.prs[r.movementId] = r;
-          }
-        });
-
-        saveProfiles();
-        renderPRTable();
-        renderReportsTable();
-        drawPrChart();
-        applyPercentageToTarget(state.currentPRPercent);
-      };
-
-      function renderReportsTable() {
-        const profile = getCurrentProfile();
-        const tbody = document.getElementById('reportsTableBody');
-        tbody.innerHTML = '';
-
-        if (!profile) return;
-
-        OLYMPIC_MOVEMENTS.forEach(mov => {
-          const pr = profile.prs ? profile.prs[mov.id] : null;
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td><strong>${mov.name}</strong></td>
-            <td style="color: var(--accent-gold); font-weight: 700;">${pr ? pr.weightKg.toFixed(1) + ' kg' : '-'}</td>
-            <td>${pr ? pr.weightLbs.toFixed(1) + ' lbs' : '-'}</td>
-            <td>${pr ? pr.date : 'Sin registro'}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-      }
-
-      function drawPrChart() {
-        const canvas = document.getElementById('prChart');
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        const profile = getCurrentProfile();
-
-        const rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width * window.devicePixelRatio;
-        canvas.height = 270 * window.devicePixelRatio;
-        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-
-        const w = rect.width;
-        const h = 270;
-
-        ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = "#121824";
-        ctx.fillRect(0, 0, w, h);
-
-        const movements = OLYMPIC_MOVEMENTS.slice(0, 8);
-        const maxScale = 220; // 220 kg reference top
-
-        const startX = 65;
-        const chartHeight = h - 60;
-        const barWidth = Math.min(42, (w - startX - 30) / movements.length - 14);
-
-        // Horizontal guides
-        ctx.strokeStyle = "rgba(255,255,255,0.07)";
-        ctx.lineWidth = 1;
-        ctx.font = "10px sans-serif";
-        ctx.fillStyle = "#64748b";
-
-        for (let i = 0; i <= 4; i++) {
-          const y = chartHeight - (chartHeight * (i / 4)) + 20;
-          ctx.beginPath();
-          ctx.moveTo(startX - 10, y);
-          ctx.lineTo(w - 20, y);
-          ctx.stroke();
-          ctx.fillText(`${i * 55} kg`, 10, y + 3);
-        }
-
-        // Draw Bars
-        movements.forEach((mov, idx) => {
-          const pr = (profile && profile.prs && profile.prs[mov.id]) ? profile.prs[mov.id].weightKg : 0;
-          const x = startX + idx * (barWidth + 14);
-          const barH = (pr / maxScale) * chartHeight;
-          const y = chartHeight - barH + 20;
-
-          const grad = ctx.createLinearGradient(0, y, 0, y + barH);
-          grad.addColorStop(0, "#00e5ff");
-          grad.addColorStop(1, "#005577");
-
-          ctx.fillStyle = grad;
-          ctx.beginPath();
-          ctx.roundRect(x, y, barWidth, Math.max(2, barH), [4, 4, 0, 0]);
-          ctx.fill();
-
-          ctx.fillStyle = "#fff";
-          ctx.font = "bold 10px sans-serif";
-          ctx.textAlign = "center";
-          if (pr > 0) {
-            ctx.fillText(`${pr}k`, x + barWidth / 2, y - 6);
-          }
-
-          ctx.fillStyle = "#94a3b8";
-          ctx.font = "9px sans-serif";
-          ctx.fillText(mov.name.split(' ')[0], x + barWidth / 2, h - 12);
-        });
-      }
-
-      async function verifyOfflineToken(tokenBase64, deviceId, email) {
+      async function verifyAndApplyToken(tokenStr) {
         try {
-          const jsonStr = atob(tokenBase64.trim());
-          const payload = JSON.parse(jsonStr);
+          const payload = JSON.parse(atob(tokenStr.trim()));
+          const expectedRaw = `${payload.deviceId}|${payload.email}|${payload.expiryDate}|${MASTER_SALT}`;
+          const calculatedSig = await sha256(expectedRaw);
 
-          if (payload.deviceId !== deviceId || payload.email.toLowerCase() !== email.toLowerCase()) {
-            return { valid: false, message: "El token no corresponde a este Device ID o correo." };
+          if (calculatedSig !== payload.signature) {
+            alert("Error: Firma inválida.");
+            return false;
           }
 
-          if (Date.now() > payload.exp) {
-            return { valid: false, message: "El token de activación ha expirado." };
+          if (Date.now() > payload.expiryDate) {
+            alert("Error: Token caducado.");
+            return false;
           }
 
-          const raw = `${payload.deviceId}|${payload.email}|${payload.exp}|${SECRET_SALT}`;
-          const expectedSig = await sha256(raw);
-
-          if (expectedSig !== payload.signature) {
-            return { valid: false, message: "Firma criptográfica inválida o adulterada." };
-          }
-
-          return { valid: true, payload };
-        } catch (e) {
-          return { valid: false, message: "Formato Base64 inválido o JSON corrupto." };
+          localStorage.setItem("halterofilia_license_token", tokenStr.trim());
+          alert("¡Licencia activada con éxito!");
+          checkLicenseStatus();
+          return true;
+        } catch(e) {
+          alert("Error: Clave corrupta o inválida.");
+          return false;
         }
       }
 
-      function showModal(id) {
-        const el = document.getElementById(id);
-        if (el) el.classList.remove('hidden');
+      // Estado de sesión
+      let selectedCenterId = defaultCenters[0].id;
+      let selectedUnit = "kg";
+      let selectedBar = "men";
+      let currentPercentage = 80;
+      let generatedSolutions = [];
+
+      // 7. Perfiles
+      function refreshAthleteHeader() {
+        const athletes = getAthletes();
+        const activeId = getActiveAthleteId();
+        const cur = athletes.find(a => a.id === activeId);
+        document.getElementById("currentAthleteLabel").innerText = cur ? cur.name.split(" ")[0] : "Atleta";
       }
 
-      function hideModal(id) {
-        const el = document.getElementById(id);
-        if (el) el.classList.add('hidden');
+      const athletesModal = document.getElementById("athletesModal");
+      const athletesListContainer = document.getElementById("athletesListContainer");
+
+      function renderAthletesList() {
+        athletesListContainer.innerHTML = "";
+        const athletes = getAthletes();
+        const activeId = getActiveAthleteId();
+
+        athletes.forEach(a => {
+          const div = document.createElement("div");
+          div.className = `selectable-item ${a.id === activeId ? 'active' : ''}`;
+          div.innerHTML = `
+            <div>
+              <strong>${a.name}</strong><br>
+              <small style="color:var(--text-muted)">${a.email}</small>
+            </div>
+            <div class="radio-circle"></div>
+          `;
+          div.addEventListener("click", () => {
+            setActiveAthleteId(a.id);
+            refreshAthleteHeader();
+            renderAthletesList();
+            updateMovementDisplay();
+            calculateHybridLoad();
+          });
+          athletesListContainer.appendChild(div);
+        });
       }
 
-      function switchView(viewId, btnId) {
-        document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
-        document.querySelectorAll('.nav-actions button').forEach(b => b.classList.remove('active'));
+      document.getElementById("btnSwitchAthlete").addEventListener("click", () => {
+        renderAthletesList();
+        athletesModal.classList.add("open");
+      });
+      document.getElementById("btnCloseAthletesModal").addEventListener("click", () => athletesModal.classList.remove("open"));
 
-        const target = document.getElementById(viewId);
-        if (target) target.classList.add('active');
+      document.getElementById("btnSaveNewAthlete").addEventListener("click", () => {
+        const name = document.getElementById("newAthleteName").value.trim();
+        const email = document.getElementById("newAthleteEmail").value.trim();
+        if (!name || !email) return alert("Completa nombre y correo.");
 
-        const btn = document.getElementById(btnId);
-        if (btn) btn.classList.add('active');
+        const list = getAthletes();
+        const newAth = { id: "ath_" + Date.now(), name, email };
+        list.push(newAth);
+        saveAthletes(list);
+        setActiveAthleteId(newAth.id);
 
-        if (viewId === 'viewReports') {
-          setTimeout(() => {
-            renderReportsTable();
-            drawPrChart();
-          }, 60);
+        document.getElementById("newAthleteName").value = "";
+        document.getElementById("newAthleteEmail").value = "";
+        refreshAthleteHeader();
+        renderAthletesList();
+        updateMovementDisplay();
+        calculateHybridLoad();
+      });
+
+      // 8. Instalación
+      const installModal = document.getElementById("installModal");
+      function checkInstallation() {
+        const installed = localStorage.getItem("halterofilia_installed");
+        if (!installed) {
+          installModal.classList.add("open");
         }
       }
 
-      function saveProfiles() {
-        Storage.set('profiles', state.profiles);
-        Storage.set('activeProfileId', state.activeProfileId);
+      document.getElementById("btnConfirmInstall").addEventListener("click", () => {
+        const pass = document.getElementById("installPassInput").value.trim();
+        const fName = document.getElementById("installFirstName").value.trim();
+        const lName = document.getElementById("installLastName").value.trim();
+        const email = document.getElementById("installEmail").value.trim();
+
+        if (pass !== INSTALL_KEY) return alert("Clave de instalación incorrecta.");
+        if (!fName || !lName || !email) return alert("Completa todos los campos.");
+
+        const firstAthlete = { id: "ath_" + Date.now(), name: `${fName} ${lName}`, email };
+        saveAthletes([firstAthlete]);
+        setActiveAthleteId(firstAthlete.id);
+        localStorage.setItem("halterofilia_installed", "true");
+        localStorage.setItem("halterofilia_install_date", Date.now().toString());
+
+        installModal.classList.remove("open");
+        refreshAthleteHeader();
+        checkLicenseStatus();
+        renderCenters();
+      });
+
+      // 9. Centros
+      const centersContainer = document.getElementById("centersContainer");
+      function renderCenters() {
+        centersContainer.innerHTML = "";
+        const allCenters = [...defaultCenters, ...getStoredCenters()];
+        if (!allCenters.some(c => c.id === selectedCenterId)) {
+          selectedCenterId = allCenters[0].id;
+        }
+
+        allCenters.forEach(center => {
+          const item = document.createElement("div");
+          item.className = `selectable-item ${center.id === selectedCenterId ? 'active' : ''}`;
+          item.innerHTML = `
+            <div>
+              <strong>${center.name}</strong><br>
+              <small style="color:var(--text-muted)">${center.desc}</small>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div class="radio-circle"></div>
+              ${center.isCustom ? `<button class="btn-header" style="color:var(--accent-red); padding:2px 6px;" data-del="${center.id}">🗑️</button>` : ''}
+            </div>
+          `;
+
+          item.addEventListener("click", (e) => {
+            if (e.target.dataset.del) {
+              e.stopPropagation();
+              const customs = getStoredCenters().filter(c => c.id !== e.target.dataset.del);
+              saveStoredCenters(customs);
+              renderCenters();
+              return;
+            }
+            selectedCenterId = center.id;
+            renderCenters();
+          });
+
+          centersContainer.appendChild(item);
+        });
       }
 
-      function renderProfilesModal() {
-        const container = document.getElementById('profilesListContainer');
-        container.innerHTML = '';
+      const addCenterModal = document.getElementById("addCenterModal");
+      document.getElementById("btnOpenAddCenter").addEventListener("click", () => {
+        document.getElementById("newCenterName").value = "";
+        document.getElementById("newCenterDesc").value = "";
+        addCenterModal.classList.add("open");
+      });
+      document.getElementById("btnCloseModal").addEventListener("click", () => addCenterModal.classList.remove("open"));
+      document.getElementById("btnSaveCenter").addEventListener("click", () => {
+        const name = document.getElementById("newCenterName").value.trim();
+        const desc = document.getElementById("newCenterDesc").value.trim() || "Centro personalizado";
+        if (!name) return alert("Ingresa un nombre para el centro.");
 
-        if (state.profiles.length === 0) {
-          container.innerHTML = '<p class="form-hint">No hay perfiles registrados.</p>';
+        const customs = getStoredCenters();
+        const newC = { id: "custom_" + Date.now(), name, desc, isCustom: true };
+        customs.push(newC);
+        saveStoredCenters(customs);
+        selectedCenterId = newC.id;
+        addCenterModal.classList.remove("open");
+        renderCenters();
+      });
+
+      document.querySelectorAll(".selectable-item[data-type='unit']").forEach(el => {
+        el.addEventListener("click", () => {
+          document.querySelectorAll(".selectable-item[data-type='unit']").forEach(i => i.classList.remove("active"));
+          el.classList.add("active");
+          selectedUnit = el.dataset.val;
+        });
+      });
+
+      document.querySelectorAll(".selectable-item[data-type='bar']").forEach(el => {
+        el.addEventListener("click", () => {
+          document.querySelectorAll(".selectable-item[data-type='bar']").forEach(i => i.classList.remove("active"));
+          el.classList.add("active");
+          selectedBar = el.dataset.val;
+        });
+      });
+
+      // 10. Inventario
+      const inventoryGrid = document.getElementById("inventoryGrid");
+      function renderInventory() {
+        inventoryGrid.innerHTML = "";
+        basePlates.forEach(plate => {
+          const chip = document.createElement("div");
+          chip.className = `inv-chip ${plate.active ? '' : 'inactive'}`;
+          chip.innerHTML = `${plate.name}<br><small>${plate.unit.toUpperCase()}</small>`;
+          chip.addEventListener("click", () => {
+            plate.active = !plate.active;
+            renderInventory();
+            calculateHybridLoad();
+          });
+          inventoryGrid.appendChild(chip);
+        });
+      }
+
+      // 11. Navegación de Pasos
+      const step1Screen = document.getElementById("step1Screen");
+      const step2Screen = document.getElementById("step2Screen");
+
+      function goToStep2() {
+        if (!checkLicenseStatus()) return;
+        step1Screen.style.display = "none";
+        step2Screen.style.display = "block";
+
+        const all = [...defaultCenters, ...getStoredCenters()];
+        const current = all.find(c => c.id === selectedCenterId);
+
+        document.getElementById("badgeCenterName").innerText = current ? current.name : "Centro";
+        document.getElementById("badgeUnit").innerText = selectedUnit.toUpperCase();
+        document.getElementById("badgeBar").innerText = selectedBar === "men" ? "Barra 20kg" : "Barra 15kg";
+
+        updateMovementDisplay();
+        renderInventory();
+        calculateHybridLoad();
+      }
+
+      function goToStep1() {
+        step2Screen.style.display = "none";
+        step1Screen.style.display = "block";
+      }
+
+      document.getElementById("btnStartWorkout").addEventListener("click", goToStep2);
+      document.getElementById("btnSwitchParams").addEventListener("click", goToStep1);
+      document.getElementById("btnQuickEdit").addEventListener("click", goToStep1);
+
+      // 12. Movimientos
+      function updateMovementDisplay() {
+        const moveName = movements[currentMoveIndex];
+        const activeId = getActiveAthleteId();
+        const prs = getAthletePRs(activeId);
+        const pr = prs[moveName] || 100;
+        document.getElementById("activeMoveTitle").innerText = moveName;
+        document.getElementById("activeMovePR").innerText = `PR: ${pr} ${selectedUnit}`;
+      }
+
+      document.getElementById("btnPrevMove").addEventListener("click", () => {
+        currentMoveIndex = (currentMoveIndex - 1 + movements.length) % movements.length;
+        updateMovementDisplay();
+        calculateHybridLoad();
+      });
+
+      document.getElementById("btnNextMove").addEventListener("click", () => {
+        currentMoveIndex = (currentMoveIndex + 1) % movements.length;
+        updateMovementDisplay();
+        calculateHybridLoad();
+      });
+
+      // 13. Porcentaje Slider
+      const prSlider = document.getElementById("prSlider");
+      const pctLabel = document.getElementById("pctLabel");
+      const quickChipsContainer = document.getElementById("quickChipsContainer");
+      const percentages = [50, 60, 70, 75, 80, 85, 90, 95, 100];
+
+      percentages.forEach(pct => {
+        const btn = document.createElement("button");
+        btn.className = `chip-btn ${pct === currentPercentage ? 'active' : ''}`;
+        btn.innerText = `${pct}%`;
+        btn.addEventListener("click", () => {
+          prSlider.value = pct;
+          currentPercentage = pct;
+          updateSliderUI();
+          calculateHybridLoad();
+        });
+        quickChipsContainer.appendChild(btn);
+      });
+
+      function updateSliderUI() {
+        pctLabel.innerText = `${currentPercentage}%`;
+        document.querySelectorAll(".chip-btn").forEach(btn => {
+          btn.classList.toggle("active", btn.innerText === `${currentPercentage}%`);
+        });
+      }
+
+      prSlider.addEventListener("input", () => {
+        currentPercentage = parseInt(prSlider.value, 10);
+        updateSliderUI();
+        calculateHybridLoad();
+      });
+
+      // =========================================================================
+      // 14. ALGORITMO OPTIMIZADO (CERO CONGELAMIENTO + ALTERNATIVAS REALES)
+      // =========================================================================
+      function calculateHybridLoad() {
+        const activeId = getActiveAthleteId();
+        const prs = getAthletePRs(activeId);
+        const basePR = prs[movements[currentMoveIndex]] || 100;
+        const targetTotal = basePR * (currentPercentage / 100);
+
+        document.getElementById("targetWeightValue").innerText = `${targetTotal.toFixed(1)} ${selectedUnit}`;
+
+        // Peso de la barra
+        const barWeightKg = selectedBar === "men" ? 20 : 15;
+        const barWeightInTarget = selectedUnit === "kg" ? barWeightKg : (barWeightKg * KG_TO_LBS);
+
+        const neededTotal = targetTotal - barWeightInTarget;
+        const neededPerSide = neededTotal > 0 ? (neededTotal / 2) : 0;
+
+        generatedSolutions = [];
+
+        if (neededPerSide > 0.1) {
+          const available = basePlates.filter(p => p.active);
+          generatedSolutions = generateFastAlternatives(available, neededPerSide, selectedUnit);
+        }
+
+        renderAlternativesDropdown();
+      }
+
+      // Generador voraz determinista con múltiples estrategias
+      function generateFastAlternatives(availablePlates, targetPerSide, unit) {
+        const tolerance = unit === "kg" ? 0.25 : 0.55;
+        const solutions = [];
+        const seenSignatures = new Set();
+
+        function buildStrategy(filterFn, sortFn, titlePrefix) {
+          let pool = availablePlates.filter(filterFn);
+          if (pool.length === 0) pool = [...availablePlates]; // fallback si el filtro es estricto
+          
+          const prepared = pool.map(p => ({
+            ref: p,
+            weight: unit === "kg" ? p.weightKg : p.weightLb
+          })).sort(sortFn);
+
+          let currentSum = 0;
+          const combo = [];
+
+          for (const item of prepared) {
+            // Máximo 4 discos del mismo tipo por lado para realismo físico
+            while (combo.filter(p => p.id === item.ref.id).length < 4 && (currentSum + item.weight <= targetPerSide + tolerance)) {
+              combo.push(item.ref);
+              currentSum += item.weight;
+            }
+          }
+
+          if (combo.length > 0) {
+            const sig = combo.map(p => p.id).sort().join("|");
+            if (!seenSignatures.has(sig)) {
+              seenSignatures.add(sig);
+              const totalLoaded = (currentSum * 2).toFixed(1);
+              solutions.push({
+                title: `${titlePrefix} (${totalLoaded} ${unit} en discos)`,
+                plates: combo
+              });
+            }
+          }
+        }
+
+        // Estrategia 1: Óptima / Mínimos Discos (Discos Grandes Primero)
+        buildStrategy(
+          () => true,
+          (a, b) => b.weight - a.weight,
+          "Opción 1 • Menor cantidad de discos"
+        );
+
+        // Estrategia 2: Priorizar Discos en Kilogramos
+        buildStrategy(
+          p => p.unit === "kg",
+          (a, b) => b.weight - a.weight,
+          "Opción 2 • Enfoque en Kilogramos"
+        );
+
+        // Estrategia 3: Priorizar Discos en Libras
+        buildStrategy(
+          p => p.unit === "lb",
+          (a, b) => b.weight - a.weight,
+          "Opción 3 • Enfoque en Libras"
+        );
+
+        // Estrategia 4: Balance Híbrido (Mezcla Equilibrada)
+        buildStrategy(
+          p => (unit === "kg" ? p.weightKg <= 20 : p.weightLb <= 35),
+          (a, b) => b.weight - a.weight,
+          "Opción 4 • Distribución Intermedia / Fraccional"
+        );
+
+        return solutions;
+      }
+
+      const alternativesDropdown = document.getElementById("loadAlternativesDropdown");
+      const solutionsCount = document.getElementById("solutionsCount");
+
+      function renderAlternativesDropdown() {
+        alternativesDropdown.innerHTML = "";
+        solutionsCount.innerText = generatedSolutions.length;
+
+        if (generatedSolutions.length === 0) {
+          alternativesDropdown.innerHTML = `<option>Solo la barra (sin discos adicionales)</option>`;
+          renderBarbell([]);
           return;
         }
 
-        state.profiles.forEach(p => {
-          const row = document.createElement('div');
-          row.className = 'form-control';
-          row.style.display = 'flex';
-          row.style.justifyContent = 'space-between';
-          row.style.alignItems = 'center';
-          row.style.cursor = 'pointer';
-          if (p.id === state.activeProfileId) {
-            row.style.borderColor = 'var(--accent-cyan)';
-          }
+        generatedSolutions.forEach((sol, idx) => {
+          const opt = document.createElement("option");
+          opt.value = idx;
+          opt.innerText = sol.title;
+          alternativesDropdown.appendChild(opt);
+        });
 
-          row.innerHTML = `
-            <div>
-              <strong>${p.firstName} ${p.lastName}</strong>
-              <div style="font-size: 0.72rem; color: var(--text-muted);">${p.email}</div>
-            </div>
-            <button class="btn btn-outline" style="padding: 4px 8px; font-size: 0.75rem;">Elegir</button>
-          `;
-          row.addEventListener('click', () => {
-            state.activeProfileId = p.id;
-            saveProfiles();
-            updateLicenseUI();
-            applyPercentageToTarget(state.currentPRPercent);
-            renderPRTable();
-            hideModal('modalProfiles');
-          });
-          container.appendChild(row);
+        renderBarbell(generatedSolutions[0].plates);
+      }
+
+      alternativesDropdown.addEventListener("change", (e) => {
+        const sol = generatedSolutions[e.target.value];
+        if (sol) renderBarbell(sol.plates);
+      });
+
+      function renderBarbell(sidePlates) {
+        const leftBox = document.getElementById("leftPlates");
+        const rightBox = document.getElementById("rightPlates");
+        leftBox.innerHTML = "";
+        rightBox.innerHTML = "";
+
+        // Orden de la barra: discos más grandes adentro (junto al collar)
+        const ordered = [...sidePlates].sort((a, b) => {
+          const wA = selectedUnit === "kg" ? a.weightKg : a.weightLb;
+          const wB = selectedUnit === "kg" ? b.weightKg : b.weightLb;
+          return wB - wA;
+        });
+
+        // Lado izquierdo
+        const leftDisplay = [...ordered].reverse();
+        leftDisplay.forEach(plate => {
+          const elL = document.createElement("div");
+          elL.className = `plate-visual ${plate.cssClass}`;
+          elL.style.height = `${plate.height}px`;
+          elL.style.width = `${plate.width}px`;
+          elL.innerText = plate.name;
+          leftBox.appendChild(elL);
+        });
+
+        // Lado derecho
+        ordered.forEach(plate => {
+          const elR = document.createElement("div");
+          elR.className = `plate-visual ${plate.cssClass}`;
+          elR.style.height = `${plate.height}px`;
+          elR.style.width = `${plate.width}px`;
+          elR.innerText = plate.name;
+          rightBox.appendChild(elR);
         });
       }
 
-      function toast(msg) {
-        const t = document.createElement('div');
-        t.style.position = 'fixed';
-        t.style.bottom = '24px';
-        t.style.right = '24px';
-        t.style.background = '#182232';
-        t.style.border = '1px solid var(--accent-cyan)';
-        t.style.color = '#fff';
-        t.style.padding = '12px 18px';
-        t.style.borderRadius = '8px';
-        t.style.boxShadow = '0 10px 25px rgba(0,0,0,0.6)';
-        t.style.zIndex = '9999';
-        t.style.fontSize = '0.88rem';
-        t.textContent = msg;
-        document.body.appendChild(t);
-        setTimeout(() => t.remove(), 3200);
-      }
+      // 15. PRs
+      const prModal = document.getElementById("prModal");
+      const prMovementSelect = document.getElementById("prMovementSelect");
+      const prModalValue = document.getElementById("prModalValue");
 
-      function bindEvents() {
-        document.getElementById('btnNavWorkout').addEventListener('click', () => switchView('viewWorkout', 'btnNavWorkout'));
-        document.getElementById('btnNavPR').addEventListener('click', () => switchView('viewPR', 'btnNavPR'));
-        document.getElementById('btnNavReports').addEventListener('click', () => switchView('viewReports', 'btnNavReports'));
-
-        document.getElementById('btnSwitchProfile').addEventListener('click', () => {
-          renderProfilesModal();
-          showModal('modalProfiles');
+      document.getElementById("btnOpenPRModal").addEventListener("click", () => {
+        prMovementSelect.innerHTML = "";
+        movements.forEach(m => {
+          const opt = document.createElement("option");
+          opt.value = m;
+          opt.innerText = m;
+          prMovementSelect.appendChild(opt);
         });
-        document.getElementById('btnCloseProfilesModal').addEventListener('click', () => hideModal('modalProfiles'));
+        prMovementSelect.value = movements[currentMoveIndex];
+        const prs = getAthletePRs(getActiveAthleteId());
+        prModalValue.value = prs[prMovementSelect.value] || 100;
+        document.getElementById("prModalUnitText").innerText = selectedUnit;
+        prModal.classList.add("open");
+      });
 
-        document.getElementById('btnOpenInstallModal').addEventListener('click', () => showModal('modalInstall'));
-        document.getElementById('btnCloseInstallModal').addEventListener('click', () => hideModal('modalInstall'));
+      document.getElementById("btnClosePRModal").addEventListener("click", () => prModal.classList.remove("open"));
 
-        document.getElementById('btnAddNewProfile').addEventListener('click', () => {
-          hideModal('modalProfiles');
-          showModal('modalInstall');
-        });
+      prMovementSelect.addEventListener("change", () => {
+        const prs = getAthletePRs(getActiveAthleteId());
+        prModalValue.value = prs[prMovementSelect.value] || 100;
+      });
 
-        // Horizontal Slider Input (Live drag)
-        const prSlider = document.getElementById('prPercentSlider');
-        prSlider.addEventListener('input', (e) => {
-          const val = parseInt(e.target.value, 10);
-          applyPercentageToTarget(val);
-        });
+      document.getElementById("btnSavePR").addEventListener("click", () => {
+        const val = parseFloat(prModalValue.value);
+        if (isNaN(val) || val <= 0) return alert("Ingresa un número válido.");
+        saveAthletePR(getActiveAthleteId(), prMovementSelect.value, val);
+        prModal.classList.remove("open");
+        updateMovementDisplay();
+        calculateHybridLoad();
+      });
 
-        // Preset Percentage Buttons
-        document.querySelectorAll('.pct-btn').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            const pct = parseInt(e.currentTarget.dataset.pct, 10);
-            applyPercentageToTarget(pct);
-          });
-        });
+      // 16. Licencia
+      const licenseModal = document.getElementById("licenseModal");
+      document.getElementById("btnOpenLicenseModal").addEventListener("click", () => {
+        checkLicenseStatus();
+        licenseModal.classList.add("open");
+      });
+      document.getElementById("btnCloseLicenseModal").addEventListener("click", () => licenseModal.classList.remove("open"));
 
-        // Submit Installation
-        document.getElementById('btnSubmitInstall').addEventListener('click', () => {
-          const pass = document.getElementById('installKeyInput').value.trim();
-          const fn = document.getElementById('regFirstName').value.trim();
-          const ln = document.getElementById('regLastName').value.trim();
-          const email = document.getElementById('regEmail').value.trim();
-          const err = document.getElementById('installErrorMsg');
+      document.getElementById("btnActivateToken").addEventListener("click", async () => {
+        const token = document.getElementById("activationTokenInput").value;
+        if (!token) return alert("Pega la clave de activación.");
+        const ok = await verifyAndApplyToken(token);
+        if (ok) licenseModal.classList.remove("open");
+      });
 
-          if (pass !== INSTALL_PASS) {
-            err.textContent = "Clave de instalación incorrecta. Consulta al administrador (+56933395447).";
-            err.style.display = 'block';
-            return;
-          }
+      document.getElementById("btnUnlockFromLock").addEventListener("click", async () => {
+        const token = document.getElementById("lockActivationKey").value;
+        if (!token) return alert("Pega la clave de activación.");
+        await verifyAndApplyToken(token);
+      });
 
-          if (!fn || !ln || !email) {
-            err.textContent = "Debes ingresar Nombre, Apellido y Correo para activar el perfil.";
-            err.style.display = 'block';
-            return;
-          }
+      // 17. Reportes
+      const reportsModal = document.getElementById("reportsModal");
+      const prChartCanvas = document.getElementById("prChartCanvas");
 
-          err.style.display = 'none';
+      function drawReportsChart() {
+        const ctx = prChartCanvas.getContext("2d");
+        const w = prChartCanvas.width;
+        const h = prChartCanvas.height;
+        ctx.clearRect(0, 0, w, h);
 
-          const newProfile = {
-            id: 'prof_' + Date.now(),
-            firstName: fn,
-            lastName: ln,
-            email: email,
-            trialStartDate: Date.now(),
-            license: null,
-            prs: {},
-            prHistory: []
-          };
+        const activeId = getActiveAthleteId();
+        const prs = getAthletePRs(activeId);
+        const values = movements.map(m => prs[m] || 0);
+        const maxVal = Math.max(...values, 120);
 
-          state.profiles.push(newProfile);
-          state.activeProfileId = newProfile.id;
-          saveProfiles();
+        const barWidth = 24;
+        const gap = 12;
+        const startX = 30;
+        const bottomY = h - 30;
 
-          updateLicenseUI();
-          hideModal('modalInstall');
-          toast(`¡Bienvenido ${fn}! Tu prueba de 3 días ha comenzado.`);
-        });
+        ctx.strokeStyle = "#334155";
+        ctx.beginPath();
+        ctx.moveTo(startX, 10);
+        ctx.lineTo(startX, bottomY);
+        ctx.lineTo(w - 10, bottomY);
+        ctx.stroke();
 
-        // Submit Offline License Token
-        document.getElementById('btnValidateOfflineLicense').addEventListener('click', async () => {
-          const token = document.getElementById('activationTokenInput').value.trim();
-          const profile = getCurrentProfile();
+        movements.forEach((move, i) => {
+          const val = prs[move] || 0;
+          const barHeight = (val / maxVal) * (bottomY - 20);
+          const x = startX + 10 + (i * (barWidth + gap));
+          const y = bottomY - barHeight;
 
-          if (!profile) {
-            toast("Primero debes registrar un perfil arriba.");
-            return;
-          }
+          ctx.fillStyle = "#06b6d4";
+          ctx.fillRect(x, y, barWidth, barHeight);
 
-          const result = await verifyOfflineToken(token, state.deviceId, profile.email);
-          if (result.valid) {
-            profile.license = result.payload;
-            saveProfiles();
-            updateLicenseUI();
-            hideModal('modalInstall');
-            toast("¡Licencia definitiva activada con éxito!");
-          } else {
-            toast("Error de activación: " + result.message);
-          }
-        });
+          ctx.fillStyle = "#f8fafc";
+          ctx.font = "10px sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(`${val}`, x + (barWidth / 2), y - 4);
 
-        // Unit Toggles
-        document.getElementById('unitToggle').querySelectorAll('button').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            document.getElementById('unitToggle').querySelectorAll('button').forEach(b => b.classList.remove('active'));
-            e.target.classList.add('active');
-            state.targetUnit = e.target.dataset.unit;
-            applyPercentageToTarget(state.currentPRPercent);
-          });
-        });
-
-        // WOD and Equipment
-        document.getElementById('wodSelect').addEventListener('change', (e) => {
-          initWodInventory(e.target.value);
-          triggerHybridCalculation();
-        });
-
-        document.getElementById('barbellSelect').addEventListener('change', (e) => {
-          state.barbell = e.target.value;
-          triggerHybridCalculation();
-        });
-
-        // Target Weight Input (Direct manual change)
-        document.getElementById('targetWeightInput').addEventListener('input', () => {
-          // Unselect preset buttons when manually altered
-          document.querySelectorAll('.pct-btn').forEach(btn => btn.classList.remove('active'));
-          triggerHybridCalculation();
-        });
-
-        document.getElementById('btnApplyPR').addEventListener('click', () => {
-          applyPercentageToTarget(100);
-        });
-
-        // Wheel controls
-        document.getElementById('btnWheelPrev').addEventListener('click', () => {
-          const idx = OLYMPIC_MOVEMENTS.findIndex(m => m.id === state.activeMovement);
-          const next = (idx - 1 + OLYMPIC_MOVEMENTS.length) % OLYMPIC_MOVEMENTS.length;
-          selectMovement(OLYMPIC_MOVEMENTS[next].id);
-        });
-
-        document.getElementById('btnWheelNext').addEventListener('click', () => {
-          const idx = OLYMPIC_MOVEMENTS.findIndex(m => m.id === state.activeMovement);
-          const next = (idx + 1) % OLYMPIC_MOVEMENTS.length;
-          selectMovement(OLYMPIC_MOVEMENTS[next].id);
-        });
-
-        // Save PR
-        document.getElementById('btnSavePR').addEventListener('click', () => {
-          const movId = document.getElementById('prMovementSelect').value;
-          const w = parseFloat(document.getElementById('prWeightInput').value);
-          const d = document.getElementById('prDateInput').value;
-
-          if (!w || w <= 0) {
-            toast("Ingresa un peso válido para el récord.");
-            return;
-          }
-
-          savePR(movId, w, d);
-          document.getElementById('prWeightInput').value = '';
-          toast("Récord personal guardado correctamente.");
-        });
-
-        // Print & Email
-        document.getElementById('btnPrintReport').addEventListener('click', () => window.print());
-
-        document.getElementById('btnEmailReport').addEventListener('click', () => {
-          const profile = getCurrentProfile();
-          if (!profile) return;
-          const subject = encodeURIComponent(`Reporte de Récords - ${profile.firstName} ${profile.lastName}`);
-          let body = `Estimado(a),\n\nAdjunto resumen de récords personales en Halterofilia Pro:\n\n`;
-          OLYMPIC_MOVEMENTS.forEach(mov => {
-            const pr = profile.prs ? profile.prs[mov.id] : null;
-            if (pr) {
-              body += `• ${mov.name}: ${pr.weightKg} kg (${pr.weightLbs.toFixed(1)} lbs) [${pr.date}]\n`;
-            }
-          });
-          body += `\nGenerado en Santiago de Chile - Halterofilia Pro V 1.1`;
-          window.location.href = `mailto:${profile.email}?subject=${subject}&body=${encodeURIComponent(body)}`;
-        });
-
-        window.addEventListener('resize', () => {
-          if (document.getElementById('viewReports').classList.contains('active')) {
-            drawPrChart();
-          }
+          ctx.save();
+          ctx.translate(x + (barWidth / 2), bottomY + 12);
+          ctx.rotate(-Math.PI / 4);
+          ctx.fillStyle = "#94a3b8";
+          ctx.fillText(move.substring(0, 5), 0, 0);
+          ctx.restore();
         });
       }
 
-      function initApp() {
-        state.deviceId = getOrCreateDeviceId();
-        state.profiles = Storage.get('profiles', []);
-        state.activeProfileId = Storage.get('activeProfileId', null);
+      document.getElementById("btnOpenReports").addEventListener("click", () => {
+        const athletes = getAthletes();
+        const cur = athletes.find(a => a.id === getActiveAthleteId());
+        document.getElementById("reportAthleteName").innerText = cur ? cur.name : "Atleta";
+        reportsModal.classList.add("open");
+        setTimeout(drawReportsChart, 100);
+      });
+      document.getElementById("btnCloseReportsModal").addEventListener("click", () => reportsModal.classList.remove("open"));
 
-        document.getElementById('prDateInput').value = new Date().toISOString().split('T')[0];
+      document.getElementById("btnPrintReport").addEventListener("click", () => {
+        window.print();
+      });
 
-        initMovementWheel();
-        initWodInventory('central');
-        bindEvents();
-        updateLicenseUI();
-        renderPRTable();
-        applyPercentageToTarget(100);
-      }
+      document.getElementById("btnEmailReport").addEventListener("click", () => {
+        const athletes = getAthletes();
+        const cur = athletes.find(a => a.id === getActiveAthleteId());
+        const prs = getAthletePRs(getActiveAthleteId());
+        let bodyText = `Reporte de Rendimiento para ${cur ? cur.name : 'Atleta'}:\n\n`;
+        movements.forEach(m => bodyText += `${m}: ${prs[m]} ${selectedUnit}\n`);
+        window.location.href = `mailto:?subject=Reporte de PRs Halterofilia&body=${encodeURIComponent(bodyText)}`;
+      });
 
-      initApp();
+      // Inicialización
+      checkInstallation();
+      refreshAthleteHeader();
+      checkLicenseStatus();
+      renderCenters();
     });
   </script>
 </body>
