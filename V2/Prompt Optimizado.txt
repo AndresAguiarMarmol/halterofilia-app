@@ -1,0 +1,43 @@
+Prompt Maestro Optimizado para Desarrollo Multiplataforma (Agnóstico)
+
+Actúa como un Arquitecto de Software y Desarrollador Senior. Tu objetivo es construir un sistema integral para la aplicación "Halterofilia Pro". El código debe estar estructurado y optimizado de forma modular para ser desplegado en cualquier plataforma (Web, Móvil nativo o Escritorio), garantizando un arranque asíncrono fluido y una carga defensiva del ciclo de vida de la vista para evitar bloqueos en el hilo principal de la interfaz (UI thread).
+
+1. Interfaz y Experiencia de Usuario (UI/UX)
+
+Implementa un tema oscuro estricto (Fondo principal: #0f172a, Tarjetas/Contenedores: #1e293b) con acentos en cian (#06b6d4), azul, oro y rojo.
+
+Crea un encabezado fijo (sticky/pinned) con el título "Halterofilia Pro" y una barra de navegación de acceso rápido: Atleta, Reportes, PRs, Licencia y Parámetros.
+
+Añade un footer estático anclado a la base de la pantalla con el texto exacto: "Análisis/Diseño de Andres Aguiar V 1.1 Santiago de Chile Agosto 2026 - Contacto +56933395447 - Whatsapp +56933395447".
+
+2. Módulo de Seguridad y Licenciamiento Offline
+
+Instalación Inicial: Bloquea la navegación principal de la aplicación hasta que el usuario ingrese la clave maestra "NalitaBonita" y registre su Nombre, Apellido y Correo Electrónico.
+
+Periodo Trial: Registra la fecha de instalación en el almacenamiento local persistente del dispositivo. Si el tiempo de uso supera los 3 días (72 horas) sin una licencia válida, despliega una vista superpuesta en la capa más alta de la UI (modal/overlay) que bloquee toda la app mostrando "Período de Prueba Expirado" y el número de contacto +56933395447.
+
+Activación Criptográfica: Genera un identificador único de dispositivo ("Device ID") en el primer arranque. Muestra un código de solicitud con el formato "REQ|DeviceID|correo". El sistema validará la activación procesando un token Base64, verificando de forma autónoma (offline) la firma SHA-256 contra la sal criptográfica "Halterofilia-SuperSecret-Salt-2026" y comprobando que la fecha actual no supere la caducidad dictada por el token.
+
+3. Configuración de Sesión (Paso 1)
+
+Centros de Entrenamiento: Desarrolla un gestor local para seleccionar o agregar nuevos centros (WODs) con nombre y descripción para segmentar bases de datos. Preconfigura opciones por defecto: "Box CrossFit Central", "Garage Gym Pro" y "Halterofilia Club".
+
+Parámetros Base: Incorpora un selector de estado global para la unidad objetivo (KG o LBS) aplicando el factor de conversión matemático exacto de 1 kg = 2.20462 lbs. Añade un selector para el tipo de barra olímpica: Hombre (20 kg / 45 lb) o Mujer (15 kg / 35 lb).
+
+4. Entorno de Entrenamiento (Paso 2) y Motor Híbrido
+
+Selector Rotativo de Movimientos: Implementa un componente interactivo tipo rueda/carrusel (spinner wheel) para navegar entre movimientos de halterofilia (Snatch, Clean & Jerk, Back Squat, etc.). Este control debe enlazarse a la base de datos local y mostrar dinámicamente el Récord Personal (PR) del atleta activo para la técnica en pantalla.
+
+Cálculo de Carga: Añade un control deslizante (slider) interactivo (rango de 0% a 120%) que calcule el "Peso Objetivo en Barra" en tiempo real basado en el PR, acompañado de botones de selección rápida ("chips") con porcentajes predefinidos.
+
+Inventario Gráfico Interactivo: Renderiza una cuadrícula visual con los discos físicos disponibles: Libras (45, 35, 25, 15, 10 en paleta oscura) y Kilos (25kg naranja, 20kg azul, 15kg amarillo, 10kg verde, 5kg blanco, y discos fraccionales). El usuario interactuará tocando cada disco para alternar el estado de disponibilidad física (activo/inactivo) en ese instante.
+
+Algoritmo Voraz Híbrido: Desarrolla el motor de cálculo matemático que reste el peso de la barra y determine la carga utilizando exclusivamente los discos marcados como activos en el inventario. El motor debe ser capaz de mezclar kilos y libras simultáneamente para lograr el peso objetivo con precisión matemática, limitando la asignación a un máximo de 4 discos idénticos por lado para asegurar realismo físico de la manga de la barra.
+
+Alternativas de Carga y Renderizado: El algoritmo generará múltiples estrategias de distribución (ej. Menor cantidad total de discos, prioridad de uso de kilos, prioridad de uso de libras, balance híbrido fraccional). El usuario seleccionará la alternativa mediante un menú desplegable (dropdown). Al seleccionar una opción, el motor gráfico dibujará dinámicamente una representación realista de la barra de acero y los collares, apilando los discos en ambos extremos de forma simétrica y respetando estrictamente las proporciones físicas (altura, grosor) y códigos de color oficiales de cada pesa elegida.
+
+5. Gestión de Perfiles y Reportes
+
+Atletas y PRs: Integra un gestor multi-perfil para crear y alternar atletas. Incluye un módulo independiente para actualizar manualmente el PR de cualquier movimiento, persistiendo esta información estructurada en el dispositivo.
+
+Módulo de Rendimiento y Exportación: Utiliza las herramientas nativas de renderizado gráfico de la plataforma (ej. un motor de dibujo 2D) para generar un gráfico de barras que visualice el historial de PRs del atleta. Incorpora llamadas a las APIs o Intents del sistema operativo para invocar el gestor de impresión (exportación a PDF) y lanzar el cliente de correo predeterminado del dispositivo pasando los datos de rendimiento prellenados en el cuerpo del mensaje.
