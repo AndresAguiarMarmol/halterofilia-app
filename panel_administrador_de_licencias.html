@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Halterofilia Pro - Panel Administrador de Licencias</title>
+  <style>
+    :root {
+      --bg-main: #070a0e;
+      --bg-card: #101622;
+      --bg-card-alt: #162030;
+      --accent-gold: #ffb703;
+      --accent-cyan: #00e5ff;
+      --accent-green: #10b981;
+      --accent-red: #ff3366;
+      --text-primary: #f0f4f8;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border-color: #212e42;
+      --font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-family);
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: rgba(16, 22, 34, 0.95);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent-gold), #ff8800);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: #000;
+      font-size: 20px;
+      box-shadow: 0 0 16px rgba(255, 183, 3, 0.4);
+    }
+
+    .brand-text h1 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-text span {
+      font-size: 0.75rem;
+      color: var(--accent-gold);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    main {
+      flex: 1;
+      padding: 32px 20px;
+      max-width: 960px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .admin-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.5);
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg-main);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-control:focus {
+      border-color: var(--accent-gold);
+    }
+    .form-hint {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .btn {
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-gold {
+      background: var(--accent-gold);
+      color: #000;
+      box-shadow: 0 4px 14px rgba(255, 183, 3, 0.3);
+    }
+    .btn-gold:hover {
+      background: #ffc425;
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border-color: var(--border-color);
+      color: var(--text-primary);
+    }
+    .btn-outline:hover {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
+    .result-box {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 24px;
+    }
+
+    .token-display {
+      font-family: 'Consolas', 'Courier New', monospace;
+      background: #04070a;
+      border: 1px solid var(--border-color);
+      color: var(--accent-cyan);
+      padding: 14px;
+      border-radius: 8px;
+      word-break: break-all;
+      font-size: 0.85rem;
+      margin: 10px 0 16px 0;
+      user-select: all;
+    }
+
+    .info-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+    .info-pill strong {
+      color: #fff;
+    }
+
+    footer {
+      background: #040608;
+      border-top: 1px solid var(--border-color);
+      padding: 20px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-logo">HP</div>
+      <div class="brand-text">
+        <h1>Generador de Licencias</h1>
+        <span>Módulo Administrador Criptográfico SHA-256</span>
+      </div>
+    </div>
+    <div>
+      <span style="font-size: 0.8rem; color: var(--accent-green); background: rgba(16,185,129,0.15); padding: 4px 10px; border-radius: 12px; border: 1px solid var(--accent-green);">
+        ● Motor Offline Listo
+      </span>
+    </div>
+  </header>
+
+  <main>
+    <div class="admin-card">
+      <div class="section-title">🔐 Emisión de Token Firmado para Cliente</div>
+
+      <div class="form-group">
+        <label for="reqInput">Código REQ recibido del Atleta</label>
+        <input type="text" id="reqInput" class="form-control" placeholder="REQ|DEV-XXXXX-XXXXX|atleta@ejemplo.com">
+        <div class="form-hint">Formato esperado: REQ|DeviceID|correo. El atleta lo copia desde la sección de activación de su App.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="validitySelect">Periodo de Vigencia</label>
+        <select id="validitySelect" class="form-control">
+          <option value="30">Mensual (30 Días)</option>
+          <option value="365">Anual (365 Días)</option>
+          <option value="9999">Vitalicia (Acceso Permanente - 9999 Días)</option>
+        </select>
+        <div class="form-hint">Define la fecha exacta de expiración calculada a partir del instante de emisión.</div>
+      </div>
+
+      <button class="btn btn-gold" id="btnGenerate" style="width: 100%;">⚡ Generar Token de Activación Criptográfico</button>
+
+      <!-- RESULT SECTION -->
+      <div id="resultSection" class="result-box" style="display: none;">
+        <h4 style="color: var(--accent-gold); margin-bottom: 12px; font-size: 0.95rem;">✅ Token Generado con Éxito</h4>
+
+        <div style="margin-bottom: 14px;">
+          <div class="info-pill">Device ID: <strong id="outDeviceId">-</strong></div>
+          <div class="info-pill">Correo: <strong id="outEmail">-</strong></div>
+          <div class="info-pill">Vigencia: <strong id="outDays">-</strong></div>
+          <div class="info-pill">Caduca: <strong id="outExpDate">-</strong></div>
+        </div>
+
+        <label style="font-size: 0.74rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">
+          Token Base64 para entrega al cliente:
+        </label>
+        <div class="token-display" id="tokenDisplay"></div>
+
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-outline" id="btnCopyToken" style="flex: 1;">📋 Copiar Token al Portapapeles</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    Análisis/Diseño de Andres Aguiar V 1.1 Santiago de Chile Agosto 2026 - Contacto +56933395447 - Whatsapp +56933395447
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      'use strict';
+
+      const SECRET_SALT = "Halterofilia-SuperSecret-Salt-2026";
+
+      async function sha256(str) {
+        if (window.crypto && crypto.subtle) {
+          const buf = new TextEncoder().encode(str);
+          const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+          return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+          hash = (hash << 5) - hash + str.charCodeAt(i);
+          hash |= 0;
+        }
+        return 'fallback_' + Math.abs(hash).toString(16);
+      }
+
+      async function generateLicenseToken(deviceId, email, daysValid) {
+        const now = Date.now();
+        const exp = now + (parseInt(daysValid, 10) * 24 * 60 * 60 * 1000);
+
+        const raw = `${deviceId}|${email}|${exp}|${SECRET_SALT}`;
+        const signature = await sha256(raw);
+
+        const payload = {
+          deviceId,
+          email,
+          exp,
+          signature
+        };
+
+        const jsonStr = JSON.stringify(payload);
+        return {
+          token: btoa(jsonStr),
+          payload
+        };
+      }
+
+      const reqInput = document.getElementById('reqInput');
+      const validitySelect = document.getElementById('validitySelect');
+      const btnGenerate = document.getElementById('btnGenerate');
+      const resultSection = document.getElementById('resultSection');
+      const tokenDisplay = document.getElementById('tokenDisplay');
+      const btnCopyToken = document.getElementById('btnCopyToken');
+
+      const outDeviceId = document.getElementById('outDeviceId');
+      const outEmail = document.getElementById('outEmail');
+      const outDays = document.getElementById('outDays');
+      const outExpDate = document.getElementById('outExpDate');
+
+      btnGenerate.addEventListener('click', async () => {
+        const reqStr = reqInput.value.trim();
+        const parts = reqStr.split('|');
+
+        if (parts.length < 3 || parts[0].toUpperCase() !== 'REQ') {
+          alert("Error: El código debe tener el formato: REQ|DeviceID|correo");
+          return;
+        }
+
+        const deviceId = parts[1].trim();
+        const email = parts[2].trim();
+        const days = parseInt(validitySelect.value, 10);
+
+        if (!deviceId || !email) {
+          alert("Error: Device ID o Correo inválidos en la cadena REQ.");
+          return;
+        }
+
+        const { token, payload } = await generateLicenseToken(deviceId, email, days);
+
+        outDeviceId.textContent = payload.deviceId;
+        outEmail.textContent = payload.email;
+        outDays.textContent = days >= 9999 ? "Vitalicia" : `${days} Días`;
+        outExpDate.textContent = new Date(payload.exp).toLocaleDateString('es-CL', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+
+        tokenDisplay.textContent = token;
+        resultSection.style.display = 'block';
+      });
+
+      btnCopyToken.addEventListener('click', () => {
+        const token = tokenDisplay.textContent;
+        if (!token) return;
+
+        navigator.clipboard.writeText(token).then(() => {
+          btnCopyToken.textContent = "✅ ¡Token Copiado!";
+          setTimeout(() => {
+            btnCopyToken.textContent = "📋 Copiar Token al Portapapeles";
+          }, 2500);
+        }).catch(() => {
+          const range = document.createRange();
+          range.selectNode(tokenDisplay);
+          window.getSelection().removeAllRanges();
+          window.getSelection().addRange(range);
+          document.execCommand('copy');
+          window.getSelection().removeAllRanges();
+          btnCopyToken.textContent = "✅ ¡Token Copiado!";
+          setTimeout(() => {
+            btnCopyToken.textContent = "📋 Copiar Token al Portapapeles";
+          }, 2500);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
