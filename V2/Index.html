@@ -287,7 +287,7 @@
     }
 
     .plate-45lb, .plate-35lb, .plate-25lb, .plate-15lb, .plate-10lb { background: #18181b; border: 1px solid #3f3f46; color: #a1a1aa; }
-    .plate-25kg { background: #ea580c; border: 1px solid #c2410c; }
+    .plate-25kg { background: #dc2626; border: 1px solid #b91c1c; }
     .plate-20kg { background: #2563eb; border: 1px solid #1d4ed8; }
     .plate-15kg { background: #eab308; border: 1px solid #ca8a04; color: #000; }
     .plate-10kg { background: #16a34a; border: 1px solid #15803d; }
@@ -297,6 +297,99 @@
     .plate-1_5kg { background: #facc15; border: 1px solid #eab308; color: #000; }
     .plate-1kg   { background: #22c55e; border: 1px solid #16a34a; }
     .plate-0_5kg { background: #f1f5f9; border: 1px solid #94a3b8; color: #000; }
+
+    /* Input editable de peso objetivo */
+    .target-weight-input {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #fff;
+      background: transparent;
+      border: 1px solid transparent;
+      border-bottom: 2px solid var(--accent-cyan);
+      text-align: center;
+      width: 140px;
+      outline: none;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+    .target-weight-input:hover, .target-weight-input:focus {
+      border-color: var(--accent-cyan);
+      background: #0f172a;
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.3);
+    }
+
+    /* Tabla Browse de PRs */
+    .pr-browse-container {
+      max-height: 360px;
+      overflow-y: auto;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      background: #0f172a;
+      margin-bottom: 12px;
+    }
+    .pr-browse-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .pr-browse-table th {
+      position: sticky;
+      top: 0;
+      background: #111827;
+      padding: 9px 12px;
+      text-align: left;
+      color: var(--accent-cyan);
+      border-bottom: 1px solid var(--card-border);
+      font-weight: 700;
+      z-index: 2;
+    }
+    .pr-browse-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+      vertical-align: middle;
+    }
+    .pr-browse-table tr:hover {
+      background: rgba(30, 41, 59, 0.5);
+    }
+    .pr-input-cell {
+      width: 95px;
+      background: #1e293b;
+      border: 1px solid var(--card-border);
+      color: #fff;
+      font-weight: 700;
+      padding: 6px 8px;
+      border-radius: 6px;
+      text-align: right;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .pr-input-cell:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 6px rgba(6, 182, 212, 0.4);
+    }
+
+    /* Tarjetas de estadísticas para reportes */
+    .report-stat-badge {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      flex: 1;
+      min-width: 80px;
+      text-align: center;
+    }
+    .report-stat-badge small {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.68rem;
+      margin-bottom: 2px;
+    }
+    .report-stat-badge strong {
+      font-size: 0.95rem;
+      color: #fff;
+    }
 
     .inventory-grid {
       display: grid;
@@ -454,11 +547,11 @@
       <label style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; display: block;">Barra Olímpica</label>
       <div class="option-grid">
         <div class="selectable-item active" data-type="bar" data-val="men" id="barMen">
-          <div><strong>Barra Hombre (20 kg / 45 lb)</strong><br><small style="color:var(--text-muted)">28 mm • Estándar</small></div>
+          <div><strong>Barra Olimpica (20 kg / 45 lb)</strong><br><small style="color:var(--text-muted)">28 mm • Estándar</small></div>
           <div class="radio-circle"></div>
         </div>
         <div class="selectable-item" data-type="bar" data-val="women" id="barWomen">
-          <div><strong>Barra Mujer (15 kg / 35 lb)</strong><br><small style="color:var(--text-muted)">25 mm • Estándar</small></div>
+          <div><strong>Barra Olimpica (15 kg / 35 lb)</strong><br><small style="color:var(--text-muted)">25 mm • Estándar</small></div>
           <div class="radio-circle"></div>
         </div>
       </div>
@@ -498,10 +591,16 @@
         <div class="quick-chips" id="quickChipsContainer"></div>
       </div>
 
-      <!-- Peso Calculado -->
-      <div style="text-align: center; padding: 10px; background: #0f172a; border-radius: 8px; border: 1px solid var(--card-border);">
-        <span style="font-size: 0.75rem; color: var(--text-muted);">Peso Objetivo en Barra:</span>
-        <div style="font-size: 1.9rem; font-weight: 800; color: #fff;" id="targetWeightValue">80.0 kg</div>
+      <!-- Peso Calculado / Editable -->
+      <div style="text-align: center; padding: 12px; background: #0f172a; border-radius: 8px; border: 1px solid var(--card-border);">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 4px;">
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Peso Objetivo en Barra:</span>
+          <span style="font-size: 0.65rem; color: var(--accent-cyan); background: rgba(6,182,212,0.12); padding: 2px 6px; border-radius: 4px; font-weight: 600;">✏️ Editable</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <input type="number" step="0.5" id="targetWeightInput" class="target-weight-input" value="80.0" title="Ingresa o edita el peso objetivo directamente">
+          <span id="targetWeightUnitLabel" style="font-size: 1.2rem; font-weight: 700; color: var(--text-muted);">kg</span>
+        </div>
       </div>
 
       <!-- Barra Olímpica -->
@@ -598,17 +697,52 @@
     </div>
   </div>
 
-  <!-- MODAL: REPORTES -->
+  <!-- MODAL: REPORTES (PR VS TIEMPO) -->
   <div class="modal-overlay" id="reportsModal">
-    <div class="modal-box">
-      <h3 style="margin-bottom: 10px; color: var(--accent-cyan);">📊 Reporte de Rendimiento</h3>
-      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">
-        Historial de PRs para: <strong id="reportAthleteName" style="color: #fff;"></strong>
-      </p>
-
-      <div style="background: #090d16; border: 1px solid var(--card-border); border-radius: 8px; padding: 10px; margin-bottom: 12px;">
-        <canvas id="prChartCanvas" width="380" height="200" style="width: 100%; height: auto;"></canvas>
+    <div class="modal-box" style="max-width: 560px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h3 style="color: var(--accent-cyan);">📊 Avance Temporal de PRs</h3>
+        <span style="font-size: 0.8rem; color: #fff; font-weight: 600;" id="reportAthleteName"></span>
       </div>
+
+      <!-- Filtro por disciplina -->
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label for="reportMovementFilter">Seleccionar Disciplina:</label>
+        <select id="reportMovementFilter" style="background: #0f172a; border: 1px solid var(--card-border); color: #fff; padding: 8px; border-radius: 6px;"></select>
+      </div>
+
+      <!-- Tarjetas de resumen del avance -->
+      <div style="display: flex; gap: 8px; margin-bottom: 12px;" id="reportStatsContainer">
+        <div class="report-stat-badge">
+          <small>PR Inicial</small>
+          <strong id="statInitialPR">-</strong>
+        </div>
+        <div class="report-stat-badge">
+          <small>PR Actual</small>
+          <strong id="statCurrentPR" style="color: var(--accent-cyan);">-</strong>
+        </div>
+        <div class="report-stat-badge">
+          <small>Progreso Neto</small>
+          <strong id="statProgressPR" style="color: #22c55e;">-</strong>
+        </div>
+        <div class="report-stat-badge">
+          <small>Último Registro</small>
+          <strong id="statLastDate">-</strong>
+        </div>
+      </div>
+
+      <!-- Gráfico Canvas PR vs Tiempo -->
+      <div style="background: #090d16; border: 1px solid var(--card-border); border-radius: 8px; padding: 10px; margin-bottom: 12px;">
+        <canvas id="prChartCanvas" width="500" height="230" style="width: 100%; height: auto; display: block;"></canvas>
+      </div>
+
+      <!-- Historial de registros cronológicos -->
+      <details style="margin-bottom: 12px; background: #0f172a; border: 1px solid var(--card-border); border-radius: 6px; padding: 8px;">
+        <summary style="font-size: 0.78rem; color: var(--text-muted); cursor: pointer; font-weight: 600;">
+          📋 Ver Historial de Registros en el Tiempo
+        </summary>
+        <div id="reportHistoryTableContainer" style="max-height: 140px; overflow-y: auto; margin-top: 8px;"></div>
+      </details>
 
       <div style="display: flex; gap: 8px; margin-top: 10px;">
         <button class="btn-header" style="flex:1;" id="btnPrintReport">📄 Exportar / Imprimir PDF</button>
@@ -637,21 +771,29 @@
     </div>
   </div>
 
-  <!-- MODAL: ACTUALIZACIÓN PR -->
+  <!-- MODAL: ACTUALIZACIÓN PR (FORMATO BROWSE) -->
   <div class="modal-overlay" id="prModal">
-    <div class="modal-box">
-      <h3 style="margin-bottom: 12px; color: var(--accent-cyan);">🏆 Actualizar Récord Personal (PR)</h3>
-      <div class="form-group">
-        <label>Movimiento:</label>
-        <select id="prMovementSelect"></select>
+    <div class="modal-box" style="max-width: 500px;">
+      <h3 style="margin-bottom: 6px; color: var(--accent-cyan);">🏆 Récords Personales (PRs) del Atleta</h3>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">
+        Atleta: <strong id="prModalAthleteName" style="color: #fff;"></strong>. Edita los valores directamente en la tabla:
+      </p>
+
+      <div class="pr-browse-container">
+        <table class="pr-browse-table">
+          <thead>
+            <tr>
+              <th>Disciplina / Movimiento</th>
+              <th style="text-align: right;">PR Actual (<span id="prBrowseUnitHeader">kg</span>)</th>
+            </tr>
+          </thead>
+          <tbody id="prBrowseTableBody"></tbody>
+        </table>
       </div>
-      <div class="form-group">
-        <label>Nuevo PR (<span id="prModalUnitText">kg</span>):</label>
-        <input type="number" step="0.5" id="prModalValue" placeholder="100">
-      </div>
-      <div style="display: flex; gap: 8px; margin-top: 14px;">
+
+      <div style="display: flex; gap: 8px; margin-top: 12px;">
         <button class="btn-header" style="flex:1;" id="btnClosePRModal">Cerrar</button>
-        <button class="btn-action-primary" style="flex:1; padding: 8px;" id="btnSavePR">Guardar PR</button>
+        <button class="btn-action-primary" style="flex:1.2; padding: 10px;" id="btnSavePR">💾 Guardar Todos los PRs</button>
       </div>
     </div>
   </div>
@@ -670,7 +812,7 @@
       const movements = [
         "Snatch", "Clean & Jerk", "Power Snatch", "Power Clean", 
         "Hang Snatch", "Hang Clean", "Push Jerk", "Split Jerk", 
-        "Back Squat", "Front Squat"
+        "Back Squat", "Front Squat", "Thrusters"
       ];
       let currentMoveIndex = 0;
 
@@ -728,17 +870,85 @@
         const map = all ? JSON.parse(all) : {};
         if (!map[athleteId]) {
           map[athleteId] = {};
-          movements.forEach(m => map[athleteId][m] = 100);
         }
+        movements.forEach(m => {
+          if (map[athleteId][m] === undefined) {
+            map[athleteId][m] = (m === "Thrusters" ? 80 : 100);
+          }
+        });
         return map[athleteId];
       }
 
-      function saveAthletePR(athleteId, movement, value) {
+      function getAthletePRHistory(athleteId) {
+        const all = localStorage.getItem("halterofilia_pr_history");
+        const histMap = all ? JSON.parse(all) : {};
+        if (!histMap[athleteId] || !Array.isArray(histMap[athleteId]) || histMap[athleteId].length === 0) {
+          const currentPRs = getAthletePRs(athleteId);
+          const initial = [];
+          const now = new Date();
+          const d1 = new Date(now.getTime() - 40 * 86400000).toISOString().split('T')[0];
+          const d2 = new Date(now.getTime() - 20 * 86400000).toISOString().split('T')[0];
+          const d3 = now.toISOString().split('T')[0];
+
+          movements.forEach(m => {
+            const current = currentPRs[m] || 100;
+            const startVal = Math.max(10, Math.round(current * 0.88 * 2) / 2);
+            const midVal = Math.max(10, Math.round(current * 0.95 * 2) / 2);
+            initial.push({ movement: m, value: startVal, date: d1 });
+            initial.push({ movement: m, value: midVal, date: d2 });
+            initial.push({ movement: m, value: current, date: d3 });
+          });
+          histMap[athleteId] = initial;
+          localStorage.setItem("halterofilia_pr_history", JSON.stringify(histMap));
+        }
+        return histMap[athleteId];
+      }
+
+      function saveAthletePR(athleteId, movement, value, customDate) {
         const all = localStorage.getItem("halterofilia_prs_by_athlete");
         const map = all ? JSON.parse(all) : {};
         if (!map[athleteId]) map[athleteId] = {};
         map[athleteId][movement] = value;
         localStorage.setItem("halterofilia_prs_by_athlete", JSON.stringify(map));
+
+        const histMap = JSON.parse(localStorage.getItem("halterofilia_pr_history") || "{}");
+        if (!histMap[athleteId]) histMap[athleteId] = [];
+        const date = customDate || new Date().toISOString().split('T')[0];
+        const existIdx = histMap[athleteId].findIndex(e => e.movement === movement && e.date === date);
+        if (existIdx >= 0) {
+          histMap[athleteId][existIdx].value = value;
+        } else {
+          histMap[athleteId].push({ movement, value, date });
+        }
+        histMap[athleteId].sort((a, b) => new Date(a.date) - new Date(b.date));
+        localStorage.setItem("halterofilia_pr_history", JSON.stringify(histMap));
+      }
+
+      function saveAllAthletePRs(athleteId, updatedPRs) {
+        const all = localStorage.getItem("halterofilia_prs_by_athlete");
+        const map = all ? JSON.parse(all) : {};
+        if (!map[athleteId]) map[athleteId] = {};
+        const oldPRs = { ...map[athleteId] };
+        map[athleteId] = { ...map[athleteId], ...updatedPRs };
+        localStorage.setItem("halterofilia_prs_by_athlete", JSON.stringify(map));
+
+        const histMap = JSON.parse(localStorage.getItem("halterofilia_pr_history") || "{}");
+        if (!histMap[athleteId]) histMap[athleteId] = [];
+        const today = new Date().toISOString().split('T')[0];
+
+        Object.keys(updatedPRs).forEach(m => {
+          const newVal = updatedPRs[m];
+          if (oldPRs[m] !== newVal) {
+            const existIdx = histMap[athleteId].findIndex(e => e.movement === m && e.date === today);
+            if (existIdx >= 0) {
+              histMap[athleteId][existIdx].value = newVal;
+            } else {
+              histMap[athleteId].push({ movement, value, date: today });
+            }
+          }
+        });
+        histMap[athleteId].sort((a, b) => new Date(a.date) - new Date(b.date));
+        localStorage.setItem("halterofilia_pr_history", JSON.stringify(histMap));
       }
 
       // 5. Criptografía y Device ID
@@ -1032,7 +1242,7 @@
 
         document.getElementById("badgeCenterName").innerText = current ? current.name : "Centro";
         document.getElementById("badgeUnit").innerText = selectedUnit.toUpperCase();
-        document.getElementById("badgeBar").innerText = selectedBar === "men" ? "Barra 20kg" : "Barra 15kg";
+        document.getElementById("badgeBar").innerText = selectedBar === "men" ? "Barra Olímpica 20kg" : "Barra Olímpica 15kg";
 
         updateMovementDisplay();
         renderInventory();
@@ -1070,10 +1280,12 @@
         calculateHybridLoad();
       });
 
-      // 13. Porcentaje Slider
+      // 13. Porcentaje Slider y Entrada Manual de Peso
       const prSlider = document.getElementById("prSlider");
       const pctLabel = document.getElementById("pctLabel");
       const quickChipsContainer = document.getElementById("quickChipsContainer");
+      const targetWeightInput = document.getElementById("targetWeightInput");
+      const targetWeightUnitLabel = document.getElementById("targetWeightUnitLabel");
       const percentages = [50, 60, 70, 75, 80, 85, 90, 95, 100];
 
       percentages.forEach(pct => {
@@ -1102,16 +1314,40 @@
         calculateHybridLoad();
       });
 
+      if (targetWeightInput) {
+        targetWeightInput.addEventListener("input", () => {
+          const val = parseFloat(targetWeightInput.value);
+          if (!isNaN(val) && val >= 0) {
+            calculateHybridLoad(val);
+          }
+        });
+      }
+
       // =========================================================================
       // 14. ALGORITMO OPTIMIZADO (CERO CONGELAMIENTO + ALTERNATIVAS REALES)
       // =========================================================================
-      function calculateHybridLoad() {
+      function calculateHybridLoad(customTarget) {
         const activeId = getActiveAthleteId();
         const prs = getAthletePRs(activeId);
         const basePR = prs[movements[currentMoveIndex]] || 100;
-        const targetTotal = basePR * (currentPercentage / 100);
+        
+        let targetTotal;
+        if (customTarget !== undefined && !isNaN(customTarget)) {
+          targetTotal = Math.max(0, parseFloat(customTarget));
+          // Sincronizar porcentaje respecto al PR base
+          currentPercentage = basePR > 0 ? Math.round((targetTotal / basePR) * 100) : 0;
+          prSlider.value = Math.min(120, Math.max(0, currentPercentage));
+          updateSliderUI();
+        } else {
+          targetTotal = basePR * (currentPercentage / 100);
+          if (targetWeightInput && document.activeElement !== targetWeightInput) {
+            targetWeightInput.value = targetTotal.toFixed(1);
+          }
+        }
 
-        document.getElementById("targetWeightValue").innerText = `${targetTotal.toFixed(1)} ${selectedUnit}`;
+        if (targetWeightUnitLabel) {
+          targetWeightUnitLabel.innerText = selectedUnit;
+        }
 
         // Peso de la barra
         const barWeightKg = selectedBar === "men" ? 20 : 15;
@@ -1263,37 +1499,61 @@
         });
       }
 
-      // 15. PRs
+      // 15. PRs (Formato Browse Editable)
       const prModal = document.getElementById("prModal");
-      const prMovementSelect = document.getElementById("prMovementSelect");
-      const prModalValue = document.getElementById("prModalValue");
+      const prBrowseTableBody = document.getElementById("prBrowseTableBody");
+      const prModalAthleteName = document.getElementById("prModalAthleteName");
+      const prBrowseUnitHeader = document.getElementById("prBrowseUnitHeader");
 
       document.getElementById("btnOpenPRModal").addEventListener("click", () => {
-        prMovementSelect.innerHTML = "";
-        movements.forEach(m => {
-          const opt = document.createElement("option");
-          opt.value = m;
-          opt.innerText = m;
-          prMovementSelect.appendChild(opt);
-        });
-        prMovementSelect.value = movements[currentMoveIndex];
+        const athletes = getAthletes();
+        const cur = athletes.find(a => a.id === getActiveAthleteId());
+        if (prModalAthleteName) prModalAthleteName.innerText = cur ? cur.name : "Atleta";
+        if (prBrowseUnitHeader) prBrowseUnitHeader.innerText = selectedUnit;
+
         const prs = getAthletePRs(getActiveAthleteId());
-        prModalValue.value = prs[prMovementSelect.value] || 100;
-        document.getElementById("prModalUnitText").innerText = selectedUnit;
+        prBrowseTableBody.innerHTML = "";
+
+        movements.forEach(m => {
+          const val = prs[m] !== undefined ? prs[m] : 100;
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>
+              <strong style="color: #f8fafc;">${m}</strong>
+            </td>
+            <td style="text-align: right;">
+              <input type="number" step="0.5" class="pr-input-cell" data-movement="${m}" value="${val}">
+              <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 4px;">${selectedUnit}</span>
+            </td>
+          `;
+          prBrowseTableBody.appendChild(tr);
+        });
+
         prModal.classList.add("open");
       });
 
       document.getElementById("btnClosePRModal").addEventListener("click", () => prModal.classList.remove("open"));
 
-      prMovementSelect.addEventListener("change", () => {
-        const prs = getAthletePRs(getActiveAthleteId());
-        prModalValue.value = prs[prMovementSelect.value] || 100;
-      });
-
       document.getElementById("btnSavePR").addEventListener("click", () => {
-        const val = parseFloat(prModalValue.value);
-        if (isNaN(val) || val <= 0) return alert("Ingresa un número válido.");
-        saveAthletePR(getActiveAthleteId(), prMovementSelect.value, val);
+        const inputs = prBrowseTableBody.querySelectorAll(".pr-input-cell");
+        const updated = {};
+        let hasError = false;
+
+        inputs.forEach(input => {
+          const move = input.dataset.movement;
+          const val = parseFloat(input.value);
+          if (isNaN(val) || val <= 0) {
+            hasError = true;
+          } else {
+            updated[move] = val;
+          }
+        });
+
+        if (hasError) {
+          return alert("Por favor, verifica que todos los valores de PR sean números válidos y mayores a 0.");
+        }
+
+        saveAllAthletePRs(getActiveAthleteId(), updated);
         prModal.classList.remove("open");
         updateMovementDisplay();
         calculateHybridLoad();
@@ -1320,62 +1580,340 @@
         await verifyAndApplyToken(token);
       });
 
-      // 17. Reportes
+      // 17. Reportes (Avance Temporal PR vs Tiempo)
       const reportsModal = document.getElementById("reportsModal");
       const prChartCanvas = document.getElementById("prChartCanvas");
+      const reportMovementFilter = document.getElementById("reportMovementFilter");
 
-      function drawReportsChart() {
+      function initReportsFilters() {
+        if (!reportMovementFilter) return;
+        const previousVal = reportMovementFilter.value;
+        reportMovementFilter.innerHTML = "";
+
+        const optAll = document.createElement("option");
+        optAll.value = "__all__";
+        optAll.innerText = "⭐ Todas las Disciplinas (Comparativa)";
+        reportMovementFilter.appendChild(optAll);
+
+        movements.forEach(m => {
+          const opt = document.createElement("option");
+          opt.value = m;
+          opt.innerText = `🏋️ ${m}`;
+          reportMovementFilter.appendChild(opt);
+        });
+
+        if (previousVal && (previousVal === "__all__" || movements.includes(previousVal))) {
+          reportMovementFilter.value = previousVal;
+        } else {
+          reportMovementFilter.value = movements[currentMoveIndex] || movements[0];
+        }
+      }
+
+      if (reportMovementFilter) {
+        reportMovementFilter.addEventListener("change", () => {
+          drawTemporalReportsChart();
+        });
+      }
+
+      function drawTemporalReportsChart() {
+        if (!prChartCanvas) return;
         const ctx = prChartCanvas.getContext("2d");
         const w = prChartCanvas.width;
         const h = prChartCanvas.height;
         ctx.clearRect(0, 0, w, h);
 
         const activeId = getActiveAthleteId();
-        const prs = getAthletePRs(activeId);
-        const values = movements.map(m => prs[m] || 0);
-        const maxVal = Math.max(...values, 120);
+        const history = getAthletePRHistory(activeId);
+        const selectedFilter = reportMovementFilter ? reportMovementFilter.value : movements[0];
 
-        const barWidth = 24;
-        const gap = 12;
-        const startX = 30;
-        const bottomY = h - 30;
+        // Elementos de resumen
+        const elInitial = document.getElementById("statInitialPR");
+        const elCurrent = document.getElementById("statCurrentPR");
+        const elProgress = document.getElementById("statProgressPR");
+        const elLastDate = document.getElementById("statLastDate");
+        const historyContainer = document.getElementById("reportHistoryTableContainer");
 
-        ctx.strokeStyle = "#334155";
-        ctx.beginPath();
-        ctx.moveTo(startX, 10);
-        ctx.lineTo(startX, bottomY);
-        ctx.lineTo(w - 10, bottomY);
-        ctx.stroke();
+        const disciplinePalette = {
+          "Snatch": "#06b6d4",
+          "Clean & Jerk": "#f59e0b",
+          "Thrusters": "#ec4899",
+          "Power Snatch": "#38bdf8",
+          "Power Clean": "#fb923c",
+          "Hang Snatch": "#a855f7",
+          "Hang Clean": "#a3e635",
+          "Push Jerk": "#e879f9",
+          "Split Jerk": "#f43f5e",
+          "Back Squat": "#3b82f6",
+          "Front Squat": "#10b981"
+        };
 
-        movements.forEach((move, i) => {
-          const val = prs[move] || 0;
-          const barHeight = (val / maxVal) * (bottomY - 20);
-          const x = startX + 10 + (i * (barWidth + gap));
-          const y = bottomY - barHeight;
+        if (selectedFilter !== "__all__") {
+          // --- MODO DISCIPLINA INDIVIDUAL ---
+          const items = history
+            .filter(item => item.movement === selectedFilter)
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-          ctx.fillStyle = "#06b6d4";
-          ctx.fillRect(x, y, barWidth, barHeight);
+          if (items.length === 0) {
+            const curPR = getAthletePRs(activeId)[selectedFilter] || 100;
+            items.push({ movement: selectedFilter, value: curPR, date: new Date().toISOString().split('T')[0] });
+          }
 
-          ctx.fillStyle = "#f8fafc";
+          const initialVal = items[0].value;
+          const currentVal = items[items.length - 1].value;
+          const diff = currentVal - initialVal;
+          const pctGain = initialVal > 0 ? ((diff / initialVal) * 100).toFixed(1) : 0;
+          const diffSign = diff >= 0 ? `+${diff.toFixed(1)}` : `${diff.toFixed(1)}`;
+
+          if (elInitial) elInitial.innerText = `${initialVal.toFixed(1)} ${selectedUnit}`;
+          if (elCurrent) elCurrent.innerText = `${currentVal.toFixed(1)} ${selectedUnit}`;
+          if (elProgress) {
+            elProgress.innerText = `${diffSign} ${selectedUnit} (${diff >= 0 ? '+' : ''}${pctGain}%)`;
+            elProgress.style.color = diff >= 0 ? "#22c55e" : "#ef4444";
+          }
+          if (elLastDate) elLastDate.innerText = items[items.length - 1].date;
+
+          // Dibujo gráfico de línea
+          const paddingLeft = 45;
+          const paddingRight = 30;
+          const paddingTop = 25;
+          const paddingBottom = 35;
+          const plotW = w - paddingLeft - paddingRight;
+          const plotH = h - paddingTop - paddingBottom;
+
+          const values = items.map(d => d.value);
+          const rawMin = Math.min(...values);
+          const rawMax = Math.max(...values);
+          const range = (rawMax - rawMin) || (rawMin * 0.2) || 10;
+          const yMin = Math.max(0, Math.floor((rawMin - range * 0.15) / 5) * 5);
+          const yMax = Math.ceil((rawMax + range * 0.2) / 5) * 5;
+
+          // Líneas guía horizontales
+          ctx.strokeStyle = "#1e293b";
+          ctx.lineWidth = 1;
+          ctx.fillStyle = "#64748b";
           ctx.font = "10px sans-serif";
-          ctx.textAlign = "center";
-          ctx.fillText(`${val}`, x + (barWidth / 2), y - 4);
+          ctx.textAlign = "right";
 
-          ctx.save();
-          ctx.translate(x + (barWidth / 2), bottomY + 12);
-          ctx.rotate(-Math.PI / 4);
-          ctx.fillStyle = "#94a3b8";
-          ctx.fillText(move.substring(0, 5), 0, 0);
-          ctx.restore();
-        });
+          const gridSteps = 4;
+          for (let i = 0; i <= gridSteps; i++) {
+            const yVal = yMin + (i * (yMax - yMin) / gridSteps);
+            const py = paddingTop + plotH - (i * (plotH / gridSteps));
+            ctx.beginPath();
+            ctx.moveTo(paddingLeft, py);
+            ctx.lineTo(w - paddingRight, py);
+            ctx.stroke();
+            ctx.fillText(`${Math.round(yVal)}`, paddingLeft - 6, py + 3);
+          }
+
+          // Puntos en pantalla
+          const points = items.map((item, idx) => {
+            const px = items.length === 1
+              ? paddingLeft + (plotW / 2)
+              : paddingLeft + (idx * (plotW / (items.length - 1)));
+            const py = paddingTop + plotH - (((item.value - yMin) / (yMax - yMin)) * plotH);
+            return { x: px, y: py, item };
+          });
+
+          // Relleno gradiente bajo la curva
+          if (points.length > 1) {
+            const grad = ctx.createLinearGradient(0, paddingTop, 0, paddingTop + plotH);
+            grad.addColorStop(0, "rgba(6, 182, 212, 0.35)");
+            grad.addColorStop(1, "rgba(6, 182, 212, 0.0)");
+
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, paddingTop + plotH);
+            points.forEach(p => ctx.lineTo(p.x, p.y));
+            ctx.lineTo(points[points.length - 1].x, paddingTop + plotH);
+            ctx.closePath();
+            ctx.fillStyle = grad;
+            ctx.fill();
+          }
+
+          // Línea principal
+          const lineColor = disciplinePalette[selectedFilter] || "#06b6d4";
+          ctx.beginPath();
+          ctx.strokeStyle = lineColor;
+          ctx.lineWidth = 3;
+          ctx.lineJoin = "round";
+          points.forEach((p, idx) => {
+            if (idx === 0) ctx.moveTo(p.x, p.y);
+            else ctx.lineTo(p.x, p.y);
+          });
+          ctx.stroke();
+
+          // Puntos y etiquetas
+          points.forEach(p => {
+            // Círculo exterior con brillo
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+            ctx.fillStyle = lineColor;
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = "#0f172a";
+            ctx.stroke();
+
+            // Etiqueta de valor
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 10px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText(`${p.item.value}`, p.x, p.y - 9);
+
+            // Fecha en eje X
+            ctx.fillStyle = "#94a3b8";
+            ctx.font = "9px sans-serif";
+            const dateShort = p.item.date.length > 5 ? p.item.date.substring(5) : p.item.date;
+            ctx.fillText(dateShort, p.x, paddingTop + plotH + 15);
+          });
+
+          // Renderizar tabla cronológica
+          if (historyContainer) {
+            historyContainer.innerHTML = `
+              <table style="width:100%; font-size:0.75rem; border-collapse:collapse;">
+                <thead>
+                  <tr style="color:var(--accent-cyan); border-bottom:1px solid var(--card-border); text-align:left;">
+                    <th style="padding:4px 6px;">Fecha</th>
+                    <th style="padding:4px 6px;">Disciplina</th>
+                    <th style="padding:4px 6px; text-align:right;">Marca (${selectedUnit})</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${items.map(it => `
+                    <tr style="border-bottom:1px solid rgba(51,65,85,0.3);">
+                      <td style="padding:4px 6px; color:#94a3b8;">${it.date}</td>
+                      <td style="padding:4px 6px; color:#fff; font-weight:600;">${it.movement}</td>
+                      <td style="padding:4px 6px; text-align:right; color:var(--accent-cyan); font-weight:700;">${it.value}</td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            `;
+          }
+
+        } else {
+          // --- MODO TODAS LAS DISCIPLINAS (COMPARATIVA) ---
+          const allMovements = movements;
+          const curPRs = getAthletePRs(activeId);
+          const topPR = Math.max(...allMovements.map(m => curPRs[m] || 0));
+
+          if (elInitial) elInitial.innerText = `${allMovements.length} Movimientos`;
+          if (elCurrent) elCurrent.innerText = `Máx: ${topPR} ${selectedUnit}`;
+          if (elProgress) {
+            elProgress.innerText = `General Activo`;
+            elProgress.style.color = "#06b6d4";
+          }
+          if (elLastDate) elLastDate.innerText = "Hoy";
+
+          // Dibujar líneas comparativas para movimientos principales
+          const paddingLeft = 45;
+          const paddingRight = 20;
+          const paddingTop = 25;
+          const paddingBottom = 35;
+          const plotW = w - paddingLeft - paddingRight;
+          const plotH = h - paddingTop - paddingBottom;
+
+          // Obtener fechas únicas ordenadas
+          const allDates = [...new Set(history.map(h => h.date))].sort();
+          if (allDates.length === 0) allDates.push(new Date().toISOString().split('T')[0]);
+
+          const maxVal = Math.max(topPR * 1.15, 120);
+          const minVal = 0;
+
+          // Eje horizontal
+          ctx.strokeStyle = "#1e293b";
+          ctx.lineWidth = 1;
+          for (let i = 0; i <= 4; i++) {
+            const py = paddingTop + plotH - (i * (plotH / 4));
+            ctx.beginPath();
+            ctx.moveTo(paddingLeft, py);
+            ctx.lineTo(w - paddingRight, py);
+            ctx.stroke();
+            ctx.fillStyle = "#64748b";
+            ctx.font = "9px sans-serif";
+            ctx.textAlign = "right";
+            ctx.fillText(`${Math.round((maxVal / 4) * i)}`, paddingLeft - 5, py + 3);
+          }
+
+          // Dibujar curvas para cada disciplina
+          const mainToDraw = ["Snatch", "Clean & Jerk", "Thrusters", "Back Squat", "Front Squat"];
+          mainToDraw.forEach(move => {
+            const mItems = history.filter(h => h.movement === move).sort((a, b) => new Date(a.date) - new Date(b.date));
+            if (mItems.length === 0) return;
+
+            const mColor = disciplinePalette[move] || "#94a3b8";
+            ctx.beginPath();
+            ctx.strokeStyle = mColor;
+            ctx.lineWidth = 2;
+            mItems.forEach((it, idx) => {
+              const dateIdx = allDates.indexOf(it.date);
+              const px = allDates.length === 1
+                ? paddingLeft + (plotW / 2)
+                : paddingLeft + ((dateIdx >= 0 ? dateIdx : idx) * (plotW / Math.max(1, allDates.length - 1)));
+              const py = paddingTop + plotH - ((it.value / maxVal) * plotH);
+              if (idx === 0) ctx.moveTo(px, py);
+              else ctx.lineTo(px, py);
+            });
+            ctx.stroke();
+
+            // Punto final con etiqueta
+            const last = mItems[mItems.length - 1];
+            const lastIdx = allDates.indexOf(last.date);
+            const px = allDates.length === 1 ? paddingLeft + (plotW / 2) : paddingLeft + (lastIdx * (plotW / Math.max(1, allDates.length - 1)));
+            const py = paddingTop + plotH - ((last.value / maxVal) * plotH);
+
+            ctx.beginPath();
+            ctx.arc(px, py, 4, 0, Math.PI * 2);
+            ctx.fillStyle = mColor;
+            ctx.fill();
+          });
+
+          // Leyenda compacta
+          ctx.font = "bold 9px sans-serif";
+          let legendX = paddingLeft;
+          mainToDraw.forEach(move => {
+            ctx.fillStyle = disciplinePalette[move] || "#fff";
+            ctx.fillRect(legendX, 8, 8, 8);
+            ctx.fillStyle = "#cbd5e1";
+            ctx.textAlign = "left";
+            ctx.fillText(move, legendX + 11, 15);
+            legendX += ctx.measureText(move).width + 20;
+          });
+
+          // Tabla con últimos registros
+          if (historyContainer) {
+            const recent = [...history].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
+            historyContainer.innerHTML = `
+              <table style="width:100%; font-size:0.75rem; border-collapse:collapse;">
+                <thead>
+                  <tr style="color:var(--accent-cyan); border-bottom:1px solid var(--card-border); text-align:left;">
+                    <th style="padding:4px 6px;">Fecha</th>
+                    <th style="padding:4px 6px;">Disciplina</th>
+                    <th style="padding:4px 6px; text-align:right;">Marca (${selectedUnit})</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${recent.map(it => `
+                    <tr style="border-bottom:1px solid rgba(51,65,85,0.3);">
+                      <td style="padding:4px 6px; color:#94a3b8;">${it.date}</td>
+                      <td style="padding:4px 6px; color:#fff; font-weight:600;">${it.movement}</td>
+                      <td style="padding:4px 6px; text-align:right; color:var(--accent-cyan); font-weight:700;">${it.value}</td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            `;
+          }
+        }
       }
 
       document.getElementById("btnOpenReports").addEventListener("click", () => {
         const athletes = getAthletes();
         const cur = athletes.find(a => a.id === getActiveAthleteId());
-        document.getElementById("reportAthleteName").innerText = cur ? cur.name : "Atleta";
+        const reportAthleteName = document.getElementById("reportAthleteName");
+        if (reportAthleteName) reportAthleteName.innerText = cur ? cur.name : "Atleta";
+
+        initReportsFilters();
         reportsModal.classList.add("open");
-        setTimeout(drawReportsChart, 100);
+        setTimeout(drawTemporalReportsChart, 80);
       });
       document.getElementById("btnCloseReportsModal").addEventListener("click", () => reportsModal.classList.remove("open"));
 
@@ -1401,3 +1939,4 @@
   </script>
 </body>
 </html>
+
