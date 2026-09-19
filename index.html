@@ -737,24 +737,23 @@
   <!-- MODAL: INSTALACIÓN INICIAL -->
   <div class="modal-overlay" id="installModal">
     <div class="modal-box">
-      <h3 style="margin-bottom: 10px; color: var(--accent-cyan);">⚙️ Instalación de la Aplicación</h3>
-      <div class="form-group">
-        <label>Clave de Instalación:</label>
-        <input type="password" id="installPassInput" placeholder="Ingresa la clave maestra">
-      </div>
+      <h3 style="margin-bottom: 10px; color: var(--accent-cyan);">⚙️ Bienvenida a Halterofilia Pro</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
+        Ingresa tus datos para registrar tu perfil de atleta y comenzar tu período de prueba de 7 días gratuitos.
+      </p>
       <div class="form-group">
         <label>Nombre del Atleta:</label>
         <input type="text" id="installFirstName" placeholder="Nombre">
       </div>
       <div class="form-group">
         <label>Apellido:</label>
-        <input type="text" id="installLastName" placeholder="Apellido">
+        <input type="text" id="installLastName" placeholder="Apellido (opcional)">
       </div>
       <div class="form-group">
         <label>Correo Electrónico:</label>
         <input type="email" id="installEmail" placeholder="correo@ejemplo.com">
       </div>
-      <button class="btn-action-primary" id="btnConfirmInstall">Completar Instalación</button>
+      <button class="btn-action-primary" id="btnConfirmInstall">Comenzar a Entrenar</button>
     </div>
   </div>
 
@@ -891,7 +890,8 @@
     document.addEventListener("DOMContentLoaded", () => {
       const KG_TO_LBS = 2.20462;
       const MASTER_SALT = "Halterofilia-SuperSecret-Salt-2026";
-      const INSTALL_KEY = "NalitaBonita";
+      const TRIAL_DAYS = 7;
+      const TRIAL_DURATION_MS = TRIAL_DAYS * 24 * 60 * 60 * 1000; // 604,800,000 ms (7 días)
 
       // 1. Movimientos olímpicos
       const movements = [
@@ -1080,16 +1080,17 @@
           } catch(e) {}
         }
 
-        const threeDaysMs = 259200000;
         const now = Date.now();
-        if (installDate > 0 && (now - installDate > threeDaysMs)) {
+        if (installDate > 0 && (now - installDate > TRIAL_DURATION_MS)) {
           lockBanner.style.display = "flex";
           document.getElementById("licenseStatusText").innerText = "Trial Expirado ❌";
           document.getElementById("licenseExpiryText").innerText = "Contactar al +56933395447";
           return false;
         } else {
           lockBanner.style.display = "none";
-          const remainingDays = Math.ceil((threeDaysMs - (now - installDate)) / (1000 * 60 * 60 * 24));
+          const remainingDays = installDate > 0 
+            ? Math.max(0, Math.ceil((TRIAL_DURATION_MS - (now - installDate)) / (1000 * 60 * 60 * 24)))
+            : TRIAL_DAYS;
           document.getElementById("licenseStatusText").innerText = `Trial Activo (${remainingDays} días restantes)`;
           return true;
         }
@@ -1200,15 +1201,14 @@
       }
 
       document.getElementById("btnConfirmInstall").addEventListener("click", () => {
-        const pass = document.getElementById("installPassInput").value.trim();
         const fName = document.getElementById("installFirstName").value.trim();
         const lName = document.getElementById("installLastName").value.trim();
         const email = document.getElementById("installEmail").value.trim();
 
-        if (pass !== INSTALL_KEY) return alert("Clave de instalación incorrecta.");
-        if (!fName || !lName || !email) return alert("Completa todos los campos.");
+        if (!fName || !email) return alert("Por favor ingresa al menos tu nombre y correo electrónico.");
 
-        const firstAthlete = { id: "ath_" + Date.now(), name: `${fName} ${lName}`, email };
+        const fullName = lName ? `${fName} ${lName}` : fName;
+        const firstAthlete = { id: "ath_" + Date.now(), name: fullName, email };
         saveAthletes([firstAthlete]);
         setActiveAthleteId(firstAthlete.id);
         localStorage.setItem("halterofilia_installed", "true");

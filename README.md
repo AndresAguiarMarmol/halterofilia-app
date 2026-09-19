@@ -11,9 +11,10 @@ Aplicación web progresiva y portable (SPA) diseñada para atletas y entrenadore
   - Inventario de discos fraccionados en kilogramos ($2.5, 2.0, 1.5, 1.0, 0.5\text{ kg}$) con codificación de colores reglamentarios de la IWF (Rojo, Azul, Amarillo, Verde y Blanco).
   - Cálculo simétrico y optimizado por cada extremo de la barra.
 - **Simulación Gráfica:** Representación visual interactiva en tiempo real de la barra cargada con las proporciones y colores de los discos calculados.
-- **Módulo de Usuarios y Seguridad:**
-  - Control de acceso inicial mediante clave de instalación.
-  - Registro de perfil de atleta (Nombre, Apellido, Correo).
+- **Módulo de Usuarios y Licencia:**
+  - Inicialización directa y sencilla (sin contraseñas maestras de instalación).
+  - 7 días de prueba gratuita completa (*Full Free Trial*).
+  - Registro ágil de perfil de atleta (Nombre, Apellido, Correo).
   - Botón de **Cambio de Usuario** para alternar entre múltiples perfiles locales.
 - **100% Autónomo y Portable:** Construido en un único archivo (`HTML + CSS + JS`) con persistencia en `localStorage`, sin requerir bases de datos externas ni servidores.
 
@@ -22,7 +23,7 @@ Aplicación web progresiva y portable (SPA) diseñada para atletas y entrenadore
 ## 🛠️ Tecnologías Utilizadas
 
 - **HTML5:** Estructura semántica y soporte para WebApps en pantalla completa en iOS y Android.
-- **CSS3:** Diseño responsivo en modo oscuro (*Dark Mode*) y estilización gráfica de la barra y discos.
+- **CSS3:** Diseño responsivo con selector de temas (**Modo Oscuro**, **Modo Claro** y **Por Defecto del Sistema**) y estilización gráfica de la barra y discos.
 - **JavaScript (ES6+):** Lógica matemática de distribución (algoritmo *greedy*), manipulación del DOM y persistencia de datos local.
 
 ---
@@ -31,7 +32,7 @@ Aplicación web progresiva y portable (SPA) diseñada para atletas y entrenadore
 
 ### 1. Uso Local en Computadora (Windows / Mac / Linux)
 1. Descarga o clona este repositorio.
-2. Abre el archivo `index.html` (o `Asistente de Halterofilia V11.html`) directamente en cualquier navegador web (Chrome, Edge, Safari, Firefox).
+2. Abre el archivo `index.html` directamente en cualquier navegador web (Chrome, Edge, Safari, Firefox).
 
 ### 2. Uso en Dispositivos Móviles (iPhone / Android) vía GitHub Pages
 1. Aloja este repositorio en **GitHub**.
@@ -43,9 +44,9 @@ Aplicación web progresiva y portable (SPA) diseñada para atletas y entrenadore
 
 ## 🔑 Primer Uso
 
-1. Al abrir la app por primera vez, pulsa el botón **`⚙️ Instalación`**.
-2. Ingresa la contraseña de seguridad configurada para el sistema.
-3. Registra los datos del atleta (Nombre, Apellido y Correo) para inicializar el perfil.
+1. Al abrir la app por primera vez, se presenta el asistente de bienvenida para inicializar el perfil del atleta (Nombre y Correo).
+2. La aplicación otorga automáticamente **7 días de prueba completa y gratuita**.
+3. Una vez finalizado el período de prueba, se puede solicitar la clave de activación al administrador (+56933395447).
 
 ---
 
