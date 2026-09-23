@@ -1,0 +1,30 @@
+Aquí tienes la plantilla exacta. Este archivo le dice al teléfono cómo debe verse tu aplicación en la pantalla de inicio, qué colores usar y cómo debe comportarse al abrirse.
+1.Crea el archivo manifest.json:En la misma carpeta raíz donde está tu archivo index.html, crea un archivo nuevo llamado exactamente manifest.json y pega este código:
+
+JSON{"name": "Registro de Halterofilia",
+  "short_name": "HalteroApp",
+  "description": "Aplicación para gestionar rutinas y marcas de levantamiento de pesas.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "icono-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icono-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
+Nota: Puedes modificar el texto y los colores (background_color es el fondo que aparece mientras carga la app, y theme_color es el color de la barra superior del teléfono)
+.2.Conecta el archivo a tu HTML:Abre tu archivo index.html. Dentro de la sección <head>, debes agregar una línea para que el navegador sepa que tu manifiesto existe:HTML<link rel="manifest" href="manifest.json">
+<!-- Opcional pero recomendado: alinea el color de la barra con tu manifest -->
+<meta name="theme-color" content="#000000">
+3.Prepara y guarda tus íconos:Para que PWABuilder te dé luz verde y empaquete tu app para las tiendas, necesitas obligatoriamente incluir el logo de tu app en dos tamaños específicos (en formato PNG).Crea tus imágenes, 
+nómbralas icono-192.png (de 192x192 píxeles) y icono-512.png (de 512x512 píxeles), y guárdalas en la misma carpeta junto a tus archivos HTML y el JSON.

@@ -11,3 +11,7 @@ Thumbs.db
 *.tmp
 *.bak
 *.log
+
+# Archivos temporales de Office
+~$*
+

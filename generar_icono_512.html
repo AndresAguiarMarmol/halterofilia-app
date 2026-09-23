@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Generador de Icono 512x512 - Halterofilia Pro</title>
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      gap: 20px;
+    }
+    canvas {
+      border: 1px solid #334155;
+      border-radius: 24px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+    button {
+      background: linear-gradient(135deg, #06b6d4, #3b82f6);
+      border: none;
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(6, 182, 212, 0.4);
+      transition: transform 0.1s ease;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Vista previa de tu Icono (512 × 512)</h2>
+  
+  <!-- Lienzo con las dimensiones oficiales exactas -->
+  <canvas id="iconCanvas" width="512" height="512"></canvas>
+  
+  <button id="btnDescargar">Descargar icono-512.png</button>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const canvas = document.getElementById("iconCanvas");
+      const ctx = canvas.getContext("2d");
+
+      // 1. DIBUJAR FONDO CON ESQUINAS REDONDEADAS
+      function drawRoundedRect(x, y, w, h, radius) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h - radius);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        ctx.lineTo(x + radius, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+      }
+
+      // Relleno de fondo radial
+      const bgGrad = ctx.createRadialGradient(256, 200, 30, 256, 256, 320);
+      bgGrad.addColorStop(0, "#1e293b");
+      bgGrad.addColorStop(1, "#090d16");
+      ctx.fillStyle = bgGrad;
+      drawRoundedRect(16, 16, 480, 480, 80);
+      ctx.fill();
+
+      // Borde cian exterior
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = "#06b6d4";
+      ctx.stroke();
+
+      // Círculo tenue de guía
+      ctx.beginPath();
+      ctx.arc(256, 230, 140, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(51, 65, 85, 0.4)";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 6]);
+      ctx.stroke();
+      ctx.setLineDash([]); // Restaurar línea continua
+
+      // 2. BARRA OLÍMPICA METÁLICA
+      const barGrad = ctx.createLinearGradient(0, 222, 0, 238);
+      barGrad.addColorStop(0, "#f8fafc");
+      barGrad.addColorStop(0.5, "#94a3b8");
+      barGrad.addColorStop(1, "#475569");
+      ctx.fillStyle = barGrad;
+      ctx.fillRect(70, 222, 372, 16);
+
+      // Collares/Topes
+      ctx.fillStyle = "#cbd5e1";
+      ctx.fillRect(156, 210, 12, 40);
+      ctx.fillRect(344, 210, 12, 40);
+
+      // 3. DISCOS DE COMPETICIÓN SIMÉTRICOS
+      // Función para dibujar un disco
+      function drawPlate(x, y, w, h, gradColor1, gradColor2, strokeColor) {
+        const pGrad = ctx.createLinearGradient(x, 0, x + w, 0);
+        pGrad.addColorStop(0, gradColor1);
+        pGrad.addColorStop(1, gradColor2);
+        ctx.fillStyle = pGrad;
+        ctx.fillRect(x, y, w, h);
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = strokeColor;
+        ctx.strokeRect(x, y, w, h);
+      }
+
+      // Lado Izquierdo
+      drawPlate(134, 140, 18, 180, "#1d4ed8", "#3b82f6", "#1e3a8a"); // Disco 20 kg (Azul)
+      drawPlate(112, 175, 16, 110, "#991b1b", "#ef4444", "#7f1d1d"); // Disco 2.5 kg (Rojo)
+      ctx.fillStyle = "#94a3b8";
+      ctx.fillRect(98, 216, 10, 28); // Seguro
+
+      // Lado Derecho
+      drawPlate(360, 140, 18, 180, "#3b82f6", "#1d4ed8", "#1e3a8a"); // Disco 20 kg (Azul)
+      drawPlate(384, 175, 16, 110, "#ef4444", "#991b1b", "#7f1d1d"); // Disco 2.5 kg (Rojo)
+      ctx.fillStyle = "#94a3b8";
+      ctx.fillRect(404, 216, 10, 28); // Seguro
+
+      // 4. ISOTIPO CENTRAL (CORONA DE PODER)
+      ctx.fillStyle = "#06b6d4";
+      ctx.beginPath();
+      ctx.moveTo(256 - 22, 185);
+      ctx.lineTo(256, 152);
+      ctx.lineTo(256 + 22, 185);
+      ctx.lineTo(256 + 12, 185);
+      ctx.lineTo(256, 167);
+      ctx.lineTo(256 - 12, 185);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(256, 142, 6, 0, Math.PI * 2);
+      ctx.fillStyle = "#f8fafc";
+      ctx.fill();
+
+      // 5. TEXTO Y MARCA
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#f8fafc";
+      ctx.font = "900 34px sans-serif";
+      ctx.letterSpacing = "4px";
+      ctx.fillText("HALTEROFILIA", 256, 375);
+
+      // Insignia PRO
+      ctx.fillStyle = "#06b6d4";
+      drawRoundedRect(216, 396, 80, 26, 6);
+      ctx.fill();
+
+      ctx.fillStyle = "#090d16";
+      ctx.font = "800 14px sans-serif";
+      ctx.letterSpacing = "2px";
+      ctx.fillText("PRO", 256, 414);
+
+      // 6. FUNCIÓN DE DESCARGA DEL ARCHIVO PNG
+      function descargarIcono() {
+        const link = document.createElement("a");
+        link.download = "icono-512.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      }
+
+      document.getElementById("btnDescargar").addEventListener("click", descargarIcono);
+
+      // Descarga automática inicial opcional
+      // descargarIcono();
+    });
+  </script>
+</body>
+</html>
