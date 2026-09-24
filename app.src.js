@@ -61,15 +61,82 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("halterofilia_active_athlete_id", id);
       }
 
+      function getAthleteUnit(athleteId) {
+        if (!athleteId) athleteId = getActiveAthleteId();
+        const stored = localStorage.getItem("halterofilia_athlete_unit_" + athleteId);
+        return stored || "kg";
+      }
+
+      function setAthleteUnit(athleteId, unit) {
+        if (!athleteId) athleteId = getActiveAthleteId();
+        localStorage.setItem("halterofilia_athlete_unit_" + athleteId, unit);
+      }
+
+      function convertWeight(value, fromUnit, toUnit) {
+        if (!value || isNaN(value)) return value;
+        const fromIsKg = fromUnit === "kg";
+        const toIsKg = toUnit === "kg";
+        if (fromIsKg === toIsKg) return value;
+
+        if (fromIsKg && !toIsKg) {
+          // kg -> lbs
+          return Math.round((value * KG_TO_LBS) * 10) / 10;
+        } else if (!fromIsKg && toIsKg) {
+          // lbs -> kg
+          return Math.round((value / KG_TO_LBS) * 10) / 10;
+        }
+        return value;
+      }
+
+      function convertAthleteUnit(athleteId, fromUnit, toUnit) {
+        if (!athleteId) athleteId = getActiveAthleteId();
+        const fromIsKg = fromUnit === "kg";
+        const toIsKg = toUnit === "kg";
+        if (fromIsKg === toIsKg) return;
+
+        // 1. Convertir PRs actuales del atleta
+        const allPRs = JSON.parse(localStorage.getItem("halterofilia_prs_by_athlete") || "{}");
+        if (!allPRs[athleteId]) {
+          allPRs[athleteId] = {};
+          movements.forEach(m => {
+            const defKg = (m === "Thrusters" ? 80 : 100);
+            allPRs[athleteId][m] = fromIsKg ? defKg : Math.round((defKg * KG_TO_LBS) * 10) / 10;
+          });
+        }
+        const updatedPRs = {};
+        Object.keys(allPRs[athleteId]).forEach(m => {
+          const val = allPRs[athleteId][m];
+          updatedPRs[m] = convertWeight(val, fromUnit, toUnit);
+        });
+        allPRs[athleteId] = updatedPRs;
+        localStorage.setItem("halterofilia_prs_by_athlete", JSON.stringify(allPRs));
+
+        // 2. Convertir el historial de PRs para mantener coherencia en gráficas y tablas
+        const histMap = JSON.parse(localStorage.getItem("halterofilia_pr_history") || "{}");
+        if (histMap[athleteId] && Array.isArray(histMap[athleteId])) {
+          histMap[athleteId].forEach(item => {
+            if (typeof item.value === "number") {
+              item.value = convertWeight(item.value, fromUnit, toUnit);
+            }
+          });
+          localStorage.setItem("halterofilia_pr_history", JSON.stringify(histMap));
+        }
+
+        // 3. Persistir la nueva unidad oficial del atleta
+        setAthleteUnit(athleteId, toUnit);
+      }
+
       function getAthletePRs(athleteId) {
         const all = localStorage.getItem("halterofilia_prs_by_athlete");
         const map = all ? JSON.parse(all) : {};
         if (!map[athleteId]) {
           map[athleteId] = {};
         }
+        const athUnit = getAthleteUnit(athleteId);
         movements.forEach(m => {
           if (map[athleteId][m] === undefined) {
-            map[athleteId][m] = (m === "Thrusters" ? 80 : 100);
+            const defKg = (m === "Thrusters" ? 80 : 100);
+            map[athleteId][m] = (athUnit === "kg" ? defKg : Math.round((defKg * KG_TO_LBS) * 10) / 10);
           }
         });
         return map[athleteId];
@@ -87,9 +154,9 @@ document.addEventListener("DOMContentLoaded", () => {
           const d3 = now.toISOString().split('T')[0];
 
           movements.forEach(m => {
-            const current = currentPRs[m] || 100;
-            const startVal = Math.max(10, Math.round(current * 0.88 * 2) / 2);
-            const midVal = Math.max(10, Math.round(current * 0.95 * 2) / 2);
+            const current = currentPRs[m] || (selectedUnit === "kg" ? 100 : 220.5);
+            const startVal = Math.max(10, Math.round(current * 0.88 * 10) / 10);
+            const midVal = Math.max(10, Math.round(current * 0.95 * 10) / 10);
             initial.push({ movement: m, value: startVal, date: d1 });
             initial.push({ movement: m, value: midVal, date: d2 });
             initial.push({ movement: m, value: current, date: d3 });
@@ -106,6 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!map[athleteId]) map[athleteId] = {};
         map[athleteId][movement] = value;
         localStorage.setItem("halterofilia_prs_by_athlete", JSON.stringify(map));
+        setAthleteUnit(athleteId, selectedUnit);
 
         const histMap = JSON.parse(localStorage.getItem("halterofilia_pr_history") || "{}");
         if (!histMap[athleteId]) histMap[athleteId] = [];
@@ -127,6 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const oldPRs = { ...map[athleteId] };
         map[athleteId] = { ...map[athleteId], ...updatedPRs };
         localStorage.setItem("halterofilia_prs_by_athlete", JSON.stringify(map));
+        setAthleteUnit(athleteId, selectedUnit);
 
         const histMap = JSON.parse(localStorage.getItem("halterofilia_pr_history") || "{}");
         if (!histMap[athleteId]) histMap[athleteId] = [];
@@ -139,7 +208,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (existIdx >= 0) {
               histMap[athleteId][existIdx].value = newVal;
             } else {
-              histMap[athleteId].push({ movement, value, date: today });
+              histMap[athleteId].push({ movement: m, value: newVal, date: today });
             }
           }
         });
@@ -302,6 +371,14 @@ document.addEventListener("DOMContentLoaded", () => {
             setActiveAthleteId(a.id);
             refreshAthleteHeader();
             renderAthletesList();
+
+            // Sincronizar la unidad objetivo asociada a este atleta
+            const athUnit = getAthleteUnit(a.id);
+            selectedUnit = athUnit;
+            document.querySelectorAll(".selectable-item[data-type='unit']").forEach(i => {
+              i.classList.toggle("active", i.dataset.val === athUnit);
+            });
+
             updateMovementDisplay();
             calculateHybridLoad();
           });
@@ -425,9 +502,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
       document.querySelectorAll(".selectable-item[data-type='unit']").forEach(el => {
         el.addEventListener("click", () => {
+          const newUnit = el.dataset.val;
+          const prevUnit = selectedUnit;
+          if (prevUnit === newUnit) return;
+
           document.querySelectorAll(".selectable-item[data-type='unit']").forEach(i => i.classList.remove("active"));
           el.classList.add("active");
-          selectedUnit = el.dataset.val;
+          selectedUnit = newUnit;
+
+          const activeId = getActiveAthleteId();
+          if (activeId) {
+            convertAthleteUnit(activeId, prevUnit, newUnit);
+          }
+
+          updateMovementDisplay();
+          calculateHybridLoad();
+          if (document.getElementById("reportsModal") && document.getElementById("reportsModal").classList.contains("open")) {
+            drawTemporalReportsChart();
+          }
         });
       });
 
@@ -509,7 +601,23 @@ document.addEventListener("DOMContentLoaded", () => {
         const current = all.find(c => c.id === selectedCenterId);
 
         document.getElementById("badgeCenterName").innerText = current ? current.name : "Centro";
-        document.getElementById("badgeUnit").innerText = selectedUnit.toUpperCase();
+        const badgeUnitEl = document.getElementById("badgeUnit");
+        if (badgeUnitEl) {
+          badgeUnitEl.innerText = selectedUnit.toUpperCase();
+          if (!badgeUnitEl.dataset.hasListener) {
+            badgeUnitEl.dataset.hasListener = "true";
+            badgeUnitEl.style.cursor = "pointer";
+            badgeUnitEl.title = "Toca para alternar entre KG y LBS";
+            badgeUnitEl.addEventListener("click", () => {
+              const target = selectedUnit === "kg" ? "lbs" : "kg";
+              const btn = document.querySelector(`.selectable-item[data-type='unit'][data-val='${target}']`);
+              if (btn) {
+                btn.click();
+                badgeUnitEl.innerText = selectedUnit.toUpperCase();
+              }
+            });
+          }
+        }
         document.getElementById("badgeBar").innerText = selectedBar === "men" ? "Barra Olímpica 20kg" : "Barra Olímpica 15kg";
 
         updateMovementDisplay();
@@ -531,9 +639,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const moveName = movements[currentMoveIndex];
         const activeId = getActiveAthleteId();
         const prs = getAthletePRs(activeId);
-        const pr = prs[moveName] || 100;
+        const pr = prs[moveName] !== undefined ? prs[moveName] : (selectedUnit === "kg" ? (moveName === "Thrusters" ? 80 : 100) : (moveName === "Thrusters" ? 176.4 : 220.5));
         document.getElementById("activeMoveTitle").innerText = moveName;
-        document.getElementById("activeMovePR").innerText = `PR: ${pr} ${selectedUnit}`;
+        document.getElementById("activeMovePR").innerText = `PR: ${pr} ${selectedUnit.toUpperCase()}`;
       }
 
       document.getElementById("btnPrevMove").addEventListener("click", () => {
@@ -777,21 +885,21 @@ document.addEventListener("DOMContentLoaded", () => {
         const athletes = getAthletes();
         const cur = athletes.find(a => a.id === getActiveAthleteId());
         if (prModalAthleteName) prModalAthleteName.innerText = cur ? cur.name : "Atleta";
-        if (prBrowseUnitHeader) prBrowseUnitHeader.innerText = selectedUnit;
+        if (prBrowseUnitHeader) prBrowseUnitHeader.innerText = selectedUnit.toUpperCase();
 
         const prs = getAthletePRs(getActiveAthleteId());
         prBrowseTableBody.innerHTML = "";
 
         movements.forEach(m => {
-          const val = prs[m] !== undefined ? prs[m] : 100;
+          const val = prs[m] !== undefined ? prs[m] : (selectedUnit === "kg" ? (m === "Thrusters" ? 80 : 100) : (m === "Thrusters" ? 176.4 : 220.5));
           const tr = document.createElement("tr");
           tr.innerHTML = `
             <td>
               <strong style="color: #f8fafc;">${m}</strong>
             </td>
             <td style="text-align: right;">
-              <input type="number" step="0.5" class="pr-input-cell" data-movement="${m}" value="${val}">
-              <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 4px;">${selectedUnit}</span>
+              <input type="number" step="0.1" class="pr-input-cell" data-movement="${m}" value="${val}">
+              <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 4px;">${selectedUnit.toUpperCase()}</span>
             </td>
           `;
           prBrowseTableBody.appendChild(tr);
@@ -813,7 +921,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (isNaN(val) || val <= 0) {
             hasError = true;
           } else {
-            updated[move] = val;
+            updated[move] = Math.round(val * 10) / 10;
           }
         });
 
@@ -821,7 +929,9 @@ document.addEventListener("DOMContentLoaded", () => {
           return alert("Por favor, verifica que todos los valores de PR sean números válidos y mayores a 0.");
         }
 
-        saveAllAthletePRs(getActiveAthleteId(), updated);
+        const activeId = getActiveAthleteId();
+        saveAllAthletePRs(activeId, updated);
+        setAthleteUnit(activeId, selectedUnit);
         prModal.classList.remove("open");
         updateMovementDisplay();
         calculateHybridLoad();
@@ -1207,6 +1317,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Inicialización
       checkInstallation();
+      const initialAthId = getActiveAthleteId();
+      if (initialAthId) {
+        selectedUnit = getAthleteUnit(initialAthId);
+        document.querySelectorAll(".selectable-item[data-type='unit']").forEach(i => {
+          i.classList.toggle("active", i.dataset.val === selectedUnit);
+        });
+      }
       refreshAthleteHeader();
       checkLicenseStatus();
       renderCenters();
