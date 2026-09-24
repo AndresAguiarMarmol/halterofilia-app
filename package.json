@@ -1,0 +1,25 @@
+{
+  "name": "halterofilia",
+  "version": "1.0.0",
+  "description": "Aplicación web progresiva y portable (SPA) diseñada para atletas y entrenadores de halterofilia y CrossFit. Permite calcular de forma automática y visual la distribución exacta de discos en la barra según el peso objetivo, además de gestionar los récords personales (PR) en los movimientos olímpicos de **Snatch** y **Clean & Jerk**.",
+  "main": "pwabuilder-sw.js",
+  "scripts": {
+    "build:protect": "node scripts/protect.js",
+    "protect": "node scripts/protect.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AndresAguiarMarmol/halterofilia-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AndresAguiarMarmol/halterofilia-app/issues"
+  },
+  "homepage": "https://github.com/AndresAguiarMarmol/halterofilia-app#readme",
+  "devDependencies": {
+    "javascript-obfuscator": "^5.8.0"
+  }
+}
