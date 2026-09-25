@@ -577,7 +577,7 @@ document.addEventListener("DOMContentLoaded", () => {
         inventoryGrid.innerHTML = "";
         basePlates.forEach(plate => {
           const chip = document.createElement("div");
-          chip.className = `inv-chip ${plate.active ? '' : 'inactive'}`;
+          chip.className = `inv-chip ${plate.cssClass} ${plate.active ? '' : 'inactive'}`;
           chip.innerHTML = `${plate.name}<br><small>${plate.unit.toUpperCase()}</small>`;
           chip.addEventListener("click", () => {
             plate.active = !plate.active;
@@ -658,11 +658,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // 13. Porcentaje Slider y Entrada Manual de Peso
       const prSlider = document.getElementById("prSlider");
+      if (prSlider) {
+        prSlider.min = "40";
+        prSlider.max = "120";
+      }
       const pctLabel = document.getElementById("pctLabel");
       const quickChipsContainer = document.getElementById("quickChipsContainer");
       const targetWeightInput = document.getElementById("targetWeightInput");
       const targetWeightUnitLabel = document.getElementById("targetWeightUnitLabel");
-      const percentages = [50, 60, 70, 75, 80, 85, 90, 95, 100];
+      const percentages = [40, 50, 60, 70, 75, 80, 85, 90, 95, 100, 110, 120];
 
       percentages.forEach(pct => {
         const btn = document.createElement("button");
@@ -712,7 +716,7 @@ document.addEventListener("DOMContentLoaded", () => {
           targetTotal = Math.max(0, parseFloat(customTarget));
           // Sincronizar porcentaje respecto al PR base
           currentPercentage = basePR > 0 ? Math.round((targetTotal / basePR) * 100) : 0;
-          prSlider.value = Math.min(120, Math.max(0, currentPercentage));
+          prSlider.value = Math.min(120, Math.max(40, currentPercentage));
           updateSliderUI();
         } else {
           targetTotal = basePR * (currentPercentage / 100);
@@ -895,7 +899,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const tr = document.createElement("tr");
           tr.innerHTML = `
             <td>
-              <strong style="color: #f8fafc;">${m}</strong>
+              <strong class="pr-discipline-name">${m}</strong>
             </td>
             <td style="text-align: right;">
               <input type="number" step="0.1" class="pr-input-cell" data-movement="${m}" value="${val}">
