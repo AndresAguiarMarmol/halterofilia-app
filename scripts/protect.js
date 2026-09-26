@@ -64,14 +64,13 @@ const obfAppResult = JavaScriptObfuscator.obfuscate(sourceCode, {
   compact: true,
   controlFlowFlattening: true,
   controlFlowFlatteningThreshold: 0.75,
-  deadCodeInjection: true,
-  deadCodeInjectionThreshold: 0.2,
+  deadCodeInjection: false,
   debugProtection: false,
-  disableConsoleOutput: true,
+  disableConsoleOutput: false,
   identifierNamesGenerator: 'hexadecimal',
   numbersToExpressions: true,
   renameGlobals: false,
-  selfDefending: true,
+  selfDefending: false,
   simplify: true,
   splitStrings: true,
   splitStringsChunkLength: 8,
@@ -86,7 +85,7 @@ const obfAppResult = JavaScriptObfuscator.obfuscate(sourceCode, {
   stringArrayWrappersChainedCalls: true,
   stringArrayWrappersParametersMaxCount: 4,
   stringArrayWrappersType: 'function',
-  stringArrayThreshold: 0.9,
+  stringArrayThreshold: 0.8,
   transformObjectKeys: true,
   unicodeEscapeSequence: false
 });
@@ -158,32 +157,7 @@ const loaderEngineCode = `
     });
   } catch(e) {}
 
-  // 2. Silenciamiento de Consola
-  try {
-    var _noop = function() {};
-    window.console = {
-      log: _noop,
-      info: _noop,
-      warn: _noop,
-      error: _noop,
-      debug: _noop,
-      table: _noop,
-      trace: _noop
-    };
-  } catch(e) {}
-
-  // 3. Trampa Anti-Debugging Periódica
-  (function _antiDebug() {
-    function _t() {
-      try {
-        (function() { return false; }['constructor']('debugger')['call']());
-      } catch(e) {}
-    }
-    _t();
-    setInterval(_t, 1200);
-  })();
-
-  // 4. Función de Desempaquetado y Ejecución en Memoria
+  // 2. Función de Desempaquetado y Ejecución en Memoria
   window.__HP_LAUNCH__ = function(b64, shift, c, invP, key) {
     try {
       var bin = atob(b64);
@@ -221,7 +195,9 @@ const loaderEngineCode = `
       code = null;
       fn();
     } catch(err) {
-      // Falla silenciosa
+      if (typeof console !== 'undefined' && console.error) {
+        console.error('Halterofilia Core Init:', err);
+      }
     }
   };
 })();
@@ -236,7 +212,7 @@ const obfLoaderResult = JavaScriptObfuscator.obfuscate(loaderEngineCode, {
   identifierNamesGenerator: 'hexadecimal',
   numbersToExpressions: true,
   renameGlobals: false,
-  selfDefending: true,
+  selfDefending: false,
   stringArray: true,
   stringArrayEncoding: ['rc4'],
   stringArrayRotate: true,
@@ -265,20 +241,26 @@ if (fs.existsSync(INDEX_BACKUP_PATH)) {
   fs.writeFileSync(INDEX_BACKUP_PATH, baseHtml, 'utf8');
 }
 
-// Localizar el primer bloque <script>...</script> (el script principal de la app)
-const firstScriptIdx = baseHtml.indexOf('<script>');
-if (firstScriptIdx === -1) {
-  console.error('❌ Error: No se encontró <script> en el HTML base');
-  process.exit(1);
-}
-const firstScriptEnd = baseHtml.indexOf('</script>', firstScriptIdx);
-if (firstScriptEnd === -1) {
-  console.error('❌ Error: No se encontró </script> de cierre en el HTML base');
+// Localizar el bloque <script> principal de la aplicación (después de <footer>)
+const footerIdx = baseHtml.indexOf('</footer>');
+if (footerIdx === -1) {
+  console.error('❌ Error: No se encontró </footer> en el HTML base');
   process.exit(1);
 }
 
-const beforeScript = baseHtml.substring(0, firstScriptIdx);
-const afterScript = baseHtml.substring(firstScriptEnd + '</script>'.length);
+const mainScriptIdx = baseHtml.indexOf('<script>', footerIdx);
+if (mainScriptIdx === -1) {
+  console.error('❌ Error: No se encontró <script> principal después de </footer>');
+  process.exit(1);
+}
+const mainScriptEnd = baseHtml.indexOf('</script>', mainScriptIdx);
+if (mainScriptEnd === -1) {
+  console.error('❌ Error: No se encontró </script> de cierre para el script principal');
+  process.exit(1);
+}
+
+const beforeScript = baseHtml.substring(0, mainScriptIdx);
+const afterScript = baseHtml.substring(mainScriptEnd + '</script>'.length);
 
 // Construcción del HTML Protegido
 const protectedScriptBlock = `<script>\n/* Halterofilia Pro - Protected Core (Build: ${new Date().toISOString()}) */\n${finalScriptContent}\n  </script>`;
