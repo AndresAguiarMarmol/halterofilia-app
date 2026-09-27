@@ -956,9 +956,124 @@ document.addEventListener("DOMContentLoaded", () => {
         goToStep1(true);
       });
 
-      // 9. Centros de Entrenamiento
+      // 9. Centros de Entrenamiento y Validación de Compatibilidad de Unidad
       const centersContainer = document.getElementById("centersContainer");
       let currentCenterCategory = "both";
+
+      function getActiveCenter() {
+        const centers = getAllCenters();
+        return centers.find(c => c.id === selectedCenterId) || centers[0];
+      }
+
+      function getCenterAvailableUnits(center) {
+        if (!center) return { hasKg: false, hasLb: false, name: "Centro de Entrenamiento", category: "both" };
+        let hasKg = false;
+        let hasLb = false;
+
+        OFFICIAL_PLATES_META.forEach(p => {
+          let allowedByCat = true;
+          if (center.category === "lbs") allowedByCat = (p.unit === "lb");
+          else if (center.category === "kg") allowedByCat = (p.unit === "kg");
+
+          const pConf = center.plates && center.plates[p.id];
+          const isAvail = pConf ? (pConf.available !== false) : true;
+
+          if (allowedByCat && isAvail) {
+            if (p.unit === "kg") hasKg = true;
+            if (p.unit === "lb") hasLb = true;
+          }
+        });
+
+        return {
+          hasKg,
+          hasLb,
+          name: center.name || "Centro de Entrenamiento",
+          category: center.category || "both"
+        };
+      }
+
+      function checkUnitCompatibilityWithCenter(unitVal, center) {
+        const targetCenter = center || getActiveCenter();
+        const avail = getCenterAvailableUnits(targetCenter);
+
+        if (unitVal === "kg") {
+          if (!avail.hasKg) {
+            return {
+              compatible: false,
+              message: `⚠️ Error de Compatibilidad de Unidad:\n\nEl Centro de Entrenamiento "${avail.name}" no dispone de discos en Kilogramos (KG).\nActualmente solo cuenta con equipamiento en Libras (LBS).\n\nPor favor, selecciona una unidad compatible o modifica las pesas disponibles en el Box.`
+            };
+          }
+        } else if (unitVal === "lbs") {
+          if (!avail.hasLb) {
+            return {
+              compatible: false,
+              message: `⚠️ Error de Compatibilidad de Unidad:\n\nEl Centro de Entrenamiento "${avail.name}" no dispone de discos en Libras (LBS).\nActualmente solo cuenta con equipamiento en Kilogramos (KG).\n\nPor favor, selecciona una unidad compatible o modifica las pesas disponibles en el Box.`
+            };
+          }
+        } else if (unitVal === "mixto") {
+          if (!avail.hasKg || !avail.hasLb) {
+            let missing = "";
+            if (!avail.hasKg && !avail.hasLb) missing = "discos en Kilogramos (KG) ni en Libras (LBS)";
+            else if (!avail.hasKg) missing = "discos en Kilogramos (KG)";
+            else missing = "discos en Libras (LBS)";
+
+            return {
+              compatible: false,
+              message: `⚠️ Error de Compatibilidad con Modalidad Mixta:\n\nLa modalidad Mixto requiere contar con discos en ambos sistemas (KG y LBS simultáneamente).\nEl Centro de Entrenamiento "${avail.name}" no dispone de ${missing}.\n\nPor favor, selecciona una unidad compatible o habilita ambas categorías de pesas en el Box.`
+            };
+          }
+        }
+        return { compatible: true };
+      }
+
+      function showUnitCompatibilityError(message) {
+        const banner = document.getElementById("unitCompatibilityErrorBanner");
+        if (banner) {
+          banner.innerText = message.replace(/\n\n/g, " — ");
+          banner.style.display = "block";
+          if (banner._timer) clearTimeout(banner._timer);
+          banner._timer = setTimeout(() => {
+            banner.style.display = "none";
+          }, 8000);
+        }
+        alert(message);
+      }
+
+      function hideUnitCompatibilityError() {
+        const banner = document.getElementById("unitCompatibilityErrorBanner");
+        if (banner) {
+          banner.style.display = "none";
+          if (banner._timer) clearTimeout(banner._timer);
+        }
+      }
+
+      function updateUnitSelectorAvailability() {
+        const center = getActiveCenter();
+        if (!center) return;
+        document.querySelectorAll(".selectable-item[data-type='unit']").forEach(el => {
+          const uVal = el.dataset.val;
+          const check = checkUnitCompatibilityWithCenter(uVal, center);
+          let badge = el.querySelector(".unit-incompatible-badge");
+
+          if (!check.compatible) {
+            el.classList.add("unit-incompatible");
+            el.title = `No compatible con ${center.name}`;
+            if (!badge) {
+              badge = document.createElement("span");
+              badge.className = "unit-incompatible-badge";
+              badge.innerText = "No disponible en Box";
+              const firstDiv = el.querySelector("div");
+              if (firstDiv) firstDiv.appendChild(badge);
+            } else {
+              badge.style.display = "inline-block";
+            }
+          } else {
+            el.classList.remove("unit-incompatible");
+            el.removeAttribute("title");
+            if (badge) badge.style.display = "none";
+          }
+        });
+      }
 
       function syncInventoryWithAthleteUnit(unit) {
         const athPrefUnit = unit || getAthleteUnit(getActiveAthleteId()) || selectedUnit;
@@ -1021,6 +1136,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         renderInventory();
         calculateHybridLoad();
+        updateUnitSelectorAvailability();
       }
 
       function renderCenters() {
@@ -1088,8 +1204,34 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             selectedCenterId = center.id;
+            
+            // Validar compatibilidad de la unidad actual con el nuevo Box seleccionado
+            const check = checkUnitCompatibilityWithCenter(selectedUnit, center);
+            if (!check.compatible) {
+              const avail = getCenterAvailableUnits(center);
+              let fallbackUnit = "kg";
+              if (avail.hasKg && !avail.hasLb) fallbackUnit = "kg";
+              else if (avail.hasLb && !avail.hasKg) fallbackUnit = "lbs";
+              else if (avail.hasKg && avail.hasLb) fallbackUnit = "kg";
+
+              alert(`⚠️ Ajuste Automático por Cambio de Box:\n\nEl centro "${center.name}" no dispone de discos en la unidad actual (${selectedUnit.toUpperCase()}).\nSe ajustará automáticamente la unidad a "${fallbackUnit.toUpperCase()}".`);
+
+              const prevUnit = selectedUnit;
+              selectedUnit = fallbackUnit;
+              const activeId = getActiveAthleteId();
+              if (activeId) {
+                convertAthleteUnit(activeId, prevUnit, fallbackUnit);
+              }
+              document.querySelectorAll(".selectable-item[data-type='unit']").forEach(i => {
+                i.classList.toggle("active", i.dataset.val === fallbackUnit);
+              });
+              const badgeUnitEl = document.getElementById("badgeUnit");
+              if (badgeUnitEl) badgeUnitEl.innerText = fallbackUnit.toUpperCase();
+            }
+
             renderCenters();
             applyCenterMaterial(selectedCenterId);
+            updateUnitSelectorAvailability();
           });
 
           centersContainer.appendChild(card);
@@ -1126,6 +1268,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateCategorySelectorUI();
         renderEditorPlates(center ? center.plates : null);
         modal.classList.add("open");
+        document.body.classList.add("center-editor-open");
       }
 
       function updateCategorySelectorUI() {
@@ -1250,9 +1393,33 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         saveAllCenters(centers);
+        document.body.classList.remove("center-editor-open");
         document.getElementById("centerEditorModal").classList.remove("open");
+
+        // Si el centro editado es el seleccionado actualmente, validar compatibilidad
+        if (centerId === selectedCenterId || !centerId) {
+          const activeCenter = centers.find(c => c.id === selectedCenterId);
+          const check = checkUnitCompatibilityWithCenter(selectedUnit, activeCenter);
+          if (!check.compatible) {
+            const avail = getCenterAvailableUnits(activeCenter);
+            let fallbackUnit = avail.hasKg ? "kg" : (avail.hasLb ? "lbs" : "kg");
+            alert(`⚠️ Ajuste de Unidad por Cambio en el Equipamiento del Box:\n\nEl centro "${activeCenter.name}" ya no dispone de discos en "${selectedUnit.toUpperCase()}".\nSe ajustará la unidad a "${fallbackUnit.toUpperCase()}".`);
+            const prevUnit = selectedUnit;
+            selectedUnit = fallbackUnit;
+            const activeId = getActiveAthleteId();
+            if (activeId) {
+              convertAthleteUnit(activeId, prevUnit, fallbackUnit);
+            }
+            document.querySelectorAll(".selectable-item[data-type='unit']").forEach(i => {
+              i.classList.toggle("active", i.dataset.val === fallbackUnit);
+            });
+            const badgeUnitEl = document.getElementById("badgeUnit");
+            if (badgeUnitEl) badgeUnitEl.innerText = fallbackUnit.toUpperCase();
+          }
+        }
         renderCenters();
         applyCenterMaterial(selectedCenterId);
+        updateUnitSelectorAvailability();
       }
 
       function deleteCenter(centerId) {
@@ -1277,6 +1444,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         renderCenters();
         applyCenterMaterial(selectedCenterId);
+        updateUnitSelectorAvailability();
       }
 
       document.getElementById("btnOpenAddCenter").addEventListener("click", () => {
@@ -1284,6 +1452,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       document.getElementById("btnCloseCenterEditor").addEventListener("click", () => {
+        document.body.classList.remove("center-editor-open");
         document.getElementById("centerEditorModal").classList.remove("open");
       });
 
@@ -1303,6 +1472,14 @@ document.addEventListener("DOMContentLoaded", () => {
           const newUnit = el.dataset.val;
           const prevUnit = selectedUnit;
           if (prevUnit === newUnit) return;
+
+          const currentCenter = getActiveCenter();
+          const check = checkUnitCompatibilityWithCenter(newUnit, currentCenter);
+          if (!check.compatible) {
+            showUnitCompatibilityError(check.message);
+            return;
+          }
+          hideUnitCompatibilityError();
 
           document.querySelectorAll(".selectable-item[data-type='unit']").forEach(i => i.classList.remove("active"));
           el.classList.add("active");
@@ -1433,6 +1610,22 @@ document.addEventListener("DOMContentLoaded", () => {
               else if (selectedUnit === "lbs") nextUnit = "mixto";
               else nextUnit = "kg";
 
+              const currentCenter = getActiveCenter();
+              const check = checkUnitCompatibilityWithCenter(nextUnit, currentCenter);
+              if (!check.compatible) {
+                let altUnit = (nextUnit === "lbs") ? "mixto" : (nextUnit === "mixto" ? "kg" : "lbs");
+                const altCheck = checkUnitCompatibilityWithCenter(altUnit, currentCenter);
+                if (altUnit !== selectedUnit && altCheck.compatible) {
+                  alert(check.message + `\n\nAlternando a la siguiente unidad compatible: ${altUnit.toUpperCase()}`);
+                  const btn = document.querySelector(`.selectable-item[data-type='unit'][data-val='${altUnit}']`);
+                  if (btn) btn.click();
+                  return;
+                } else {
+                  showUnitCompatibilityError(check.message);
+                  return;
+                }
+              }
+
               const btn = document.querySelector(`.selectable-item[data-type='unit'][data-val='${nextUnit}']`);
               if (btn) {
                 btn.click();
@@ -1469,6 +1662,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
         renderCenters();
+        updateUnitSelectorAvailability();
       }
 
       document.getElementById("btnStartWorkout").addEventListener("click", () => {
