@@ -7,8 +7,8 @@
   "scope": "./",
   "display": "standalone",
   "display_override": [
-    "window-controls-overlay",
-    "standalone"
+    "standalone",
+    "fullscreen"
   ],
   "orientation": "portrait",
   "background_color": "#0f172a",
