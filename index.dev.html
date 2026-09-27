@@ -8,6 +8,9 @@
   <link rel="icon" type="image/png" sizes="192x192" href="icono-192.png">
   <link rel="apple-touch-icon" sizes="192x192" href="icono-192.png">
   <link rel="shortcut icon" href="icono-192.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <!-- Opcional pero recomendado: alinea el color de la barra con tu manifest -->
   <meta name="theme-color" content="#000000">
   <script>
@@ -89,12 +92,32 @@
       --chip-bg: #f1f5f9;
     }
 
+    /* ========================================================
+       ELIMINACIÓN DE LA BARRA DEL EXPLORADOR (SCROLLBAR)
+       Oculta la barra visual del navegador manteniendo el scroll
+       ======================================================== */
+    html,
+    body {
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE y Edge clásico */
+    }
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar,
+    *::-webkit-scrollbar {
+      display: none !important; /* Chrome, Edge, Safari, Opera */
+      width: 0 !important;
+      height: 0 !important;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       -webkit-tap-highlight-color: transparent;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
 
     body {
