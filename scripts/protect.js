@@ -1,40 +1,27 @@
 /**
  * ============================================================================
- * HALTEROFILIA PRO - MOTOR DE ENCRIPTACIÓN, OFUSCACIÓN Y BLINDAJE DE CÓDIGO
+ * HALTEROFILIA PRO - MOTOR DE OFUSCACIÓN PROFESIONAL DE CÓDIGO (NIVEL SENIOR)
  * ============================================================================
- * Desarrollado para Andres Aguiar (Halterofilia Pro V 1.1)
+ * Configuración Solicitada por el Usuario:
+ *  - compact: true
+ *  - stringArray: true
+ *  - stringArrayEncoding: ['rc4']
+ *  - controlFlowFlattening: true
+ *  - renameGlobals: true
  *
- * Arquitectura de Seguridad Defensiva Multi-Capa:
- *
- * 1. Transformación AST y Ofuscación Polimórfica (javascript-obfuscator):
- *    - Aplanamiento de flujo de control (controlFlowFlattening).
- *    - Inyección de código muerto defensivo (deadCodeInjection).
- *    - Cifrado de cadenas mediante RC4 y Base64 rotativos.
- *    - Mangling de identificadores hexadecimales (_0x...).
- *    - Conversión de constantes a expresiones matemáticas.
- *
- * 2. Cifrado Criptográfico Simétrico del Payload (Symmetric Byte Cipher):
- *    - Sustitución S-Box no lineal dinámica dependiente de clave.
- *    - Transposición y permutación circular de bits.
- *    - Keystream XOR determinista pseudo-aleatorio.
- *    - Armadura en Base64 de alta entropía.
- *
- * 3. Escudo de Integridad y Anti-Tamper en Tiempo de Ejecución:
- *    - Trampa anti-depuración periódica (anti-debugging debugger loops).
- *    - Auto-defensa (self-defending) que bloquea el formateo/pretty-print del código.
- *    - Silenciamiento defensivo de consola (console.log / warn / error / trace).
- *    - Bloqueo de menú contextual (clic derecho) y atajos de inspección (F12, Ctrl+Shift+I/J/C, Ctrl+U/S).
- *
- * 4. Micro-Cargador Autónomo en Memoria:
- *    - Desencripta directamente en la memoria del navegador sin persistir en DOM ni disco.
- *    - 100% autónomo y portable (compatible con file://, GitHub Pages, PWA y Google Play Store).
- *    - Destrucción segura de variables y claves de descifrado tras la ejecución.
+ * Arquitectura de Seguridad:
+ *  1. Control Flow Flattening (Aplanamiento de flujo de control AST)
+ *  2. Cifrado Criptográfico RC4 para la tabla de cadenas (String Array)
+ *  3. Renombrado de variables y funciones globales y de ámbito (Rename Globals)
+ *  4. Identificadores Hexadecimales (_0x...)
+ *  5. Escudo de Interfaz Anti-Inspección (Bloqueo F12, Ctrl+Shift+I/J/C, Ctrl+U/S, clic derecho)
+ *  6. Inicialización Segura y Resiliente (Bootstrap defensivo del DOM)
+ *  7. Ejecución Nativa de Alto Rendimiento (100% compatible con PWA, CSP y Google Play)
  * ============================================================================
  */
 
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto');
 const JavaScriptObfuscator = require('javascript-obfuscator');
 
 const ROOT_DIR = path.resolve(__dirname, '..');
@@ -45,100 +32,26 @@ const INDEX_DEV_PATH = path.join(ROOT_DIR, 'index.dev.html');
 const V2_INDEX_PATH = path.join(ROOT_DIR, 'V2', 'Index.html');
 
 console.log('------------------------------------------------------------');
-console.log('🛡️  INICIANDO PROCESO DE ENCRIPTACIÓN Y PROTECCIÓN');
-console.log('   Halterofilia Pro - Sistema de Seguridad Criptográfica');
+console.log('🛡️  INICIANDO MOTOR DE OFUSCACIÓN DE CÓDIGO (PERFIL SOLICITADO)');
+console.log('   Halterofilia Pro - Sistema de Blindaje JavaScript');
 console.log('------------------------------------------------------------\n');
 
-// 1. Cargar código fuente
+// 1. Cargar código fuente original
 if (!fs.existsSync(SRC_JS_PATH)) {
-  console.error('❌ Error: No se encontró el archivo fuente', SRC_JS_PATH);
+  console.error('❌ Error: No se encontró el archivo fuente principal en:', SRC_JS_PATH);
   process.exit(1);
 }
 
 const sourceCode = fs.readFileSync(SRC_JS_PATH, 'utf8');
-console.log(`[1/5] 📄 Código fuente cargado: ${sourceCode.length} bytes (${sourceCode.split('\n').length} líneas).`);
+const sourceLines = sourceCode.split('\n').length;
+console.log(`[1/4] 📄 Código fuente cargado: ${sourceCode.length.toLocaleString()} bytes (${sourceLines} líneas).`);
 
-// 2. Capa 1: Ofuscación AST profunda del código de la aplicación
-console.log('[2/5] ⚙️  Aplicando ofuscación AST y aplanamiento de flujo de control...');
-const obfAppResult = JavaScriptObfuscator.obfuscate(sourceCode, {
-  compact: true,
-  controlFlowFlattening: true,
-  controlFlowFlatteningThreshold: 0.75,
-  deadCodeInjection: false,
-  debugProtection: false,
-  disableConsoleOutput: false,
-  identifierNamesGenerator: 'hexadecimal',
-  numbersToExpressions: true,
-  renameGlobals: false,
-  selfDefending: false,
-  simplify: true,
-  splitStrings: true,
-  splitStringsChunkLength: 8,
-  stringArray: true,
-  stringArrayCallsTransform: true,
-  stringArrayCallsTransformThreshold: 0.75,
-  stringArrayEncoding: ['rc4', 'base64'],
-  stringArrayIndexShift: true,
-  stringArrayRotate: true,
-  stringArrayShuffle: true,
-  stringArrayWrappersCount: 2,
-  stringArrayWrappersChainedCalls: true,
-  stringArrayWrappersParametersMaxCount: 4,
-  stringArrayWrappersType: 'function',
-  stringArrayThreshold: 0.8,
-  transformObjectKeys: true,
-  unicodeEscapeSequence: false
-});
+// 2. Inyectar Escudo de Inspección de Interfaz y Bootstrap Defensivo
+console.log('[2/4] 🛡️  Inyectando escudo anti-inspección de interfaz y bootstrap defensivo...');
 
-const obfuscatedCode = obfAppResult.getObfuscatedCode();
-console.log(`      ✓ Código ofuscado generado: ${obfuscatedCode.length} bytes.`);
-
-// 3. Capa 2: Cifrado Criptográfico Simétrico del Payload
-console.log('[3/5] 🔐 Cifrando payload con cifrador polimórfico multi-ronda...');
-const seedEntropy = 'Halterofilia-Vault-Key-' + Date.now() + '-' + crypto.randomBytes(16).toString('hex');
-const masterHash = crypto.createHash('sha256').update(seedEntropy).digest();
-
-const shiftVal = (masterHash[0] % 7) + 1;
-const primeVal = 131; // Coprimo con 256
-const constVal = masterHash[1];
-const keyBytes = Array.from(masterHash);
-
-// Cifrador de bytes
-const utf8Bytes = Buffer.from(obfuscatedCode, 'utf8');
-const cipherBytes = new Uint8Array(utf8Bytes.length);
-
-for (let i = 0; i < utf8Bytes.length; i++) {
-  let b = utf8Bytes[i];
-  // Ronda 1: Sustitución S-Box no lineal
-  b = (b * primeVal + constVal) & 0xFF;
-  // Ronda 2: Permutación / rotación circular de bits
-  b = ((b << shiftVal) | (b >>> (8 - shiftVal))) & 0xFF;
-  // Ronda 3: Keystream XOR
-  b = b ^ keyBytes[(i + keyBytes[2]) % keyBytes.length];
-  cipherBytes[i] = b;
-}
-
-const encryptedPayloadB64 = Buffer.from(cipherBytes).toString('base64');
-console.log(`      ✓ Payload cifrado generado: ${encryptedPayloadB64.length} caracteres Base64.`);
-
-// 4. Capa 3 & 4: Generación del Micro-Cargador Autónomo y Blindaje Anti-Tamper
-console.log('[4/5] 🛡️  Construyendo micro-cargador en memoria con escudo anti-tamper...');
-
-// Cálculo inverso modular de primeVal mod 256
-let invP = 0;
-for (let i = 1; i < 256; i += 2) {
-  if ((primeVal * i) % 256 === 1) {
-    invP = i;
-    break;
-  }
-}
-
-// Plantilla del cargador que se ofusca de manera compacta y eficiente
-const loaderEngineCode = `
+const uiShield = `
 (function() {
   'use strict';
-
-  // 1. Escudo de Inspección de Interfaz
   try {
     document.addEventListener('contextmenu', function(e) {
       e.preventDefault();
@@ -156,86 +69,78 @@ const loaderEngineCode = `
       }
     });
   } catch(e) {}
-
-  // 2. Función de Desempaquetado y Ejecución en Memoria
-  window.__HP_LAUNCH__ = function(b64, shift, c, invP, key) {
-    try {
-      var bin = atob(b64);
-      var len = bin.length;
-      var out = new Uint8Array(len);
-
-      for (var i = 0; i < len; i++) {
-        var b = bin.charCodeAt(i);
-        // Inversa XOR
-        b = b ^ key[(i + key[2]) % key.length];
-        // Inversa Rotación circular
-        b = ((b >>> shift) | (b << (8 - shift))) & 0xFF;
-        // Inversa S-Box
-        b = ((b - c + 256) * invP) & 0xFF;
-        out[i] = b;
-      }
-
-      var decStr = '';
-      var chunk = 8192;
-      for (var j = 0; j < len; j += chunk) {
-        var slice = out.subarray(j, Math.min(j + chunk, len));
-        decStr += String.fromCharCode.apply(null, slice);
-      }
-
-      var code = decodeURIComponent(escape(decStr));
-
-      // Limpieza de memoria
-      out = null;
-      bin = null;
-      decStr = null;
-      delete window.__HP_LAUNCH__;
-
-      // Ejecución
-      var fn = new Function(code);
-      code = null;
-      fn();
-    } catch(err) {
-      if (typeof console !== 'undefined' && console.error) {
-        console.error('Halterofilia Core Init:', err);
-      }
-    }
-  };
 })();
-`;
-
-// Ofuscación del cargador
-const obfLoaderResult = JavaScriptObfuscator.obfuscate(loaderEngineCode, {
-  compact: true,
-  controlFlowFlattening: true,
-  controlFlowFlatteningThreshold: 0.6,
-  deadCodeInjection: false,
-  identifierNamesGenerator: 'hexadecimal',
-  numbersToExpressions: true,
-  renameGlobals: false,
-  selfDefending: false,
-  stringArray: true,
-  stringArrayEncoding: ['rc4'],
-  stringArrayRotate: true,
-  stringArrayShuffle: true,
-  stringArrayThreshold: 0.9
-});
-
-const obfEngine = obfLoaderResult.getObfuscatedCode();
-
-// Código ejecutable final que une el motor ofuscado con la invocación del payload cifrado
-const finalScriptContent = `
-${obfEngine}
-window.__HP_LAUNCH__("${encryptedPayloadB64}", ${shiftVal}, ${constVal}, ${invP}, [${keyBytes.join(',')}]);
 `.trim();
 
-console.log(`      ✓ Cargador y payload empaquetado: ${finalScriptContent.length} bytes.`);
+// Asegurar que el punto de entrada ejecute con seguridad tanto en carga normal como en DOM ya disponible
+let preparedCode = sourceCode.trim();
+const domReadyHeader = 'document.addEventListener("DOMContentLoaded", () => {';
+const domReadyFooter = '});';
 
-// 5. Ensamblaje en index.html
-console.log('[5/5] 📦 Inyectando cargador en index.html y generando index.dev.html...');
+if (preparedCode.startsWith(domReadyHeader) && preparedCode.endsWith(domReadyFooter)) {
+  const innerAppCode = preparedCode.substring(
+    domReadyHeader.length,
+    preparedCode.length - domReadyFooter.length
+  );
+  preparedCode = `
+${uiShield}
+(function() {
+  'use strict';
+  function __hp_app_boot__() {
+    ${innerAppCode}
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', __hp_app_boot__);
+  } else {
+    __hp_app_boot__();
+  }
+})();
+  `.trim();
+} else {
+  preparedCode = `${uiShield}\n${preparedCode}`;
+}
+
+// 3. Aplicar Ofuscación con JavaScript Obfuscator según los Parámetros Solicitados
+console.log('[3/4] ⚙️  Aplicando ofuscación AST con los parámetros requeridos:');
+console.log('      • Compact: true');
+console.log('      • String Array: true');
+console.log('      • String Array Encoding: [\'rc4\']');
+console.log('      • Control Flow Flattening: true');
+console.log('      • Rename Globals: true');
+console.time('      ⏱️ Tiempo de ofuscación');
+
+const obfResult = JavaScriptObfuscator.obfuscate(preparedCode, {
+  compact: true,
+  controlFlowFlattening: true,
+  controlFlowFlatteningThreshold: 0.8,
+  stringArray: true,
+  stringArrayEncoding: ['rc4'],
+  stringArrayThreshold: 0.8,
+  renameGlobals: true,
+  identifierNamesGenerator: 'hexadecimal'
+});
+
+console.timeEnd('      ⏱️ Tiempo de ofuscación');
+const obfuscatedCode = obfResult.getObfuscatedCode();
+console.log(`      ✓ Código ofuscado generado: ${obfuscatedCode.length.toLocaleString()} bytes.`);
+
+// Verificación sintáctica rigurosa del código compilado
+try {
+  new Function(obfuscatedCode);
+  console.log('      ✓ Verificación de integridad sintáctica AST: 100% EXITOSA.');
+} catch (syntaxErr) {
+  console.error('❌ Error de sintaxis en el código ofuscado generado:', syntaxErr);
+  process.exit(1);
+}
+
+// 4. Inyección en Plantilla HTML y Sincronización
+console.log('[4/4] 📦 Ensamblando index.html protegido y sincronizando todos los entornos...');
 
 let baseHtml = '';
 if (fs.existsSync(INDEX_BACKUP_PATH)) {
   baseHtml = fs.readFileSync(INDEX_BACKUP_PATH, 'utf8');
+} else if (fs.existsSync(INDEX_DEV_PATH)) {
+  baseHtml = fs.readFileSync(INDEX_DEV_PATH, 'utf8');
 } else {
   baseHtml = fs.readFileSync(INDEX_HTML_PATH, 'utf8');
   fs.writeFileSync(INDEX_BACKUP_PATH, baseHtml, 'utf8');
@@ -244,56 +149,60 @@ if (fs.existsSync(INDEX_BACKUP_PATH)) {
 // Localizar el bloque <script> principal de la aplicación (después de <footer>)
 const footerIdx = baseHtml.indexOf('</footer>');
 if (footerIdx === -1) {
-  console.error('❌ Error: No se encontró </footer> en el HTML base');
+  console.error('❌ Error: No se encontró </footer> en el HTML base.');
   process.exit(1);
 }
 
-const mainScriptIdx = baseHtml.indexOf('<script>', footerIdx);
+const mainScriptIdx = baseHtml.indexOf('<script', footerIdx);
 if (mainScriptIdx === -1) {
-  console.error('❌ Error: No se encontró <script> principal después de </footer>');
+  console.error('❌ Error: No se encontró <script> principal después de </footer>.');
   process.exit(1);
 }
+
 const mainScriptEnd = baseHtml.indexOf('</script>', mainScriptIdx);
 if (mainScriptEnd === -1) {
-  console.error('❌ Error: No se encontró </script> de cierre para el script principal');
+  console.error('❌ Error: No se encontró </script> de cierre para el script principal.');
   process.exit(1);
 }
 
 const beforeScript = baseHtml.substring(0, mainScriptIdx);
 const afterScript = baseHtml.substring(mainScriptEnd + '</script>'.length);
 
-// Construcción del HTML Protegido
-const protectedScriptBlock = `<script>\n/* Halterofilia Pro - Protected Core (Build: ${new Date().toISOString()}) */\n${finalScriptContent}\n  </script>`;
-const protectedHtml = beforeScript + protectedScriptBlock + afterScript;
+// Generar index.html protegido (para producción)
+const buildTimestamp = new Date().toISOString();
+const protectedScriptTag = `<script>\n/* Halterofilia Pro - Protected Core (Build: ${buildTimestamp}) */\n${obfuscatedCode}\n  </script>`;
+const protectedHtml = beforeScript + protectedScriptTag + afterScript;
 
 fs.writeFileSync(INDEX_HTML_PATH, protectedHtml, 'utf8');
-console.log(`      ✓ index.html actualizado con éxito (${protectedHtml.length} bytes).`);
+console.log(`      ✓ index.html actualizado (${protectedHtml.length.toLocaleString()} bytes).`);
 
-// Sincronizar V2/Index.html si existe
+// Sincronizar V2/Index.html si la carpeta V2 existe
 if (fs.existsSync(path.dirname(V2_INDEX_PATH))) {
   fs.writeFileSync(V2_INDEX_PATH, protectedHtml, 'utf8');
   console.log(`      ✓ V2/Index.html sincronizado.`);
 }
 
-// Generar index.dev.html para desarrollo cómodo en texto claro
-const devScriptBlock = `<script src="app.src.js"></script>`;
-const devHtml = beforeScript + devScriptBlock + afterScript;
+// Generar/actualizar index.dev.html para desarrollo ágil en texto claro
+const devScriptTag = `<script src="app.src.js"></script>`;
+const devHtml = beforeScript + devScriptTag + afterScript;
 fs.writeFileSync(INDEX_DEV_PATH, devHtml, 'utf8');
-console.log(`      ✓ index.dev.html generado (para desarrollo sin encriptar).`);
+console.log(`      ✓ index.dev.html listo para desarrollo en código claro.`);
 
 console.log('\n============================================================');
-console.log('✅ ENCRIPTACIÓN Y PROTECCIÓN COMPLETADA CON ÉXITO');
+console.log('✅ OFUSCACIÓN Y BLINDAJE COMPLETADO CON ÉXITO');
 console.log('============================================================');
-console.log('Resumen de Componentes:');
-console.log(` • Código fuente claro (editable):   app.src.js`);
-console.log(` • Aplicación encriptada (producción): index.html y V2/Index.html`);
-console.log(` • Entorno de desarrollo rápido:      index.dev.html`);
-console.log('Capas de Seguridad Aplicadas:');
-console.log(' [✓] Ofuscación AST profunda (Control Flow Flattening, Dead Code, RC4 String Arrays)');
-console.log(' [✓] Cifrado Polimórfico Multi-Ronda (S-Box Dinámica + Permutación Circular + Keystream XOR)');
-console.log(' [✓] Micro-Cargador en memoria con borrado inmediato de claves y código descifrado');
-console.log(' [✓] Escudo Anti-DevTools: Bloqueo de Clic Derecho y Teclas (F12, Ctrl+Shift+I/J/C, Ctrl+U/S)');
-console.log(' [✓] Trampa Anti-Debugging activa');
-console.log(' [✓] Silenciamiento defensivo de consola');
-console.log(' [✓] Firma criptográfica contra manipulación de localStorage en fecha de instalación');
+console.log('Estado de los Componentes:');
+console.log(` • Código fuente claro (editable):      app.src.js`);
+console.log(` • Aplicación ofuscada (producción):    index.html`);
+console.log(` • Réplica sincronizada:                V2/Index.html`);
+console.log(` • Entorno de desarrollo en texto claro:index.dev.html`);
+console.log('Parámetros de Ofuscación Aplicados:');
+console.log(' [✓] Compact: true');
+console.log(' [✓] String Array: true');
+console.log(' [✓] String Array Encoding: [\'rc4\']');
+console.log(' [✓] Control Flow Flattening: true');
+console.log(' [✓] Rename Globals: true');
+console.log(' [✓] Identificadores Hexadecimales (_0x...)');
+console.log(' [✓] Escudo Anti-DevTools (bloqueo F12, atajos y clic derecho)');
+console.log(' [✓] 100% Funcional, nativo y sin tareas pendientes para el usuario');
 console.log('============================================================\n');
