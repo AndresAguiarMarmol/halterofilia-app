@@ -17,3 +17,6 @@ Thumbs.db
 # Dependencias Node
 node_modules/
 package-lock.json
+
+# Panel de administración privado
+panel_administrador_de_licencias.html
