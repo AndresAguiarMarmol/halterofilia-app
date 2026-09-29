@@ -2947,7 +2947,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Sincronización dinámica de la versión en el footer con formato V3.<año del sistema>.<mes sistema>
       function syncFooterVersion() {
         try {
-          const footerEl = document.querySelector("footer");
+          const footerEl = document.querySelector("footer, #appFooter");
           if (!footerEl) return;
           const now = new Date();
           const sysYear = now.getFullYear();
@@ -2957,6 +2957,8 @@ document.addEventListener("DOMContentLoaded", () => {
             /V\s*[0-9]+(\.[0-9a-zA-Z]+)+/i,
             targetVersion
           );
+          footerEl.style.display = "block";
+          footerEl.style.visibility = "visible";
         } catch (e) {
           console.error("Error al sincronizar la versión del footer:", e);
         }
