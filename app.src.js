@@ -2943,4 +2943,23 @@ document.addEventListener("DOMContentLoaded", () => {
         step1Screen.style.display = "none";
         step2Screen.style.display = "none";
       }
+
+      // Sincronización dinámica de la versión en el footer con formato V3.<año del sistema>.<mes sistema>
+      function syncFooterVersion() {
+        try {
+          const footerEl = document.querySelector("footer");
+          if (!footerEl) return;
+          const now = new Date();
+          const sysYear = now.getFullYear();
+          const sysMonth = String(now.getMonth() + 1).padStart(2, "0");
+          const targetVersion = `V3.${sysYear}.${sysMonth}`;
+          footerEl.innerHTML = footerEl.innerHTML.replace(
+            /V\s*[0-9]+(\.[0-9a-zA-Z]+)+/i,
+            targetVersion
+          );
+        } catch (e) {
+          console.error("Error al sincronizar la versión del footer:", e);
+        }
+      }
+      syncFooterVersion();
     });

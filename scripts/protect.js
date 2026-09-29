@@ -146,6 +146,19 @@ if (fs.existsSync(INDEX_BACKUP_PATH)) {
   fs.writeFileSync(INDEX_BACKUP_PATH, baseHtml, 'utf8');
 }
 
+// Sincronizar footer con la versión del sistema requerida: V3.<año del sistema>.<mes sistema>
+const buildDate = new Date();
+const sysYear = buildDate.getFullYear();
+const sysMonth = String(buildDate.getMonth() + 1).padStart(2, '0');
+const footerVersion = `V3.${sysYear}.${sysMonth}`;
+
+baseHtml = baseHtml.replace(
+  /(<footer[^>]*>[\s\S]*?Análisis\/Diseño de Andres Aguiar\s+)V[^\s]+([\s\S]*?<\/footer>)/i,
+  `$1${footerVersion}$2`
+);
+fs.writeFileSync(INDEX_BACKUP_PATH, baseHtml, 'utf8');
+console.log(`      ✓ Footer sincronizado a versión: ${footerVersion}`);
+
 // Localizar el bloque <script> principal de la aplicación (después de <footer>)
 const footerIdx = baseHtml.indexOf('</footer>');
 if (footerIdx === -1) {
