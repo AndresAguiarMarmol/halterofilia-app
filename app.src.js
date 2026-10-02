@@ -116,12 +116,26 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("halterofilia_centers_v2", JSON.stringify(list));
       }
 
-      // 4. Perfiles de atletas
+      // 4. Perfiles de atletas (Restricción estricta: 1 usuario registrado por dispositivo)
       function getAthletes() {
         const a = localStorage.getItem("halterofilia_athletes");
-        return a ? JSON.parse(a) : [];
+        let list = a ? JSON.parse(a) : [];
+        if (!Array.isArray(list)) list = [];
+        // Política de dispositivo: Máximo 1 usuario registrado permitido
+        if (list.length > 1) {
+          const activeId = getActiveAthleteId();
+          const active = list.find(x => x.id === activeId) || list[0];
+          list = [active];
+          localStorage.setItem("halterofilia_athletes", JSON.stringify(list));
+        }
+        return list;
       }
       function saveAthletes(list) {
+        if (!Array.isArray(list)) list = [];
+        // Política de dispositivo: Se permite únicamente 1 usuario registrado por dispositivo
+        if (list.length > 1) {
+          list = [list[0]];
+        }
         localStorage.setItem("halterofilia_athletes", JSON.stringify(list));
       }
       function getActiveAthleteId() {
@@ -791,34 +805,43 @@ document.addEventListener("DOMContentLoaded", () => {
       function renderAthletesList() {
         athletesListContainer.innerHTML = "";
         const athletes = getAthletes();
-        const activeId = getActiveAthleteId();
+        const cur = athletes[0];
+        const devId = getOrCreateDeviceId();
+        const formTitle = document.getElementById("athleteFormTitle");
+        const saveBtn = document.getElementById("btnSaveNewAthlete");
+        const limitNotice = document.getElementById("athleteLimitNotice");
 
-        athletes.forEach(a => {
+        if (cur) {
+          setActiveAthleteId(cur.id);
+
+          const photoHtml = cur.photo
+            ? `<img src="${cur.photo}" alt="${cur.name}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-cyan); flex-shrink: 0;">`
+            : `<div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(6,182,212,0.18); color: var(--accent-cyan); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; border: 1px solid var(--card-border); flex-shrink: 0;">${(cur.firstName || cur.name || 'A').charAt(0).toUpperCase()}</div>`;
+
           const div = document.createElement("div");
-          div.className = `selectable-item ${a.id === activeId ? 'active' : ''}`;
-          
-          const photoHtml = a.photo
-            ? `<img src="${a.photo}" alt="${a.name}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-cyan); flex-shrink: 0;">`
-            : `<div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(6,182,212,0.18); color: var(--accent-cyan); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; border: 1px solid var(--card-border); flex-shrink: 0;">${(a.firstName || a.name || 'A').charAt(0).toUpperCase()}</div>`;
-
+          div.className = "selectable-item active";
+          div.style.cursor = "default";
           div.innerHTML = `
             <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
               ${photoHtml}
               <div style="flex: 1; min-width: 0;">
-                <strong style="color: var(--text-main); font-size: 0.95rem; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${a.name}</strong>
-                <small style="color: var(--text-muted); display: block; font-size: 0.78rem;">✉️ ${a.email || 'Sin correo'}</small>
-                ${a.phone ? `<small style="color: var(--accent-cyan); display: block; font-size: 0.75rem; font-weight: 600;">📞 ${a.phone}</small>` : ''}
+                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                  <strong style="color: var(--text-main); font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${cur.name}</strong>
+                  <span style="font-size: 0.7rem; background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 1px 6px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(16,185,129,0.3);">Usuario Registrado</span>
+                </div>
+                <small style="color: var(--text-muted); display: block; font-size: 0.78rem;">✉️ ${cur.email || 'Sin correo'}</small>
+                ${cur.phone ? `<small style="color: var(--accent-cyan); display: block; font-size: 0.75rem; font-weight: 600;">📞 ${cur.phone}</small>` : ''}
+                <small style="color: #64748b; display: block; font-size: 0.72rem; margin-top: 2px;">🔑 Dispositivo: ${devId}</small>
               </div>
-              <div class="radio-circle" style="flex-shrink: 0;"></div>
+              <div class="radio-circle"></div>
             </div>
           `;
           div.addEventListener("click", () => {
-            setActiveAthleteId(a.id);
+            setActiveAthleteId(cur.id);
             refreshAthleteHeader();
             renderAthletesList();
 
-            // Sincronizar la unidad objetivo asociada a este atleta
-            const athUnit = getAthleteUnit(a.id);
+            const athUnit = getAthleteUnit(cur.id);
             selectedUnit = athUnit;
             document.querySelectorAll(".selectable-item[data-type='unit']").forEach(i => {
               i.classList.toggle("active", i.dataset.val === athUnit);
@@ -832,11 +855,52 @@ document.addEventListener("DOMContentLoaded", () => {
             updateMovementDisplay();
             calculateHybridLoad();
             athletesModal.classList.remove("open");
-            // Atleta existente: entrar directamente al entrenamiento
             goToStep2();
           });
           athletesListContainer.appendChild(div);
-        });
+
+          // Cargar datos en el formulario para permitir edición del usuario registrado
+          if (document.getElementById("newAthleteFirstName")) document.getElementById("newAthleteFirstName").value = cur.firstName || cur.name.split(" ")[0] || "";
+          if (document.getElementById("newAthleteLastName")) document.getElementById("newAthleteLastName").value = cur.lastName || cur.name.split(" ").slice(1).join(" ") || "";
+          if (document.getElementById("newAthleteEmail")) document.getElementById("newAthleteEmail").value = cur.email || "";
+          if (document.getElementById("newAthletePhone")) document.getElementById("newAthletePhone").value = cur.phone || "";
+
+          // Actualizar previsualización de foto
+          if (cur.photo) {
+            currentNewAthletePhoto = cur.photo;
+            if (newPhotoImg) { newPhotoImg.src = cur.photo; newPhotoImg.style.display = "block"; }
+            if (newPhotoPlaceholder) newPhotoPlaceholder.style.display = "none";
+            if (btnRemoveNewPhoto) btnRemoveNewPhoto.style.display = "inline-block";
+          } else {
+            currentNewAthletePhoto = null;
+            if (newPhotoImg) { newPhotoImg.src = ""; newPhotoImg.style.display = "none"; }
+            if (newPhotoPlaceholder) newPhotoPlaceholder.style.display = "block";
+            if (btnRemoveNewPhoto) btnRemoveNewPhoto.style.display = "none";
+          }
+
+          if (formTitle) formTitle.innerText = "✏️ Datos del Usuario Registrado (Dispositivo Vinculado):";
+          if (saveBtn) saveBtn.innerText = "💾 Guardar Cambios del Usuario";
+          if (limitNotice) {
+            limitNotice.style.display = "block";
+            limitNotice.innerHTML = `🛡️ <strong>Límite:</strong> 1 usuario registrado por dispositivo. Los cambios actualizarán el perfil actual.`;
+          }
+          const resetBtn = document.getElementById("btnResetDeviceUser");
+          if (resetBtn) resetBtn.style.display = "inline-block";
+        } else {
+          athletesListContainer.innerHTML = `
+            <div style="text-align: center; padding: 12px; color: var(--text-muted); font-size: 0.85rem;">
+              No hay usuario registrado en este dispositivo.
+            </div>
+          `;
+          if (formTitle) formTitle.innerText = "➕ Registrar Usuario del Dispositivo:";
+          if (saveBtn) saveBtn.innerText = "Registrar Usuario";
+          if (limitNotice) {
+            limitNotice.style.display = "block";
+            limitNotice.innerHTML = `ℹ️ Se registrará el único perfil de usuario autorizado para este dispositivo.`;
+          }
+          const resetBtn = document.getElementById("btnResetDeviceUser");
+          if (resetBtn) resetBtn.style.display = "none";
+        }
       }
 
       document.getElementById("btnSwitchAthlete").addEventListener("click", () => {
@@ -845,17 +909,65 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       document.getElementById("btnCloseAthletesModal").addEventListener("click", () => athletesModal.classList.remove("open"));
 
+      const btnResetDeviceUser = document.getElementById("btnResetDeviceUser");
+      if (btnResetDeviceUser) {
+        btnResetDeviceUser.addEventListener("click", () => {
+          if (confirm("¿Estás seguro de que deseas desvincular el usuario de este dispositivo para registrar uno nuevo?")) {
+            saveAthletes([]);
+            localStorage.removeItem("halterofilia_active_athlete_id");
+            localStorage.removeItem("halterofilia_device_registered_user");
+            currentNewAthletePhoto = null;
+            if (document.getElementById("newAthleteFirstName")) document.getElementById("newAthleteFirstName").value = "";
+            if (document.getElementById("newAthleteLastName")) document.getElementById("newAthleteLastName").value = "";
+            if (document.getElementById("newAthleteEmail")) document.getElementById("newAthleteEmail").value = "";
+            if (document.getElementById("newAthletePhone")) document.getElementById("newAthletePhone").value = "";
+            if (newPhotoImg) { newPhotoImg.src = ""; newPhotoImg.style.display = "none"; }
+            if (newPhotoPlaceholder) newPhotoPlaceholder.style.display = "block";
+            if (btnRemoveNewPhoto) btnRemoveNewPhoto.style.display = "none";
+            refreshAthleteHeader();
+            renderAthletesList();
+            checkLicenseStatus();
+          }
+        });
+      }
+
       document.getElementById("btnSaveNewAthlete").addEventListener("click", () => {
         const firstName = (document.getElementById("newAthleteFirstName")?.value || "").trim();
         const lastName = (document.getElementById("newAthleteLastName")?.value || "").trim();
         const email = (document.getElementById("newAthleteEmail")?.value || "").trim();
         const phone = (document.getElementById("newAthletePhone")?.value || "").trim();
 
-        if (!firstName) return alert("Por favor ingresa al menos el Nombre del atleta.");
+        if (!firstName) return alert("Por favor ingresa al menos el Nombre del usuario.");
         if (!email) return alert("Por favor ingresa el Correo Electrónico.");
 
         const fullName = lastName ? `${firstName} ${lastName}` : firstName;
         const list = getAthletes();
+        const defUnit = selectedUnit || "kg";
+
+        // Si ya existe un usuario registrado en este dispositivo, actualizar sus datos (1 usuario por dispositivo)
+        if (list.length >= 1) {
+          const cur = list[0];
+          cur.firstName = firstName;
+          cur.lastName = lastName;
+          cur.name = fullName;
+          cur.email = email;
+          cur.phone = phone;
+          if (currentNewAthletePhoto !== null) {
+            cur.photo = currentNewAthletePhoto;
+          }
+          saveAthletes([cur]);
+          setActiveAthleteId(cur.id);
+
+          refreshAthleteHeader();
+          renderAthletesList();
+          checkLicenseStatus();
+
+          alert("✅ Datos del usuario registrado actualizados con éxito.");
+          athletesModal.classList.remove("open");
+          return;
+        }
+
+        // Si no existiera ningún usuario aún, crear el único usuario permitido para este dispositivo
         const newAth = {
           id: "ath_" + Date.now(),
           name: fullName,
@@ -865,30 +977,21 @@ document.addEventListener("DOMContentLoaded", () => {
           phone,
           photo: currentNewAthletePhoto || null
         };
-        list.push(newAth);
-        saveAthletes(list);
+        saveAthletes([newAth]);
         setActiveAthleteId(newAth.id);
-        const defUnit = selectedUnit || "kg";
         setAthleteUnit(newAth.id, defUnit);
-
-        // Limpiar formulario y foto
-        if (document.getElementById("newAthleteFirstName")) document.getElementById("newAthleteFirstName").value = "";
-        if (document.getElementById("newAthleteLastName")) document.getElementById("newAthleteLastName").value = "";
-        if (document.getElementById("newAthleteEmail")) document.getElementById("newAthleteEmail").value = "";
-        if (document.getElementById("newAthletePhone")) document.getElementById("newAthletePhone").value = "";
-        currentNewAthletePhoto = null;
-        if (newPhotoImg) { newPhotoImg.src = ""; newPhotoImg.style.display = "none"; }
-        if (newPhotoPlaceholder) newPhotoPlaceholder.style.display = "block";
-        if (btnRemoveNewPhoto) btnRemoveNewPhoto.style.display = "none";
-        if (newPhotoInput) newPhotoInput.value = "";
+        localStorage.setItem("halterofilia_device_registered_user", newAth.id);
+        localStorage.setItem("halterofilia_installed", "true");
+        setInstallDate(Date.now());
 
         refreshAthleteHeader();
         renderAthletesList();
         syncInventoryWithAthleteUnit(defUnit);
         updateMovementDisplay();
         calculateHybridLoad();
+        checkLicenseStatus();
 
-        // Al definirse el nuevo usuario, mostrar Parámetros de la Aplicación
+        // Al definirse el usuario, mostrar Parámetros de la Aplicación
         athletesModal.classList.remove("open");
         try { document.documentElement.classList.add("hp-user-exists"); } catch(e) {}
         goToStep1(true);
@@ -922,6 +1025,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       document.getElementById("btnConfirmInstall").addEventListener("click", () => {
+        // Enforce: Solo 1 usuario registrado por dispositivo
+        if (getAthletes().length >= 1) {
+          installModal.classList.remove("open");
+          alert("Este dispositivo ya cuenta con 1 usuario registrado.");
+          return;
+        }
+
         const fName = (document.getElementById("installFirstName")?.value || "").trim();
         const lName = (document.getElementById("installLastName")?.value || "").trim();
         const email = (document.getElementById("installEmail")?.value || "").trim();
@@ -942,6 +1052,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
         saveAthletes([firstAthlete]);
         setActiveAthleteId(firstAthlete.id);
+        localStorage.setItem("halterofilia_device_registered_user", firstAthlete.id);
         setAthleteUnit(firstAthlete.id, selectedUnit || "kg");
         localStorage.setItem("halterofilia_installed", "true");
         setInstallDate(Date.now());
@@ -2536,14 +2647,160 @@ document.addEventListener("DOMContentLoaded", () => {
         window.print();
       });
 
+      // 12. Envío y Compartir Reporte por Correo Electrónico
+      const emailReportModal = document.getElementById("emailReportModal");
+      const btnCloseEmailReportModal = document.getElementById("btnCloseEmailReportModal");
+      const btnCancelEmailReport = document.getElementById("btnCancelEmailReport");
+      const btnSendNativeMail = document.getElementById("btnSendNativeMail");
+      const btnSendGmailWeb = document.getElementById("btnSendGmailWeb");
+      const btnSendOutlookWeb = document.getElementById("btnSendOutlookWeb");
+      const btnCopyEmailText = document.getElementById("btnCopyEmailText");
+      const btnShareNativeWeb = document.getElementById("btnShareNativeWeb");
+
+      function closeEmailModal() {
+        if (emailReportModal) emailReportModal.classList.remove("open");
+      }
+      if (btnCloseEmailReportModal) btnCloseEmailReportModal.addEventListener("click", closeEmailModal);
+      if (btnCancelEmailReport) btnCancelEmailReport.addEventListener("click", closeEmailModal);
+
+      function getEmailReportPayload() {
+        const athletes = getAthletes();
+        const activeId = getActiveAthleteId();
+        const cur = athletes.find(a => a.id === activeId) || athletes[0];
+        const athName = cur ? cur.name : "Atleta";
+        const unitTag = (selectedUnit || "kg").toUpperCase();
+        const to = (document.getElementById("emailReportRecipient")?.value || "").trim();
+        const subject = `Reporte de Rendimiento y PRs - ${athName} (${unitTag})`;
+        const body = document.getElementById("emailReportBodyPreview")?.value || "";
+        return { to, subject, body };
+      }
+
+      function triggerNativeMailto(to, subject, body) {
+        const mailtoUrl = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        const a = document.createElement("a");
+        a.href = mailtoUrl;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          if (a.parentNode) document.body.removeChild(a);
+        }, 300);
+      }
+
       document.getElementById("btnEmailReport").addEventListener("click", () => {
         const athletes = getAthletes();
-        const cur = athletes.find(a => a.id === getActiveAthleteId());
-        const prs = getAthletePRs(getActiveAthleteId());
-        let bodyText = `Reporte de Rendimiento para ${cur ? cur.name : 'Atleta'}:\n\n`;
-        movements.forEach(m => bodyText += `${m}: ${prs[m]} ${selectedUnit}\n`);
-        window.location.href = `mailto:?subject=Reporte de PRs Halterofilia&body=${encodeURIComponent(bodyText)}`;
+        const activeId = getActiveAthleteId();
+        const cur = athletes.find(a => a.id === activeId) || athletes[0];
+        const prs = getAthletePRs(activeId);
+        const athName = cur ? cur.name : "Atleta";
+        const athEmail = cur ? (cur.email || "") : "";
+        const now = new Date();
+        const formattedDate = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+        const unitTag = (selectedUnit || "kg").toUpperCase();
+
+        let bodyText = `🏋️ HALTEROFILIA PRO - REPORTE DE RENDIMIENTO\n`;
+        bodyText += `==============================================\n`;
+        bodyText += `Atleta: ${athName}\n`;
+        if (athEmail) bodyText += `Correo: ${athEmail}\n`;
+        bodyText += `Fecha: ${formattedDate}\n`;
+        bodyText += `Unidad: ${unitTag}\n`;
+        bodyText += `----------------------------------------------\n`;
+        bodyText += `🏆 RÉCORDS PERSONALES (PRs):\n`;
+
+        movements.forEach(m => {
+          const val = prs[m] !== undefined ? prs[m] : "-";
+          bodyText += ` • ${m.padEnd(20, ' ')} : ${val} ${unitTag}\n`;
+        });
+
+        bodyText += `----------------------------------------------\n`;
+        bodyText += `Generado automáticamente por Halterofilia Pro V3\n`;
+
+        const recipientInput = document.getElementById("emailReportRecipient");
+        const bodyPreview = document.getElementById("emailReportBodyPreview");
+        const copyNotice = document.getElementById("emailCopyNotification");
+        const shareBtn = document.getElementById("btnShareNativeWeb");
+
+        if (recipientInput) recipientInput.value = athEmail;
+        if (bodyPreview) bodyPreview.value = bodyText;
+        if (copyNotice) copyNotice.style.display = "none";
+
+        if (shareBtn) {
+          shareBtn.style.display = (typeof navigator !== 'undefined' && navigator.share) ? "block" : "none";
+        }
+
+        if (emailReportModal) {
+          emailReportModal.classList.add("open");
+        } else {
+          const subject = `Reporte de Rendimiento y PRs - ${athName} (${unitTag})`;
+          triggerNativeMailto(athEmail, subject, bodyText);
+        }
       });
+
+      if (btnSendNativeMail) {
+        btnSendNativeMail.addEventListener("click", () => {
+          const { to, subject, body } = getEmailReportPayload();
+          triggerNativeMailto(to, subject, body);
+        });
+      }
+
+      if (btnSendGmailWeb) {
+        btnSendGmailWeb.addEventListener("click", () => {
+          const { to, subject, body } = getEmailReportPayload();
+          const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+          window.open(gmailUrl, "_blank", "noopener,noreferrer");
+        });
+      }
+
+      if (btnSendOutlookWeb) {
+        btnSendOutlookWeb.addEventListener("click", () => {
+          const { to, subject, body } = getEmailReportPayload();
+          const outlookUrl = `https://outlook.live.com/mail/0/deeplink/compose?to=${encodeURIComponent(to)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+          window.open(outlookUrl, "_blank", "noopener,noreferrer");
+        });
+      }
+
+      if (btnCopyEmailText) {
+        btnCopyEmailText.addEventListener("click", async () => {
+          const { body } = getEmailReportPayload();
+          const copyNotice = document.getElementById("emailCopyNotification");
+          try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              await navigator.clipboard.writeText(body);
+            } else {
+              const ta = document.getElementById("emailReportBodyPreview");
+              if (ta) {
+                ta.select();
+                document.execCommand("copy");
+              }
+            }
+            if (copyNotice) {
+              copyNotice.style.display = "block";
+              setTimeout(() => { copyNotice.style.display = "none"; }, 3500);
+            } else {
+              alert("¡Reporte copiado al portapapeles!");
+            }
+          } catch (e) {
+            alert("No se pudo copiar automáticamente. Puedes seleccionar el texto de la vista previa y copiarlo.");
+          }
+        });
+      }
+
+      if (btnShareNativeWeb) {
+        btnShareNativeWeb.addEventListener("click", async () => {
+          const { subject, body } = getEmailReportPayload();
+          if (typeof navigator !== 'undefined' && navigator.share) {
+            try {
+              await navigator.share({
+                title: subject,
+                text: body
+              });
+            } catch (err) {
+              // Silencioso si el usuario cancela la hoja de compartir
+            }
+          }
+        });
+      }
 
       // ========================================================
       // 13. BARRA VERTICAL DE LA APP Y DEMO ANIMADO INTERACTIVO
@@ -2944,19 +3201,29 @@ document.addEventListener("DOMContentLoaded", () => {
         step2Screen.style.display = "none";
       }
 
-      // Sincronización dinámica de la versión en el footer con formato V3.<año del sistema>.<mes sistema>
+      // Sincronización dinámica de la versión en el footer con formato V3.26.<consecutivo>
       function syncFooterVersion() {
         try {
           const footerEl = document.querySelector("footer, #appFooter");
           if (!footerEl) return;
           const now = new Date();
           const sysYear = now.getFullYear();
-          const sysMonth = String(now.getMonth() + 1).padStart(2, "0");
-          const targetVersion = `V3.${sysYear}.${sysMonth}`;
-          footerEl.innerHTML = footerEl.innerHTML.replace(
+          const targetVersion = "V3.26.01";
+          const monthNames = [
+            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+          ];
+          const currentMonthName = monthNames[now.getMonth()];
+
+          let updatedHtml = footerEl.innerHTML.replace(
             /V\s*[0-9]+(\.[0-9a-zA-Z]+)+/i,
             targetVersion
           );
+          updatedHtml = updatedHtml.replace(
+            /(Santiago de Chile\s+)[A-Za-zñáéíóúÁÉÍÓÚ]+\s+[0-9]{4}/i,
+            `$1${currentMonthName} ${sysYear}`
+          );
+          footerEl.innerHTML = updatedHtml;
           footerEl.style.display = "block";
           footerEl.style.visibility = "visible";
         } catch (e) {

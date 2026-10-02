@@ -146,18 +146,44 @@ if (fs.existsSync(INDEX_BACKUP_PATH)) {
   fs.writeFileSync(INDEX_BACKUP_PATH, baseHtml, 'utf8');
 }
 
-// Sincronizar footer con la versión del sistema requerida: V3.<año del sistema>.<mes sistema>
+// Sincronizar footer con la versión del sistema requerida: V3.26.<consecutivo>
 const buildDate = new Date();
 const sysYear = buildDate.getFullYear();
-const sysMonth = String(buildDate.getMonth() + 1).padStart(2, '0');
-const footerVersion = `V3.${sysYear}.${sysMonth}`;
+const PKG_PATH = path.join(ROOT_DIR, 'package.json');
+let consecutivo = "01";
+if (process.argv[2]) {
+  consecutivo = process.argv[2];
+} else if (process.env.CONSECUTIVO) {
+  consecutivo = process.env.CONSECUTIVO;
+} else if (fs.existsSync(PKG_PATH)) {
+  try {
+    const pkg = JSON.parse(fs.readFileSync(PKG_PATH, 'utf8'));
+    if (pkg.version) {
+      const parts = pkg.version.split('.');
+      if (parts.length >= 3 && parts[0] === '3' && parts[1] === '26') {
+        consecutivo = parts[2];
+      }
+    }
+  } catch (e) {}
+}
+const footerVersion = `V3.26.${consecutivo}`;
+const monthNames = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+];
+const currentMonthName = monthNames[buildDate.getMonth()];
 
-baseHtml = baseHtml.replace(
-  /(<footer[^>]*>[\s\S]*?Análisis\/Diseño de Andres Aguiar\s+)V[^\s]+([\s\S]*?<\/footer>)/i,
-  `$1${footerVersion}$2`
-);
+baseHtml = baseHtml
+  .replace(
+    /(<footer[^>]*>[\s\S]*?Análisis\/Diseño de Andres Aguiar\s+)V[^\s]+([\s\S]*?<\/footer>)/i,
+    `$1${footerVersion}$2`
+  )
+  .replace(
+    /(Santiago de Chile\s+)[A-Za-zñáéíóúÁÉÍÓÚ]+\s+[0-9]{4}/i,
+    `$1${currentMonthName} ${sysYear}`
+  );
 fs.writeFileSync(INDEX_BACKUP_PATH, baseHtml, 'utf8');
-console.log(`      ✓ Footer sincronizado a versión: ${footerVersion}`);
+console.log(`      ✓ Footer sincronizado a versión: ${footerVersion} (${currentMonthName} ${sysYear})`);
 
 // Localizar el bloque <script> principal de la aplicación (después de <footer>)
 const footerIdx = baseHtml.indexOf('</footer>');

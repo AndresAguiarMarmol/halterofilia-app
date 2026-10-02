@@ -1775,14 +1775,22 @@
 
   </div>
 
-  <!-- MODAL: GESTIÓN DE ATLETAS -->
+  <!-- MODAL: GESTIÓN DE ATLETA / USUARIO REGISTRADO -->
   <div class="modal-overlay" id="athletesModal">
     <div class="modal-box">
-      <h3 style="margin-bottom: 10px; color: var(--accent-cyan);">👥 Perfiles de Atletas</h3>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h3 style="color: var(--accent-cyan); margin: 0; font-size: 1.1rem;">👤 Perfil del Usuario Registrado</h3>
+        <span style="font-size: 0.72rem; background: rgba(6,182,212,0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); padding: 2px 8px; border-radius: 12px; font-weight: 700;">1 Por Dispositivo</span>
+      </div>
+
+      <div id="athleteLimitNotice" style="background: rgba(16,185,129,0.1); border: 1px solid var(--accent-green); border-radius: 8px; padding: 8px 12px; font-size: 0.76rem; color: #cbd5e1; margin-bottom: 10px;">
+        🛡️ <strong>Licencia de Dispositivo:</strong> 1 usuario registrado por dispositivo.
+      </div>
+
       <div class="option-grid" id="athletesListContainer"></div>
 
       <div style="border-top: 1px solid var(--card-border); padding-top: 12px; margin-top: 12px;">
-        <h4 style="font-size: 0.85rem; margin-bottom: 10px; color: var(--accent-cyan);">Agregar Nuevo Perfil de Atleta:</h4>
+        <h4 id="athleteFormTitle" style="font-size: 0.85rem; margin-bottom: 10px; color: var(--accent-cyan);">Actualizar Datos del Usuario:</h4>
         
         <!-- Foto de Perfil con Cámara / Galería y Previsualización -->
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
@@ -1818,7 +1826,10 @@
           <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Teléfono de Contacto:</label>
           <input type="tel" id="newAthletePhone" placeholder="+56 9 1234 5678">
         </div>
-        <button class="btn-action-primary" id="btnSaveNewAthlete">Guardar Atleta</button>
+        <div style="display: flex; gap: 8px; margin-top: 10px;">
+          <button class="btn-action-primary" id="btnSaveNewAthlete" style="flex: 1;">Guardar Cambios</button>
+          <button type="button" class="btn-header" id="btnResetDeviceUser" style="display: none; color: var(--accent-red); border-color: rgba(239,68,68,0.4); font-size: 0.78rem; padding: 0 12px;" title="Desvincular usuario para registrar uno nuevo">Desvincular</button>
+        </div>
       </div>
       <div style="margin-top: 10px;">
         <button class="btn-header" style="width: 100%;" id="btnCloseAthletesModal">Cerrar</button>
@@ -1829,10 +1840,16 @@
   <!-- MODAL: INSTALACIÓN INICIAL -->
   <div class="modal-overlay" id="installModal">
     <div class="modal-box">
-      <h3 style="margin-bottom: 10px; color: var(--accent-cyan);">⚙️ Bienvenida a Halterofilia Pro</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
-        Ingresa tus datos para registrar tu perfil de atleta y comenzar tu período de prueba de 7 días gratuitos.
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h3 style="margin: 0; color: var(--accent-cyan); font-size: 1.1rem;">⚙️ Bienvenida a Halterofilia Pro</h3>
+        <span style="font-size: 0.72rem; background: rgba(6,182,212,0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); padding: 2px 8px; border-radius: 12px; font-weight: 700;">1 Usuario / Dispositivo</span>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+        Ingresa tus datos para registrar el perfil de atleta oficial asignado a este dispositivo y comenzar tu período de prueba de 7 días gratuitos.
       </p>
+      <div style="background: rgba(6,182,212,0.08); border-left: 3px solid var(--accent-cyan); padding: 8px 10px; border-radius: 4px; font-size: 0.78rem; color: #cbd5e1; margin-bottom: 12px;">
+        🛡️ <strong>Registro Único:</strong> Cada dispositivo permite la creación de 1 usuario registrado.
+      </div>
 
       <!-- Foto de Perfil con Cámara / Galería y Previsualización -->
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
@@ -2050,6 +2067,60 @@
     </div>
   </div>
 
+  <!-- MODAL: ENVIAR REPORTE POR CORREO ELECTRÓNICO -->
+  <div class="modal-overlay" id="emailReportModal">
+    <div class="modal-box" style="max-width: 500px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--card-border); padding-bottom: 8px;">
+        <h3 style="color: var(--accent-cyan); margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+          <span>✉️</span> Enviar Reporte de Rendimiento
+        </h3>
+        <button class="btn-header" id="btnCloseEmailReportModal" style="padding: 3px 8px; font-size: 0.85rem;" title="Cerrar">✕</button>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 4px;">
+          Correo Electrónico de Destino:
+        </label>
+        <input type="email" id="emailReportRecipient" placeholder="correo@ejemplo.com" style="width: 100%;">
+      </div>
+
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 4px;">
+          Vista Previa del Reporte:
+        </label>
+        <textarea id="emailReportBodyPreview" rows="7" readonly style="width: 100%; font-family: monospace; font-size: 0.78rem; background: var(--bg-dark, #0b111e); color: #e2e8f0; border: 1px solid var(--card-border); border-radius: 6px; padding: 8px; resize: none;"></textarea>
+      </div>
+
+      <div id="emailCopyNotification" style="display: none; background: rgba(16,185,129,0.18); border: 1px solid var(--accent-green); color: var(--accent-green); padding: 8px; border-radius: 6px; font-size: 0.8rem; text-align: center; margin-bottom: 10px; font-weight: 600;">
+        ✓ ¡Reporte copiado al portapapeles con éxito!
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-action-primary" id="btnSendNativeMail" style="flex: 1; padding: 9px; font-size: 0.85rem;" title="Abrir en el cliente de correo predeterminado del sistema">
+            ✉️ Cliente Correo
+          </button>
+          <button class="btn-header" id="btnSendGmailWeb" style="flex: 1; padding: 9px; font-size: 0.85rem; border-color: #ea4335; color: #ea4335; font-weight: 700;" title="Abrir borrador directamente en Gmail Web">
+            🔴 Gmail Web
+          </button>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-header" id="btnSendOutlookWeb" style="flex: 1; padding: 9px; font-size: 0.85rem; border-color: #0078d4; color: #0078d4; font-weight: 700;" title="Abrir borrador directamente en Outlook / Hotmail">
+            🔵 Outlook Web
+          </button>
+          <button class="btn-header" id="btnCopyEmailText" style="flex: 1; padding: 9px; font-size: 0.85rem;" title="Copiar texto para pegar en cualquier correo o app">
+            📋 Copiar Texto
+          </button>
+        </div>
+        <button class="btn-header" id="btnShareNativeWeb" style="width: 100%; padding: 8px; font-size: 0.82rem; border-color: var(--accent-cyan); color: var(--accent-cyan); display: none;">
+          📲 Compartir con otra App (WhatsApp, etc.)
+        </button>
+      </div>
+
+      <button class="btn-header" style="width: 100%;" id="btnCancelEmailReport">Cerrar</button>
+    </div>
+  </div>
+
   <!-- MODAL: GESTIÓN DE CENTRO DE ENTRENAMIENTO (NUEVO / MODIFICAR) -->
   <div class="modal-overlay" id="centerEditorModal">
     <div class="modal-box" style="max-width: 540px;">
@@ -2145,7 +2216,7 @@
   </div>
 
   <footer id="appFooter">
-    Análisis/Diseño de Andres Aguiar V3.2026.09 Santiago de Chile Septiembre 2026 - Contacto +56933395447 - Whatsapp +56933395447
+    Análisis/Diseño de Andres Aguiar V3.26.01 Santiago de Chile Octubre 2026 - Contacto +56933395447 - Whatsapp +56933395447
   </footer>
 
   <script>
