@@ -2957,22 +2957,28 @@ document.addEventListener("DOMContentLoaded", () => {
               Visualiza en pantalla cómo cargar la barra de forma 100% simétrica por lado, con collarines de seguridad y código cromático oficial de halterofilia.
             </div>
             <div class="demo-mockup-box" style="padding:18px 8px; background:var(--barbell-bg);">
-              <div style="display:flex; align-items:center; justify-content:center; gap:2px; height:80px; position:relative;">
+              <div style="display:flex; align-items:center; justify-content:center; height:80px; position:relative;">
                 <!-- Manga Izquierda -->
-                <div style="display:flex; align-items:center; justify-content:flex-end; gap:2px;">
-                  <div style="width:16px; height:70px; background:#2563eb; border-radius:3px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.5rem; font-weight:800; writing-mode:vertical-lr;">20</div>
-                  <div style="width:10px; height:45px; background:#10b981; border-radius:3px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.5rem; font-weight:800; writing-mode:vertical-lr;">10</div>
+                <div style="position:relative; display:flex; align-items:center; justify-content:flex-end; min-width:85px; height:76px;">
+                  <div style="position:absolute; top:50%; left:0; right:0; height:12px; transform:translateY(-50%); background:linear-gradient(180deg, #f8fafc 0%, #cbd5e1 45%, #94a3b8 70%, #64748b 100%); border-top:1px solid #cbd5e1; border-bottom:1px solid #475569; border-radius:3px 0 0 3px; border-left:2px solid #475569; z-index:1;"></div>
+                  <div style="position:relative; z-index:2; display:flex; align-items:center; gap:2px;">
+                    <div style="width:10px; height:45px; background:#10b981; border-radius:3px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.5rem; font-weight:800; writing-mode:vertical-lr; box-shadow:0 1px 3px rgba(0,0,0,0.35);">10</div>
+                    <div style="width:16px; height:70px; background:#2563eb; border-radius:3px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.5rem; font-weight:800; writing-mode:vertical-lr; box-shadow:0 1px 3px rgba(0,0,0,0.35);">20</div>
+                  </div>
                 </div>
                 <!-- Collarín -->
-                <div style="width:7px; height:32px; background:#64748b; border-radius:2px;"></div>
+                <div style="position:relative; z-index:3; width:8px; height:28px; background:linear-gradient(180deg, #cbd5e1 0%, #94a3b8 50%, #475569 100%); border:1px solid #334155; border-radius:1px;"></div>
                 <!-- Barra de acero -->
-                <div style="width:70px; height:12px; background:linear-gradient(180deg, #e2e8f0, #94a3b8); border-radius:2px;"></div>
+                <div style="position:relative; z-index:1; width:70px; height:12px; background:linear-gradient(180deg, #f8fafc 0%, #cbd5e1 40%, #64748b 100%); border-top:1px solid #cbd5e1; border-bottom:1px solid #475569;"></div>
                 <!-- Collarín -->
-                <div style="width:7px; height:32px; background:#64748b; border-radius:2px;"></div>
+                <div style="position:relative; z-index:3; width:8px; height:28px; background:linear-gradient(180deg, #cbd5e1 0%, #94a3b8 50%, #475569 100%); border:1px solid #334155; border-radius:1px;"></div>
                 <!-- Manga Derecha -->
-                <div style="display:flex; align-items:center; justify-content:flex-start; gap:2px;">
-                  <div style="width:10px; height:45px; background:#10b981; border-radius:3px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.5rem; font-weight:800; writing-mode:vertical-lr;">10</div>
-                  <div style="width:16px; height:70px; background:#2563eb; border-radius:3px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.5rem; font-weight:800; writing-mode:vertical-lr;">20</div>
+                <div style="position:relative; display:flex; align-items:center; justify-content:flex-start; min-width:85px; height:76px;">
+                  <div style="position:absolute; top:50%; left:0; right:0; height:12px; transform:translateY(-50%); background:linear-gradient(180deg, #f8fafc 0%, #cbd5e1 45%, #94a3b8 70%, #64748b 100%); border-top:1px solid #cbd5e1; border-bottom:1px solid #475569; border-radius:0 3px 3px 0; border-right:2px solid #475569; z-index:1;"></div>
+                  <div style="position:relative; z-index:2; display:flex; align-items:center; gap:2px;">
+                    <div style="width:16px; height:70px; background:#2563eb; border-radius:3px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.5rem; font-weight:800; writing-mode:vertical-lr; box-shadow:0 1px 3px rgba(0,0,0,0.35);">20</div>
+                    <div style="width:10px; height:45px; background:#10b981; border-radius:3px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.5rem; font-weight:800; writing-mode:vertical-lr; box-shadow:0 1px 3px rgba(0,0,0,0.35);">10</div>
+                  </div>
                 </div>
               </div>
               <div style="display:flex; justify-content:center; gap:16px; font-size:0.75rem; color:var(--text-muted); margin-top:10px;">
