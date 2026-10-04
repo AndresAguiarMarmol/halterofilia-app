@@ -848,7 +848,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             const badgeUnitEl = document.getElementById("badgeUnit");
-            if (badgeUnitEl) badgeUnitEl.innerText = selectedUnit.toUpperCase();
+            if (badgeUnitEl) badgeUnitEl.innerText = (selectedUnit === "mixto" ? "AMBAS" : selectedUnit.toUpperCase());
 
             syncInventoryWithAthleteUnit(athUnit);
             renderInventory();
@@ -1247,7 +1247,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const badgeUnit = document.getElementById("badgeUnit");
         if (badgeUnit) {
-          badgeUnit.innerText = selectedUnit.toUpperCase();
+          badgeUnit.innerText = (selectedUnit === "mixto" ? "AMBAS" : selectedUnit.toUpperCase());
         }
 
         renderInventory();
@@ -1879,7 +1879,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (!badgeUnitEl.dataset.hasListener) {
             badgeUnitEl.dataset.hasListener = "true";
             badgeUnitEl.style.cursor = "pointer";
-            badgeUnitEl.title = "Toca para alternar entre KG, LBS y MIXTO";
+            badgeUnitEl.title = "Toca para alternar entre Kgs, Lbs y Ambas";
             badgeUnitEl.addEventListener("click", () => {
               let nextUnit = "kg";
               if (selectedUnit === "kg") nextUnit = "lbs";
@@ -1892,7 +1892,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 let altUnit = (nextUnit === "lbs") ? "mixto" : (nextUnit === "mixto" ? "kg" : "lbs");
                 const altCheck = checkUnitCompatibilityWithCenter(altUnit, currentCenter);
                 if (altUnit !== selectedUnit && altCheck.compatible) {
-                  alert(check.message + `\n\nAlternando a la siguiente unidad compatible: ${altUnit.toUpperCase()}`);
+                  alert(check.message + `\n\nAlternando a la siguiente unidad compatible: ${typeof getUnitDisplayLabel === "function" ? getUnitDisplayLabel(altUnit) : altUnit.toUpperCase()}`);
                   const btn = document.querySelector(`.selectable-item[data-type='unit'][data-val='${altUnit}']`);
                   if (btn) btn.click();
                   return;
@@ -1961,7 +1961,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // CONTROLES DE CABECERA (HEADER CONTROLS DIRECTOS)
       // Reemplazo de Parámetros por:
       // 1. Selector Desplegable de Box (Centro de Entrenamiento)
-      // 2. Botón Alternador de Unidad Objetivo (KG / LBS)
+      // 2. Botón Alternador de Unidad Objetivo (Kgs / Lbs / Ambas)
       // 3. Botón Alternador de Barra Olímpica (15 / 20 kg)
       // 4. Botón Alternador de Modo de Pantalla (Oscuro / Claro / Por Defecto)
       // =========================================================================
@@ -2080,27 +2080,56 @@ document.addEventListener("DOMContentLoaded", () => {
           updateUnitSelectorAvailability();
         });
       }
-      // 2. Botón Alternador de Unidad Objetivo (KG / LBS)
+      // 2. Botón Alternador de Unidad Objetivo (Kgs / Lbs / Ambas)
+      function getUnitDisplayLabel(unit) {
+        if (!unit) return "Kgs";
+        const u = unit.toLowerCase();
+        if (u === "lbs") return "Lbs";
+        if (u === "mixto") return "Ambas";
+        return "Kgs";
+      }
+
+      function formatUnitBadgeText(unit) {
+        if (!unit) return "KG";
+        const u = unit.toLowerCase();
+        if (u === "mixto") return "AMBAS";
+        return u.toUpperCase();
+      }
+
       function updateHeaderUnitButton() {
         const labelEl = document.getElementById("headerUnitLabel");
         const btn = document.getElementById("btnHeaderUnit");
-        const u = (selectedUnit || "kg").toUpperCase();
-        if (labelEl) labelEl.innerText = u;
-        if (btn) btn.title = `Unidad Objetivo: ${u} (Toca para alternar entre KG y LBS)`;
+        const lbl = getUnitDisplayLabel(selectedUnit);
+        if (labelEl) labelEl.innerText = lbl;
+        if (btn) {
+          btn.title = `Unidad Objetivo: ${lbl} (Toca para alternar entre Kgs, Lbs y Ambas)`;
+          btn.setAttribute("aria-label", `Unidad Objetivo: ${lbl}`);
+        }
       }
 
       const btnHeaderUnit = document.getElementById("btnHeaderUnit");
       if (btnHeaderUnit) {
         btnHeaderUnit.addEventListener("click", () => {
           const prevUnit = selectedUnit;
-          // Alternar entre kg y lbs
-          const nextUnit = (prevUnit === "kg") ? "lbs" : "kg";
+          // Alternar cíclicamente entre Kgs (kg) -> Lbs (lbs) -> Ambas (mixto) -> Kgs (kg)
+          let nextUnit = "kg";
+          if (prevUnit === "kg") nextUnit = "lbs";
+          else if (prevUnit === "lbs") nextUnit = "mixto";
+          else nextUnit = "kg";
 
           const currentCenter = getActiveCenter();
           const check = checkUnitCompatibilityWithCenter(nextUnit, currentCenter);
           if (!check.compatible) {
-            showUnitCompatibilityError(check.message);
-            return;
+            // Si la siguiente unidad no es compatible con este Box, verificar si la tercera sí lo es
+            let altUnit = (nextUnit === "lbs") ? "mixto" : (nextUnit === "mixto" ? "kg" : "lbs");
+            const altCheck = checkUnitCompatibilityWithCenter(altUnit, currentCenter);
+            if (altUnit !== prevUnit && altCheck.compatible) {
+              alert(check.message + `\n\nAlternando a la siguiente unidad compatible: ${getUnitDisplayLabel(altUnit)}`);
+              nextUnit = altUnit;
+            } else {
+              showUnitCompatibilityError(check.message);
+              return;
+            }
           }
           hideUnitCompatibilityError();
 
@@ -2116,7 +2145,9 @@ document.addEventListener("DOMContentLoaded", () => {
           }
 
           const badgeUnitEl = document.getElementById("badgeUnit");
-          if (badgeUnitEl) badgeUnitEl.innerText = selectedUnit.toUpperCase();
+          if (badgeUnitEl) {
+            badgeUnitEl.innerText = formatUnitBadgeText(selectedUnit);
+          }
 
           updateHeaderUnitButton();
           syncInventoryWithAthleteUnit(nextUnit);
@@ -3253,7 +3284,7 @@ document.addEventListener("DOMContentLoaded", () => {
           icon: "⚙️",
           html: `
             <div style="font-size:0.85rem; line-height:1.45; color:var(--text-main); margin-bottom:12px;">
-              Configura tu sesión de entrenamiento eligiendo el <strong>Centro de Entrenamiento</strong>, la <strong>Unidad Objetivo (KG o LBS)</strong> y el tipo de <strong>Barra Olímpica</strong>.
+              Configura tu sesión de entrenamiento eligiendo el <strong>Centro de Entrenamiento</strong>, la <strong>Unidad Objetivo (Kgs, Lbs o Ambas)</strong> y el tipo de <strong>Barra Olímpica</strong>.
             </div>
             <div class="demo-mockup-box">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -3284,7 +3315,7 @@ document.addEventListener("DOMContentLoaded", () => {
               </div>
             </div>
             <div style="font-size:0.78rem; color:var(--accent-cyan); background:rgba(6,182,212,0.1); border-left:3px solid var(--accent-cyan); padding:6px 10px; border-radius:0 6px 6px 0;">
-              💡 <strong>Tip:</strong> Cada atleta guarda su unidad preferida (KG o LBS) y se activa automáticamente al cambiar de atleta.
+              💡 <strong>Tip:</strong> Cada atleta guarda su unidad preferida (Kgs, Lbs o Ambas) y se activa automáticamente al cambiar de atleta.
             </div>
           `
         },

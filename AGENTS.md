@@ -63,6 +63,7 @@ npm run build:protect
 - **Firma:** SHA-256 con sal fija: `"Halterofilia-SuperSecret-Salt-2026"`. Validable 100% offline mediante `crypto.subtle`.
 
 ### 4.2. Perfiles y Conversión de Unidades
+- **Modalidades de Unidad Objetivo en Cabecera:** Soporte para alternar cíclicamente y seleccionar entre `Kgs` (Kilogramos), `Lbs` (Libras) y `Ambas` (cálculo híbrido con discos combinados).
 - **Atleta por dispositivo:** Regla de registro de 1 atleta activo en el primer arranque, con capacidad de cambio o adición de perfiles desde el gestor.
 - **Factor de conversión exacto:** $1\text{ kg} = 2.20462\text{ lbs}$.
 - **Coherencia histórica:** Al cambiar la unidad preferida del atleta (Kg $\leftrightarrow$ Lbs), se convierten automáticamente:

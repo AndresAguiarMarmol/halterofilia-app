@@ -3,11 +3,12 @@
 Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo que ya no aporte.
 
 ## Estado actual
-- **Versión activa:** V3.26.01 (Octubre 2026).
+- **Versión activa:** V3.26.02 (Octubre 2026).
 - **Entorno compilado y blindado:** `app.src.js` ofuscado en `index.html` y `V2/Index.html` con AST Control Flow Flattening y RC4 via `javascript-obfuscator`.
 - **Funcionalidades operativas:**
   - Cálculo simétrico de barra olímpica con soporte híbrido Kg/Lbs y selección de alternativas.
   - Inventario interactivo de discos por centro de entrenamiento (Box Central, Garage Gym, Halterofilia Club).
+  - Selector de Unidad Objetivo en cabecera con alternancia cíclica entre Kgs / Lbs / Ambas (modo híbrido).
   - Selector y gestor integral de Boxes / Centros: opciones directas para Crear, Modificar y Eliminar centros desde el botón/selector de cabecera y modal de administración.
   - Gestión de PRs en 11 movimientos olímpicos y gráficas temporales de progreso.
   - Licenciamiento offline con 7 días de trial, Device ID y validación criptográfica SHA-256.

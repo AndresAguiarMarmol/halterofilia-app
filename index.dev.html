@@ -1729,9 +1729,9 @@
       <button class="btn-header" id="btnOpenLicenseModal">🔑 Licencia</button>
       <!-- 1. Selector Desplegable para el Box -->
       <select class="btn-header header-select" id="headerBoxSelect" title="Seleccionar Box / Centro de Entrenamiento" aria-label="Centro de Entrenamiento"></select>
-      <!-- 2. Botón para cambiar Unidad Objetivo (KG / LBS) -->
-      <button type="button" class="btn-header" id="btnHeaderUnit" title="Cambiar Unidad Objetivo (KG / LBS)">
-        <span id="headerUnitIcon">⚖️</span> <span id="headerUnitLabel">KG</span>
+      <!-- 2. Botón para cambiar Unidad Objetivo (Kgs / Lbs / Ambas) -->
+      <button type="button" class="btn-header" id="btnHeaderUnit" title="Cambiar Unidad Objetivo (Kgs / Lbs / Ambas)">
+        <span id="headerUnitIcon">⚖️</span> <span id="headerUnitLabel">Kgs</span>
       </button>
       <!-- 3. Botón para cambiar Barra Olímpica (15 / 20 kg) -->
       <button type="button" class="btn-header" id="btnHeaderBar" title="Cambiar Barra Olímpica (15 kg / 20 kg)">
@@ -1787,7 +1787,7 @@
         Objetivo</label>
       <div class="option-grid">
         <div class="selectable-item active" data-type="unit" data-val="kg" id="unitKg">
-          <div><strong>Kilogramos (KG)</strong><br><small style="color:var(--text-muted)">1 kg = 2.20462 lbs • Estándar métrico</small>
+          <div><strong>Kilogramos (KGS)</strong><br><small style="color:var(--text-muted)">1 kg = 2.20462 lbs • Estándar métrico</small>
           </div>
           <div class="radio-circle"></div>
         </div>
@@ -1796,7 +1796,7 @@
           <div class="radio-circle"></div>
         </div>
         <div class="selectable-item" data-type="unit" data-val="mixto" id="unitMixto">
-          <div><strong>Mixto (KG + LBS)</strong><br><small style="color:var(--text-muted)">Cálculo híbrido con discos combinados para máxima precisión</small></div>
+          <div><strong>Ambas (KG + LBS / Mixto)</strong><br><small style="color:var(--text-muted)">Cálculo híbrido con discos combinados para máxima precisión</small></div>
           <div class="radio-circle"></div>
         </div>
       </div>
@@ -2412,7 +2412,7 @@
   </div>
 
   <footer id="appFooter">
-    Análisis/Diseño de Andres Aguiar V3.26.01 Santiago de Chile Octubre 2026 - Contacto +56933395447 - Whatsapp +56933395447
+    Análisis/Diseño de Andres Aguiar V3.26.02 Santiago de Chile Octubre 2026 - Contacto +56933395447 - Whatsapp +56933395447
   </footer>
 
   <script src="app.src.js"></script>
