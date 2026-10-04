@@ -1240,6 +1240,11 @@ document.addEventListener("DOMContentLoaded", () => {
           badgeCenterName.title = `${center.name}\n📍 ${center.address || 'Sin dirección'}\n📞 ${center.phone || 'Sin teléfono'}`;
         }
 
+        const headerBoxSelect = document.getElementById("headerBoxSelect");
+        if (headerBoxSelect && headerBoxSelect.value !== selectedCenterId) {
+          headerBoxSelect.value = selectedCenterId;
+        }
+
         const badgeUnit = document.getElementById("badgeUnit");
         if (badgeUnit) {
           badgeUnit.innerText = selectedUnit.toUpperCase();
@@ -1251,6 +1256,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       function renderCenters() {
+        if (typeof updateHeaderBoxSelector === "function") {
+          updateHeaderBoxSelector();
+        }
         if (!centersContainer) return;
         centersContainer.innerHTML = "";
         const centers = getAllCenters();
@@ -1603,6 +1611,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           const badgeUnitEl = document.getElementById("badgeUnit");
           if (badgeUnitEl) badgeUnitEl.innerText = selectedUnit.toUpperCase();
+          if (typeof updateHeaderUnitButton === "function") updateHeaderUnitButton();
 
           syncInventoryWithAthleteUnit(newUnit);
           renderInventory();
@@ -1619,6 +1628,8 @@ document.addEventListener("DOMContentLoaded", () => {
           document.querySelectorAll(".selectable-item[data-type='bar']").forEach(i => i.classList.remove("active"));
           el.classList.add("active");
           selectedBar = el.dataset.val;
+          if (typeof updateHeaderBarButton === "function") updateHeaderBarButton();
+          calculateHybridLoad();
         });
       });
 
@@ -1641,6 +1652,10 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll(".selectable-item[data-type='theme']").forEach(i => {
           i.classList.toggle("active", i.dataset.val === themeChoice);
         });
+
+        if (typeof updateHeaderThemeButton === "function") {
+          updateHeaderThemeButton(themeChoice);
+        }
 
         // Redibujar reporte si está abierto para ajustar colores de cuadrícula y contraste
         if (document.getElementById("reportsModal") && document.getElementById("reportsModal").classList.contains("open")) {
@@ -1753,6 +1768,10 @@ document.addEventListener("DOMContentLoaded", () => {
         syncInventoryWithAthleteUnit(athPrefUnit);
         renderInventory();
         calculateHybridLoad();
+        if (typeof updateHeaderBoxSelector === "function") updateHeaderBoxSelector();
+        if (typeof updateHeaderUnitButton === "function") updateHeaderUnitButton();
+        if (typeof updateHeaderBarButton === "function") updateHeaderBarButton();
+        if (typeof updateHeaderThemeButton === "function") updateHeaderThemeButton(selectedTheme);
       }
 
       function goToStep1(isInitialSetup = false) {
@@ -1785,8 +1804,185 @@ document.addEventListener("DOMContentLoaded", () => {
         goToStep2();
       });
 
-      document.getElementById("btnSwitchParams").addEventListener("click", () => goToStep1(false));
-      document.getElementById("btnQuickEdit").addEventListener("click", () => goToStep1(false));
+      document.getElementById("btnSwitchParams")?.addEventListener("click", () => goToStep1(false));
+      document.getElementById("btnQuickEdit")?.addEventListener("click", () => goToStep1(false));
+
+      // =========================================================================
+      // CONTROLES DE CABECERA (HEADER CONTROLS DIRECTOS)
+      // Reemplazo de Parámetros por:
+      // 1. Selector Desplegable de Box (Centro de Entrenamiento)
+      // 2. Botón Alternador de Unidad Objetivo (KG / LBS)
+      // 3. Botón Alternador de Barra Olímpica (15 / 20 kg)
+      // 4. Botón Alternador de Modo de Pantalla (Oscuro / Claro / Por Defecto)
+      // =========================================================================
+
+      // 1. Selector Desplegable para el Box
+      function updateHeaderBoxSelector() {
+        const select = document.getElementById("headerBoxSelect");
+        if (!select) return;
+        const centers = getAllCenters();
+        const currentId = selectedCenterId || centers[0]?.id;
+        select.innerHTML = "";
+        centers.forEach(c => {
+          const opt = document.createElement("option");
+          opt.value = c.id;
+          opt.textContent = `🏋️ ${c.name}`;
+          if (c.id === currentId) {
+            opt.selected = true;
+          }
+          select.appendChild(opt);
+        });
+      }
+
+      const headerBoxSelect = document.getElementById("headerBoxSelect");
+      if (headerBoxSelect) {
+        headerBoxSelect.addEventListener("change", (e) => {
+          const newCenterId = e.target.value;
+          const centers = getAllCenters();
+          const center = centers.find(c => c.id === newCenterId);
+          if (!center) return;
+
+          selectedCenterId = center.id;
+
+          // Validar compatibilidad de la unidad actual con el nuevo Box seleccionado
+          const check = checkUnitCompatibilityWithCenter(selectedUnit, center);
+          if (!check.compatible) {
+            const avail = getCenterAvailableUnits(center);
+            let fallbackUnit = "kg";
+            if (avail.hasKg && !avail.hasLb) fallbackUnit = "kg";
+            else if (avail.hasLb && !avail.hasKg) fallbackUnit = "lbs";
+            else if (avail.hasKg && avail.hasLb) fallbackUnit = "kg";
+
+            alert(`⚠️ Ajuste Automático por Cambio de Box:\n\nEl centro "${center.name}" no dispone de discos en la unidad actual (${selectedUnit.toUpperCase()}).\nSe ajustará automáticamente la unidad a "${fallbackUnit.toUpperCase()}".`);
+
+            const prevUnit = selectedUnit;
+            selectedUnit = fallbackUnit;
+            const activeId = getActiveAthleteId();
+            if (activeId) {
+              convertAthleteUnit(activeId, prevUnit, fallbackUnit);
+            }
+            document.querySelectorAll(".selectable-item[data-type='unit']").forEach(i => {
+              i.classList.toggle("active", i.dataset.val === fallbackUnit);
+            });
+            const badgeUnitEl = document.getElementById("badgeUnit");
+            if (badgeUnitEl) badgeUnitEl.innerText = fallbackUnit.toUpperCase();
+            updateHeaderUnitButton();
+          }
+
+          if (typeof renderCenters === "function") renderCenters();
+          applyCenterMaterial(selectedCenterId);
+          updateUnitSelectorAvailability();
+        });
+      }
+
+      // 2. Botón Alternador de Unidad Objetivo (KG / LBS)
+      function updateHeaderUnitButton() {
+        const labelEl = document.getElementById("headerUnitLabel");
+        const btn = document.getElementById("btnHeaderUnit");
+        const u = (selectedUnit || "kg").toUpperCase();
+        if (labelEl) labelEl.innerText = u;
+        if (btn) btn.title = `Unidad Objetivo: ${u} (Toca para alternar entre KG y LBS)`;
+      }
+
+      const btnHeaderUnit = document.getElementById("btnHeaderUnit");
+      if (btnHeaderUnit) {
+        btnHeaderUnit.addEventListener("click", () => {
+          const prevUnit = selectedUnit;
+          // Alternar entre kg y lbs
+          const nextUnit = (prevUnit === "kg") ? "lbs" : "kg";
+
+          const currentCenter = getActiveCenter();
+          const check = checkUnitCompatibilityWithCenter(nextUnit, currentCenter);
+          if (!check.compatible) {
+            showUnitCompatibilityError(check.message);
+            return;
+          }
+          hideUnitCompatibilityError();
+
+          document.querySelectorAll(".selectable-item[data-type='unit']").forEach(i => i.classList.remove("active"));
+          const activeUnitEl = document.querySelector(`.selectable-item[data-type='unit'][data-val='${nextUnit}']`);
+          if (activeUnitEl) activeUnitEl.classList.add("active");
+
+          selectedUnit = nextUnit;
+
+          const activeId = getActiveAthleteId();
+          if (activeId) {
+            convertAthleteUnit(activeId, prevUnit, nextUnit);
+          }
+
+          const badgeUnitEl = document.getElementById("badgeUnit");
+          if (badgeUnitEl) badgeUnitEl.innerText = selectedUnit.toUpperCase();
+
+          updateHeaderUnitButton();
+          syncInventoryWithAthleteUnit(nextUnit);
+          renderInventory();
+          updateMovementDisplay();
+          calculateHybridLoad();
+
+          if (document.getElementById("reportsModal") && document.getElementById("reportsModal").classList.contains("open")) {
+            drawTemporalReportsChart();
+          }
+        });
+      }
+
+      // 3. Botón Alternador de Barra Olímpica (15 / 20 kg)
+      function updateHeaderBarButton() {
+        const labelEl = document.getElementById("headerBarLabel");
+        const btn = document.getElementById("btnHeaderBar");
+        const isMen = (selectedBar === "men");
+        if (labelEl) labelEl.innerText = isMen ? "20 kg" : "15 kg";
+        if (btn) btn.title = `Barra Olímpica: ${isMen ? "Hombre 20 kg (45 lb)" : "Mujer 15 kg (35 lb)"} (Toca para alternar)`;
+        const badgeBar = document.getElementById("badgeBar");
+        if (badgeBar) {
+          badgeBar.innerText = isMen ? "Barra Olímpica 20kg" : "Barra Olímpica 15kg";
+        }
+      }
+
+      const btnHeaderBar = document.getElementById("btnHeaderBar");
+      if (btnHeaderBar) {
+        btnHeaderBar.addEventListener("click", () => {
+          selectedBar = (selectedBar === "men") ? "women" : "men";
+          document.querySelectorAll(".selectable-item[data-type='bar']").forEach(i => {
+            i.classList.toggle("active", i.dataset.val === selectedBar);
+          });
+          updateHeaderBarButton();
+          calculateHybridLoad();
+        });
+      }
+
+      // 4. Botón Alternador de Modo de Pantalla (Oscuro / Claro / Por Defecto)
+      function updateHeaderThemeButton(theme) {
+        const curTheme = theme || selectedTheme || "system";
+        const iconEl = document.getElementById("headerThemeIcon");
+        const labelEl = document.getElementById("headerThemeLabel");
+        const btn = document.getElementById("btnHeaderTheme");
+
+        let icon = "🌙";
+        let text = "Oscuro";
+        if (curTheme === "light") {
+          icon = "☀️";
+          text = "Claro";
+        } else if (curTheme === "system") {
+          icon = "📱";
+          text = "Auto";
+        }
+
+        if (iconEl) iconEl.innerText = icon;
+        if (labelEl) labelEl.innerText = text;
+        if (btn) btn.title = `Modo Visual: ${text} (Toca para alternar Oscuro/Claro/Por Defecto)`;
+      }
+
+      const btnHeaderTheme = document.getElementById("btnHeaderTheme");
+      if (btnHeaderTheme) {
+        btnHeaderTheme.addEventListener("click", () => {
+          let nextTheme = "dark";
+          if (selectedTheme === "dark") nextTheme = "light";
+          else if (selectedTheme === "light") nextTheme = "system";
+          else nextTheme = "dark";
+
+          applyTheme(nextTheme);
+        });
+      }
 
       // 12. Movimientos (Selector Desplegable)
       const movementSelect = document.getElementById("movementSelect");
@@ -3198,6 +3394,10 @@ document.addEventListener("DOMContentLoaded", () => {
       applyTheme(selectedTheme);
       syncInventoryWithAthleteUnit(selectedUnit);
       applyCenterMaterial(selectedCenterId);
+      updateHeaderBoxSelector();
+      updateHeaderUnitButton();
+      updateHeaderBarButton();
+      updateHeaderThemeButton(selectedTheme);
 
       // Si el usuario ya existe, entra directamente al entrenamiento (no muestra Parámetros de la Aplicación)
       if (hasExistingUser) {

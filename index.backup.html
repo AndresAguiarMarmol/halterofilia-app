@@ -169,6 +169,7 @@
       display: flex;
       gap: 5px;
       align-items: center;
+      flex-wrap: wrap;
     }
 
     .btn-header {
@@ -180,6 +181,48 @@
       font-size: 0.75rem;
       cursor: pointer;
       transition: all 0.2s ease;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    select.header-select {
+      background: var(--btn-header-bg);
+      border: 1px solid var(--btn-header-border);
+      color: var(--accent-cyan);
+      padding: 5px 22px 5px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s ease;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300f2fe' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 6px center;
+      background-size: 11px;
+      max-width: 155px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    select.header-select:hover,
+    select.header-select:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 8px rgba(0, 242, 254, 0.25);
+    }
+
+    [data-theme="light"] select.header-select {
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230284c7' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    }
+
+    select.header-select option {
+      background-color: var(--card-bg);
+      color: var(--text-main);
     }
 
     .container {
@@ -1592,6 +1635,17 @@
     }
 
     @media (max-width: 640px) {
+      .header-actions {
+        gap: 3px;
+      }
+      .btn-header, select.header-select {
+        font-size: 0.7rem;
+        padding: 4px 6px;
+      }
+      select.header-select {
+        max-width: 115px;
+        padding-right: 17px;
+      }
       .vertical-app-toolbar {
         right: 4px;
         padding: 4px 2px;
@@ -1650,7 +1704,20 @@
       <button class="btn-header" id="btnOpenReports">📊 Reportes</button>
       <button class="btn-header" id="btnOpenPRModal">🏆 PRs</button>
       <button class="btn-header" id="btnOpenLicenseModal">🔑 Licencia</button>
-      <button class="btn-header" id="btnSwitchParams">⚙️ Parámetros</button>
+      <!-- 1. Selector Desplegable para el Box -->
+      <select class="btn-header header-select" id="headerBoxSelect" title="Seleccionar Box / Centro de Entrenamiento" aria-label="Centro de Entrenamiento"></select>
+      <!-- 2. Botón para cambiar Unidad Objetivo (KG / LBS) -->
+      <button type="button" class="btn-header" id="btnHeaderUnit" title="Cambiar Unidad Objetivo (KG / LBS)">
+        <span id="headerUnitIcon">⚖️</span> <span id="headerUnitLabel">KG</span>
+      </button>
+      <!-- 3. Botón para cambiar Barra Olímpica (15 / 20 kg) -->
+      <button type="button" class="btn-header" id="btnHeaderBar" title="Cambiar Barra Olímpica (15 kg / 20 kg)">
+        <span id="headerBarIcon">🏋️</span> <span id="headerBarLabel">20 kg</span>
+      </button>
+      <!-- 4. Botón para cambiar Modo (Oscuro / Claro / Por Defecto) -->
+      <button type="button" class="btn-header" id="btnHeaderTheme" title="Cambiar Modo Visual (Oscuro / Claro / Por Defecto)">
+        <span id="headerThemeIcon">🌙</span> <span id="headerThemeLabel">Oscuro</span>
+      </button>
     </div>
   </header>
 
