@@ -1547,10 +1547,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!center) return;
 
         if (centers.length <= 1) {
-          return alert("Debe existir al menos un Centro de Entrenamiento en la aplicación.");
+          return alert("⚠️ Debe existir al menos un Centro de Entrenamiento en la aplicación.");
         }
 
-        if (!confirm(`¿Estás seguro de eliminar el centro "${center.name}"?`)) {
+        if (!confirm(`¿Estás seguro de que deseas eliminar el centro "${center.name}"?\nEsta acción no se puede deshacer.`)) {
           return;
         }
 
@@ -1559,12 +1559,162 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (selectedCenterId === centerId) {
           selectedCenterId = updated[0].id;
+          const newActiveCenter = updated[0];
+          const check = checkUnitCompatibilityWithCenter(selectedUnit, newActiveCenter);
+          if (!check.compatible) {
+            const avail = getCenterAvailableUnits(newActiveCenter);
+            let fallbackUnit = avail.hasKg ? "kg" : (avail.hasLb ? "lbs" : "kg");
+            const prevUnit = selectedUnit;
+            selectedUnit = fallbackUnit;
+            const activeId = getActiveAthleteId();
+            if (activeId) {
+              convertAthleteUnit(activeId, prevUnit, fallbackUnit);
+            }
+            document.querySelectorAll(".selectable-item[data-type='unit']").forEach(i => {
+              i.classList.toggle("active", i.dataset.val === fallbackUnit);
+            });
+            const badgeUnitEl = document.getElementById("badgeUnit");
+            if (badgeUnitEl) badgeUnitEl.innerText = fallbackUnit.toUpperCase();
+            if (typeof updateHeaderUnitButton === "function") updateHeaderUnitButton();
+          }
         }
 
         renderCenters();
+        if (typeof renderCentersManagerList === "function") {
+          renderCentersManagerList();
+        }
         applyCenterMaterial(selectedCenterId);
         updateUnitSelectorAvailability();
       }
+
+      // =========================================================================
+      // GESTIÓN INTEGRAL DE CENTROS DE ENTRENAMIENTO (BOXES)
+      // Opciones para Crear, Modificar y Eliminar Centros
+      // =========================================================================
+      function openCentersManagerModal() {
+        renderCentersManagerList();
+        const modal = document.getElementById("centersManagerModal");
+        if (modal) {
+          modal.classList.add("open");
+        }
+      }
+
+      function closeCentersManagerModal() {
+        const modal = document.getElementById("centersManagerModal");
+        if (modal) {
+          modal.classList.remove("open");
+        }
+      }
+
+      function renderCentersManagerList() {
+        const container = document.getElementById("centersManagerList");
+        const activeNameEl = document.getElementById("managerActiveCenterName");
+        if (!container) return;
+
+        const centers = getAllCenters();
+        const activeCenter = centers.find(c => c.id === selectedCenterId) || centers[0];
+        if (activeNameEl && activeCenter) {
+          activeNameEl.innerText = activeCenter.name;
+        }
+
+        container.innerHTML = "";
+
+        centers.forEach(c => {
+          const isAct = (c.id === selectedCenterId);
+          const card = document.createElement("div");
+          card.className = `center-manager-card ${isAct ? 'active' : ''}`;
+
+          let activePlatesCount = 0;
+          OFFICIAL_PLATES_META.forEach(p => {
+            let allowed = true;
+            if (c.category === "lbs") allowed = (p.unit === "lb");
+            else if (c.category === "kg") allowed = (p.unit === "kg");
+            const pConf = c.plates && c.plates[p.id];
+            if (allowed && (!pConf || pConf.available !== false)) activePlatesCount++;
+          });
+
+          const catBadgeText = c.category === "lbs" ? "LBS" : (c.category === "kg" ? "KG" : "MIXTO");
+
+          card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+              <div>
+                <strong style="font-size: 0.95rem; color: var(--text-main); display: flex; align-items: center; gap: 6px;">
+                  🏋️ ${c.name}
+                </strong>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
+                  📍 ${c.address || "Sin dirección"} • 📞 ${c.phone || "Sin teléfono"}
+                </div>
+              </div>
+              <div style="display: flex; gap: 4px; align-items: center;">
+                <span style="font-size: 0.68rem; padding: 2px 6px; border-radius: 4px; background: var(--card-border); color: var(--text-main); font-weight: 700;">
+                  ${catBadgeText}
+                </span>
+                ${isAct ? '<span style="background: rgba(16,185,129,0.2); color: #10b981; border: 1px solid #10b981; padding: 2px 6px; border-radius: 10px; font-size: 0.68rem; font-weight: 700;">✓ ACTIVO</span>' : ''}
+              </div>
+            </div>
+            <div style="font-size: 0.76rem; color: var(--accent-cyan); margin-bottom: 8px;">
+              Discos disponibles: ${activePlatesCount} de 15
+            </div>
+            <div style="display: flex; gap: 6px; justify-content: flex-end; align-items: center;">
+              ${!isAct ? `<button type="button" class="btn-header" data-mgr-select="${c.id}" style="color: var(--accent-cyan); border-color: var(--accent-cyan); font-size: 0.75rem; padding: 4px 10px; font-weight: 600;">✓ Seleccionar</button>` : ''}
+              <button type="button" class="btn-header" data-mgr-edit="${c.id}" style="font-size: 0.75rem; padding: 4px 10px;">✏️ Modificar</button>
+              <button type="button" class="btn-header" data-mgr-del="${c.id}" style="color: var(--accent-red); border-color: rgba(239,68,68,0.4); font-size: 0.75rem; padding: 4px 10px;">🗑️ Eliminar</button>
+            </div>
+          `;
+
+          const btnSelect = card.querySelector(`[data-mgr-select="${c.id}"]`);
+          if (btnSelect) {
+            btnSelect.addEventListener("click", () => {
+              selectedCenterId = c.id;
+              const check = checkUnitCompatibilityWithCenter(selectedUnit, c);
+              if (!check.compatible) {
+                const avail = getCenterAvailableUnits(c);
+                let fallbackUnit = avail.hasKg ? "kg" : (avail.hasLb ? "lbs" : "kg");
+                alert(`⚠️ Ajuste Automático por Cambio de Box:\n\nEl centro "${c.name}" no dispone de discos en la unidad actual (${selectedUnit.toUpperCase()}).\nSe ajustará automáticamente la unidad a "${fallbackUnit.toUpperCase()}".`);
+                const prevUnit = selectedUnit;
+                selectedUnit = fallbackUnit;
+                const activeId = getActiveAthleteId();
+                if (activeId) {
+                  convertAthleteUnit(activeId, prevUnit, fallbackUnit);
+                }
+                document.querySelectorAll(".selectable-item[data-type='unit']").forEach(i => {
+                  i.classList.toggle("active", i.dataset.val === fallbackUnit);
+                });
+                const badgeUnitEl = document.getElementById("badgeUnit");
+                if (badgeUnitEl) badgeUnitEl.innerText = fallbackUnit.toUpperCase();
+                if (typeof updateHeaderUnitButton === "function") updateHeaderUnitButton();
+              }
+              renderCenters();
+              applyCenterMaterial(selectedCenterId);
+              renderCentersManagerList();
+            });
+          }
+
+          const btnEdit = card.querySelector(`[data-mgr-edit="${c.id}"]`);
+          if (btnEdit) {
+            btnEdit.addEventListener("click", () => {
+              openCenterEditor(c.id);
+            });
+          }
+
+          const btnDel = card.querySelector(`[data-mgr-del="${c.id}"]`);
+          if (btnDel) {
+            btnDel.addEventListener("click", () => {
+              deleteCenter(c.id);
+            });
+          }
+
+          container.appendChild(card);
+        });
+      }
+
+      document.getElementById("btnManagerAddNewCenter")?.addEventListener("click", () => {
+        openCenterEditor(null);
+      });
+      document.getElementById("btnCloseCentersManagerModal")?.addEventListener("click", closeCentersManagerModal);
+      document.getElementById("btnCloseCentersManagerModalTop")?.addEventListener("click", closeCentersManagerModal);
+      document.getElementById("badgeCenterName")?.addEventListener("click", openCentersManagerModal);
+      document.getElementById("btnQuickEdit")?.addEventListener("click", openCentersManagerModal);
 
       document.getElementById("btnOpenAddCenter").addEventListener("click", () => {
         openCenterEditor(null);
@@ -1822,7 +1972,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!select) return;
         const centers = getAllCenters();
         const currentId = selectedCenterId || centers[0]?.id;
+        const currentCenter = centers.find(c => c.id === currentId) || centers[0];
         select.innerHTML = "";
+
+        // Grupo 1: Centros de Entrenamiento disponibles
+        const grpCenters = document.createElement("optgroup");
+        grpCenters.label = "Centros / Boxes";
         centers.forEach(c => {
           const opt = document.createElement("option");
           opt.value = c.id;
@@ -1830,16 +1985,66 @@ document.addEventListener("DOMContentLoaded", () => {
           if (c.id === currentId) {
             opt.selected = true;
           }
-          select.appendChild(opt);
+          grpCenters.appendChild(opt);
         });
+        select.appendChild(grpCenters);
+
+        // Grupo 2: Opciones de Gestión del Centro solicitadas
+        const grpActions = document.createElement("optgroup");
+        grpActions.label = "── Opciones del Box ──";
+
+        const optCreate = document.createElement("option");
+        optCreate.value = "__action_create__";
+        optCreate.textContent = "➕ Crear nuevo centro...";
+        grpActions.appendChild(optCreate);
+
+        const currentName = currentCenter ? currentCenter.name : "centro actual";
+        const optEdit = document.createElement("option");
+        optEdit.value = "__action_edit__";
+        optEdit.textContent = `✏️ Modificar "${currentName}"...`;
+        grpActions.appendChild(optEdit);
+
+        const optDelete = document.createElement("option");
+        optDelete.value = "__action_delete__";
+        optDelete.textContent = `🗑️ Eliminar "${currentName}"...`;
+        grpActions.appendChild(optDelete);
+
+        const optManage = document.createElement("option");
+        optManage.value = "__action_manage__";
+        optManage.textContent = "⚙️ Administrar todos los centros...";
+        grpActions.appendChild(optManage);
+
+        select.appendChild(grpActions);
       }
 
       const headerBoxSelect = document.getElementById("headerBoxSelect");
       if (headerBoxSelect) {
         headerBoxSelect.addEventListener("change", (e) => {
-          const newCenterId = e.target.value;
+          const val = e.target.value;
+
+          if (val === "__action_create__") {
+            headerBoxSelect.value = selectedCenterId;
+            openCenterEditor(null);
+            return;
+          }
+          if (val === "__action_edit__") {
+            headerBoxSelect.value = selectedCenterId;
+            openCenterEditor(selectedCenterId);
+            return;
+          }
+          if (val === "__action_delete__") {
+            headerBoxSelect.value = selectedCenterId;
+            deleteCenter(selectedCenterId);
+            return;
+          }
+          if (val === "__action_manage__") {
+            headerBoxSelect.value = selectedCenterId;
+            openCentersManagerModal();
+            return;
+          }
+
           const centers = getAllCenters();
-          const center = centers.find(c => c.id === newCenterId);
+          const center = centers.find(c => c.id === val);
           if (!center) return;
 
           selectedCenterId = center.id;
@@ -1866,15 +2071,15 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             const badgeUnitEl = document.getElementById("badgeUnit");
             if (badgeUnitEl) badgeUnitEl.innerText = fallbackUnit.toUpperCase();
-            updateHeaderUnitButton();
+            if (typeof updateHeaderUnitButton === "function") updateHeaderUnitButton();
           }
 
           if (typeof renderCenters === "function") renderCenters();
+          if (typeof renderCentersManagerList === "function") renderCentersManagerList();
           applyCenterMaterial(selectedCenterId);
           updateUnitSelectorAvailability();
         });
       }
-
       // 2. Botón Alternador de Unidad Objetivo (KG / LBS)
       function updateHeaderUnitButton() {
         const labelEl = document.getElementById("headerUnitLabel");

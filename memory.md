@@ -8,6 +8,7 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo qu
 - **Funcionalidades operativas:**
   - Cálculo simétrico de barra olímpica con soporte híbrido Kg/Lbs y selección de alternativas.
   - Inventario interactivo de discos por centro de entrenamiento (Box Central, Garage Gym, Halterofilia Club).
+  - Selector y gestor integral de Boxes / Centros: opciones directas para Crear, Modificar y Eliminar centros desde el botón/selector de cabecera y modal de administración.
   - Gestión de PRs en 11 movimientos olímpicos y gráficas temporales de progreso.
   - Licenciamiento offline con 7 días de trial, Device ID y validación criptográfica SHA-256.
   - Selector de temas (Oscuro, Claro, Sistema) y barra visual centrada sin huecos.

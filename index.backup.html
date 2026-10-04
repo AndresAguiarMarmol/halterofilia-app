@@ -894,7 +894,30 @@
     }
 
     /* Eliminación de la barra vertical de desplazamiento en Centro de Entrenamiento */
-    #centerEditorModal .modal-box {
+        /* Estilos para Modal de Gestión de Centros de Entrenamiento */
+    #centersManagerModal {
+      z-index: 100;
+    }
+    #centerEditorModal {
+      z-index: 110;
+    }
+    .center-manager-card {
+      background: var(--item-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      transition: all 0.2s ease;
+    }
+    .center-manager-card:hover {
+      border-color: var(--card-border);
+      box-shadow: 0 2px 8px var(--shadow-color);
+    }
+    .center-manager-card.active {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.18);
+    }
+
+#centerEditorModal .modal-box {
       scrollbar-width: none;
       -ms-overflow-style: none;
     }
@@ -1822,11 +1845,13 @@
       <div
         style="display: flex; justify-content: space-between; align-items: center; background: var(--item-bg); padding: 10px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--card-border);">
         <div style="font-size: 0.85rem;">
-          <strong id="badgeCenterName" style="color: var(--accent-cyan);">Box Central</strong> •
-          <span id="badgeUnit">KG</span> •
+          <strong id="badgeCenterName" style="color: var(--accent-cyan); cursor: pointer; text-decoration: underline dotted;" title="Toca para gestionar los centros de entrenamiento">Box Central</strong>
+          <span style="color: var(--text-muted);">•</span>
+          <span id="badgeUnit">KG</span>
+          <span style="color: var(--text-muted);">•</span>
           <span id="badgeBar">20 kg</span>
         </div>
-        <button class="btn-header" id="btnQuickEdit">Editar</button>
+        <button class="btn-header" id="btnQuickEdit" title="Gestionar centros de entrenamiento (Crear, Modificar, Eliminar)">⚙️ Centros</button>
       </div>
 
       <!-- Selector desplegable de movimientos de Halterofilia -->
@@ -2259,6 +2284,36 @@
       </div>
 
       <button class="btn-header" style="width: 100%;" id="btnCancelEmailReport">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- MODAL: GESTIÓN Y ADMINISTRACIÓN DE CENTROS DE ENTRENAMIENTO -->
+  <div class="modal-overlay" id="centersManagerModal">
+    <div class="modal-box" style="max-width: 520px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--card-border); padding-bottom: 8px;">
+        <h3 style="color: var(--accent-cyan); margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+          <span>🏋️</span> Centros de Entrenamiento
+        </h3>
+        <button type="button" class="btn-header" id="btnCloseCentersManagerModalTop" style="padding: 3px 8px; font-size: 0.85rem;" title="Cerrar">✕</button>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; background: rgba(6,182,212,0.08); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(6,182,212,0.2);">
+        <div>
+          <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">Box Seleccionado:</span>
+          <strong id="managerActiveCenterName" style="color: var(--accent-cyan); font-size: 0.92rem;">Box CrossFit Central</strong>
+        </div>
+        <button type="button" class="btn-header" id="btnManagerAddNewCenter" style="border-color: var(--accent-cyan); color: var(--accent-cyan); font-weight: 700; font-size: 0.78rem; padding: 6px 12px;">
+          ➕ Nuevo Centro
+        </button>
+      </div>
+
+      <div id="centersManagerList" style="display: flex; flex-direction: column; gap: 10px; max-height: 52vh; overflow-y: auto; padding-right: 4px; margin-bottom: 12px;">
+        <!-- Tarjetas dinámicas de centros con opciones para Seleccionar, Modificar y Eliminar -->
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <button type="button" class="btn-header" style="width: 100%;" id="btnCloseCentersManagerModal">Cerrar</button>
+      </div>
     </div>
   </div>
 
