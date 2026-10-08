@@ -63,7 +63,8 @@ npm run build:protect
 - **Firma:** SHA-256 con sal fija: `"Halterofilia-SuperSecret-Salt-2026"`. Validable 100% offline mediante `crypto.subtle`.
 
 ### 4.2. Perfiles y Conversión de Unidades
-- **Modalidades de Unidad Objetivo en Cabecera y Tarjeta de Peso Objetivo:** Soporte para alternar cíclicamente y seleccionar entre `Kgs` (Kilogramos), `Lbs` (Libras) y `Ambas` (cálculo híbrido con discos combinados). Disponible tanto desde la cabecera (`#btnHeaderUnit`) como directamente desde el selector de píldoras contextual integrado en la tarjeta de *Peso Objetivo en Barra* (`#targetUnitPillGroup`).
+- **Modalidades de Unidad Objetivo en Cabecera y Tarjeta de Peso Objetivo:** Soporte para alternar cíclicamente y seleccionar exclusivamente entre `Kgs` (Kilogramos) y `Lbs` (Libras). No existe la opción "Ambas" para el peso objetivo. Disponible tanto desde la cabecera (`#btnHeaderUnit`) como directamente desde el selector de píldoras integrado en la tarjeta de *Peso Objetivo en Barra* (`#targetUnitPillGroup`).
+- **Desacople entre Unidad Visual y Alternativas de Carga:** La selección de `Kgs` o `Lbs` en "Peso Objetivo en Barra" afecta **únicamente la visualización y conversión del valor numérico** deseado por el atleta. Las alternativas de pesas y el inventario interactivo en pantalla muestran y utilizan discos de ambas medidas (`Kgs` y `Lbs`) según la disponibilidad física del centro de entrenamiento.
 - **Conversión de Entrada en Caliente:** Al cambiar la unidad desde el selector, el valor numérico ingresado en `#targetWeightInput` se convierte en tiempo real al valor equivalente exacto sin alterar la intención de carga del usuario.
 - **Atleta por dispositivo:** Regla de registro de 1 atleta activo en el primer arranque, con capacidad de cambio o adición de perfiles desde el gestor.
 - **Factor de conversión exacto:** $1\text{ kg} = 2.20462\text{ lbs}$.

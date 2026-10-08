@@ -1802,8 +1802,8 @@
       <button class="btn-header" id="btnOpenLicenseModal">🔑 Licencia</button>
       <!-- 1. Selector Desplegable para el Box -->
       <select class="btn-header header-select" id="headerBoxSelect" title="Seleccionar Box / Centro de Entrenamiento" aria-label="Centro de Entrenamiento"></select>
-      <!-- 2. Botón para cambiar Unidad Objetivo (Kgs / Lbs / Ambas) -->
-      <button type="button" class="btn-header" id="btnHeaderUnit" title="Cambiar Unidad Objetivo (Kgs / Lbs / Ambas)">
+      <!-- 2. Botón para cambiar Unidad Objetivo (Kgs / Lbs) -->
+      <button type="button" class="btn-header" id="btnHeaderUnit" title="Cambiar Unidad Objetivo (Kgs / Lbs)">
         <span id="headerUnitIcon">⚖️</span> <span id="headerUnitLabel">Kgs</span>
       </button>
       <!-- 3. Botón para cambiar Barra Olímpica (15 / 20 kg) -->
@@ -1866,10 +1866,6 @@
         </div>
         <div class="selectable-item" data-type="unit" data-val="lbs" id="unitLbs">
           <div><strong>Libras (LBS)</strong><br><small style="color:var(--text-muted)">Estándar imperial americano</small></div>
-          <div class="radio-circle"></div>
-        </div>
-        <div class="selectable-item" data-type="unit" data-val="mixto" id="unitMixto">
-          <div><strong>Ambas (KG + LBS / Mixto)</strong><br><small style="color:var(--text-muted)">Cálculo híbrido con discos combinados para máxima precisión</small></div>
           <div class="radio-circle"></div>
         </div>
       </div>
@@ -1971,11 +1967,10 @@
               style="font-size: 0.65rem; color: var(--accent-cyan); background: rgba(6,182,212,0.12); padding: 2px 6px; border-radius: 4px; font-weight: 600;">✏️
               Editable</span>
           </div>
-          <!-- Selector de Unidad Objetivo (Kg / Lbs / Ambas) -->
+          <!-- Selector de Unidad Objetivo (Kg / Lbs) -->
           <div class="target-unit-pill-group" id="targetUnitPillGroup" title="Cambiar Unidad de Medida del Peso Objetivo">
             <button type="button" class="btn-target-unit active" data-unit="kg" id="btnTargetUnitKg" title="Kilogramos (Kgs)">Kgs</button>
             <button type="button" class="btn-target-unit" data-unit="lbs" id="btnTargetUnitLbs" title="Libras (Lbs)">Lbs</button>
-            <button type="button" class="btn-target-unit" data-unit="mixto" id="btnTargetUnitMixto" title="Ambas / Mixto (Kgs + Lbs)">Ambas</button>
           </div>
         </div>
         <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -2499,7 +2494,7 @@
   </div>
 
   <footer id="appFooter">
-    Análisis/Diseño de Andres Aguiar V3.26.02 Santiago de Chile Octubre 2026 - Contacto +56933395447 - Whatsapp +56933395447
+    Análisis/Diseño de Andres Aguiar V3.26.03 Santiago de Chile Octubre 2026 - Contacto +56933395447 - Whatsapp +56933395447
   </footer>
 
   <script src="app.src.js"></script>
