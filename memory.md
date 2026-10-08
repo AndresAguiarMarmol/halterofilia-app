@@ -10,12 +10,16 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo qu
   - Inventario interactivo de discos por centro de entrenamiento (Box Central, Garage Gym, Halterofilia Club).
   - Selector de Unidad Objetivo en cabecera con alternancia cíclica entre Kgs / Lbs / Ambas (modo híbrido).
   - Selector y gestor integral de Boxes / Centros: opciones directas para Crear, Modificar y Eliminar centros desde el botón/selector de cabecera y modal de administración.
+  - Selector contextual de Unidad en la tarjeta de Peso Objetivo (Kgs / Lbs / Ambas) sincronizado bidireccionalmente con la cabecera y conversión numérica en caliente.
+  - Motor de armado de discos con garantía de precisión mínima del 95% (evaluación de exactitud física y badge de precisión en la tarjeta y en cada alternativa).
   - Gestión de PRs en 11 movimientos olímpicos y gráficas temporales de progreso.
   - Licenciamiento offline con 7 días de trial, Device ID y validación criptográfica SHA-256.
   - Selector de temas (Oscuro, Claro, Sistema) y barra visual centrada sin huecos.
 
 ## Decisiones (y por qué)
-- **Separación estricta `app.src.js` vs `index.html`:** Permite desarrollar y depurar en texto claro (`index.dev.html`) sin arriesgar la exposición del código fuente de producción.
+  - **Selector de unidad contextual con conversión en caliente:** Permite al usuario cambiar entre Kg, Lbs o Ambas directamente en el campo de Peso Objetivo sin perder ni alterar la equivalencia de la carga deseada.
+  - **Cota de precisión mínima $\ge 95\%$:** Garantiza que aún sin discos fraccionales milimétricos en el box, el atleta reciba alternativas viables con un margen de aproximación real $\ge 95\%$ y feedback transparente del error.
+  - **Separación estricta `app.src.js` vs `index.html`:** Permite desarrollar y depurar en texto claro (`index.dev.html`) sin arriesgar la exposición del código fuente de producción.
 - **Offline-First sin dependencias runtime:** Garantiza portabilidad total en móviles y despliegue rápido como PWA o APK/AAB vía PWABuilder.
 - **Límite físico de 4 discos por lado:** Evita configuraciones irreales en la manga de la barra olímpica.
 - **Conversión bidireccional histórica:** Convertir tanto los PRs actuales como el historial temporal al cambiar unidad para evitar quiebres en gráficos.

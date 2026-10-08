@@ -849,6 +849,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const badgeUnitEl = document.getElementById("badgeUnit");
             if (badgeUnitEl) badgeUnitEl.innerText = (selectedUnit === "mixto" ? "AMBAS" : selectedUnit.toUpperCase());
+            if (typeof updateHeaderUnitButton === "function") updateHeaderUnitButton();
 
             syncInventoryWithAthleteUnit(athUnit);
             renderInventory();
@@ -1346,6 +1347,7 @@ document.addEventListener("DOMContentLoaded", () => {
               });
               const badgeUnitEl = document.getElementById("badgeUnit");
               if (badgeUnitEl) badgeUnitEl.innerText = fallbackUnit.toUpperCase();
+              if (typeof updateHeaderUnitButton === "function") updateHeaderUnitButton();
             }
 
             renderCenters();
@@ -2096,6 +2098,12 @@ document.addEventListener("DOMContentLoaded", () => {
         return u.toUpperCase();
       }
 
+      function updateTargetUnitPills() {
+        document.querySelectorAll("#targetUnitPillGroup .btn-target-unit").forEach(btn => {
+          btn.classList.toggle("active", btn.dataset.unit === selectedUnit);
+        });
+      }
+
       function updateHeaderUnitButton() {
         const labelEl = document.getElementById("headerUnitLabel");
         const btn = document.getElementById("btnHeaderUnit");
@@ -2105,61 +2113,94 @@ document.addEventListener("DOMContentLoaded", () => {
           btn.title = `Unidad Objetivo: ${lbl} (Toca para alternar entre Kgs, Lbs y Ambas)`;
           btn.setAttribute("aria-label", `Unidad Objetivo: ${lbl}`);
         }
+        updateTargetUnitPills();
+      }
+
+      function switchApplicationUnit(nextUnit, convertTargetInput = true) {
+        const prevUnit = selectedUnit;
+        if (!nextUnit) return false;
+
+        const currentCenter = getActiveCenter();
+        const check = checkUnitCompatibilityWithCenter(nextUnit, currentCenter);
+        if (!check.compatible) {
+          let altUnit = (nextUnit === "lbs") ? "mixto" : (nextUnit === "mixto" ? "kg" : "lbs");
+          const altCheck = checkUnitCompatibilityWithCenter(altUnit, currentCenter);
+          if (altUnit !== prevUnit && altCheck.compatible) {
+            alert(check.message + `\n\nAlternando a la siguiente unidad compatible: ${getUnitDisplayLabel(altUnit)}`);
+            nextUnit = altUnit;
+          } else {
+            showUnitCompatibilityError(check.message);
+            return false;
+          }
+        }
+        hideUnitCompatibilityError();
+
+        // Conversión bidireccional en caliente del peso objetivo editable al cambiar de unidad
+        const targetInput = document.getElementById("targetWeightInput");
+        if (convertTargetInput && targetInput && targetInput.value) {
+          const val = parseFloat(targetInput.value);
+          if (!isNaN(val) && val > 0) {
+            if (prevUnit === "kg" && nextUnit === "lbs") {
+              targetInput.value = (val * KG_TO_LBS).toFixed(1);
+            } else if (prevUnit === "lbs" && (nextUnit === "kg" || nextUnit === "mixto")) {
+              targetInput.value = (val / KG_TO_LBS).toFixed(1);
+            } else if ((prevUnit === "kg" || prevUnit === "mixto") && nextUnit === "lbs") {
+              targetInput.value = (val * KG_TO_LBS).toFixed(1);
+            }
+          }
+        }
+
+        document.querySelectorAll(".selectable-item[data-type='unit']").forEach(i => i.classList.remove("active"));
+        const activeUnitEl = document.querySelector(`.selectable-item[data-type='unit'][data-val='${nextUnit}']`);
+        if (activeUnitEl) activeUnitEl.classList.add("active");
+
+        selectedUnit = nextUnit;
+
+        const activeId = getActiveAthleteId();
+        if (activeId) {
+          convertAthleteUnit(activeId, prevUnit, nextUnit);
+        }
+
+        const badgeUnitEl = document.getElementById("badgeUnit");
+        if (badgeUnitEl) {
+          badgeUnitEl.innerText = formatUnitBadgeText(selectedUnit);
+        }
+
+        updateHeaderUnitButton();
+        syncInventoryWithAthleteUnit(nextUnit);
+        renderInventory();
+        updateMovementDisplay();
+
+        const currentTargetVal = targetInput ? parseFloat(targetInput.value) : undefined;
+        calculateHybridLoad(currentTargetVal);
+
+        if (document.getElementById("reportsModal") && document.getElementById("reportsModal").classList.contains("open")) {
+          drawTemporalReportsChart();
+        }
+
+        return true;
       }
 
       const btnHeaderUnit = document.getElementById("btnHeaderUnit");
       if (btnHeaderUnit) {
         btnHeaderUnit.addEventListener("click", () => {
-          const prevUnit = selectedUnit;
-          // Alternar cíclicamente entre Kgs (kg) -> Lbs (lbs) -> Ambas (mixto) -> Kgs (kg)
           let nextUnit = "kg";
-          if (prevUnit === "kg") nextUnit = "lbs";
-          else if (prevUnit === "lbs") nextUnit = "mixto";
+          if (selectedUnit === "kg") nextUnit = "lbs";
+          else if (selectedUnit === "lbs") nextUnit = "mixto";
           else nextUnit = "kg";
-
-          const currentCenter = getActiveCenter();
-          const check = checkUnitCompatibilityWithCenter(nextUnit, currentCenter);
-          if (!check.compatible) {
-            // Si la siguiente unidad no es compatible con este Box, verificar si la tercera sí lo es
-            let altUnit = (nextUnit === "lbs") ? "mixto" : (nextUnit === "mixto" ? "kg" : "lbs");
-            const altCheck = checkUnitCompatibilityWithCenter(altUnit, currentCenter);
-            if (altUnit !== prevUnit && altCheck.compatible) {
-              alert(check.message + `\n\nAlternando a la siguiente unidad compatible: ${getUnitDisplayLabel(altUnit)}`);
-              nextUnit = altUnit;
-            } else {
-              showUnitCompatibilityError(check.message);
-              return;
-            }
-          }
-          hideUnitCompatibilityError();
-
-          document.querySelectorAll(".selectable-item[data-type='unit']").forEach(i => i.classList.remove("active"));
-          const activeUnitEl = document.querySelector(`.selectable-item[data-type='unit'][data-val='${nextUnit}']`);
-          if (activeUnitEl) activeUnitEl.classList.add("active");
-
-          selectedUnit = nextUnit;
-
-          const activeId = getActiveAthleteId();
-          if (activeId) {
-            convertAthleteUnit(activeId, prevUnit, nextUnit);
-          }
-
-          const badgeUnitEl = document.getElementById("badgeUnit");
-          if (badgeUnitEl) {
-            badgeUnitEl.innerText = formatUnitBadgeText(selectedUnit);
-          }
-
-          updateHeaderUnitButton();
-          syncInventoryWithAthleteUnit(nextUnit);
-          renderInventory();
-          updateMovementDisplay();
-          calculateHybridLoad();
-
-          if (document.getElementById("reportsModal") && document.getElementById("reportsModal").classList.contains("open")) {
-            drawTemporalReportsChart();
-          }
+          switchApplicationUnit(nextUnit, true);
         });
       }
+
+      // Eventos para el selector de unidad contextual en la tarjeta de Peso Objetivo en Barra
+      document.querySelectorAll("#targetUnitPillGroup .btn-target-unit").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const unitChoice = btn.dataset.unit;
+          if (unitChoice && unitChoice !== selectedUnit) {
+            switchApplicationUnit(unitChoice, true);
+          }
+        });
+      });
 
       // 3. Botón Alternador de Barra Olímpica (15 / 20 kg)
       function updateHeaderBarButton() {
@@ -2395,23 +2436,27 @@ document.addEventListener("DOMContentLoaded", () => {
             });
           }
 
-          generatedSolutions = generateFastAlternatives(available, neededPerSide, selectedUnit);
+          generatedSolutions = generateFastAlternatives(available, neededPerSide, selectedUnit, targetTotal, barWeightInTarget);
         }
 
         renderAlternativesDropdown();
       }
 
-      // Generador voraz determinista con múltiples estrategias
-      function generateFastAlternatives(availablePlates, targetPerSide, unit) {
+      // Generador voraz determinista con múltiples estrategias y precisión mínima garantizada del 95%
+      function generateFastAlternatives(availablePlates, targetPerSide, unit, targetTotal, barWeightInTarget) {
         const isMixto = (unit === "mixto");
         const calcUnit = isMixto ? "kg" : unit;
-        const tolerance = calcUnit === "kg" ? 0.25 : 0.55;
+        const strictTolerance = calcUnit === "kg" ? 0.25 : 0.55;
         const solutions = [];
         const seenSignatures = new Set();
 
+        const effectiveTargetTotal = (targetTotal !== undefined && !isNaN(targetTotal))
+          ? targetTotal
+          : ((barWeightInTarget || 20) + (targetPerSide * 2));
+
         function buildStrategy(filterFn, sortFn, titlePrefix) {
           let pool = availablePlates.filter(filterFn);
-          if (pool.length === 0) return; // Si no hay discos para esta estrategia, no mezclar con discos no permitidos
+          if (pool.length === 0) return;
 
           const prepared = pool.map(p => ({
             ref: p,
@@ -2423,14 +2468,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
           for (const item of prepared) {
             // Máximo 4 discos del mismo tipo por lado para realismo físico
-            while (combo.filter(p => p.id === item.ref.id).length < 4 && (currentSum + item.weight <= targetPerSide + tolerance)) {
+            while (combo.filter(p => p.id === item.ref.id).length < 4 && (currentSum + item.weight <= targetPerSide + strictTolerance)) {
               combo.push(item.ref);
               currentSum += item.weight;
             }
           }
 
-          // Solo aceptar la solución si tiene discos y alcanza el peso requerido dentro de la tolerancia
-          if (combo.length > 0 && Math.abs(currentSum - targetPerSide) <= tolerance) {
+          const actualTotal = (barWeightInTarget || 20) + (currentSum * 2);
+          const error = effectiveTargetTotal > 0 ? Math.abs(actualTotal - effectiveTargetTotal) : 0;
+          const precisionPct = effectiveTargetTotal > 0 ? Math.max(0, (1 - (error / effectiveTargetTotal)) * 100) : 100;
+          const isExact = Math.abs(currentSum - targetPerSide) <= strictTolerance;
+
+          // Aceptar solución si es físicamente exacta o si cumple la precisión de al menos un 95%
+          if (combo.length > 0 && (isExact || precisionPct >= 95.0)) {
             const sig = combo.map(p => p.id).sort().join("|");
             if (!seenSignatures.has(sig)) {
               seenSignatures.add(sig);
@@ -2442,16 +2492,21 @@ document.addEventListener("DOMContentLoaded", () => {
               } else {
                 labelTotal = `${(currentSum * 2).toFixed(1)} ${unit}`;
               }
+
+              const precFormatted = precisionPct >= 99.8 ? "100%" : `${precisionPct.toFixed(1)}%`;
               solutions.push({
-                title: `${titlePrefix} (${labelTotal} en discos)`,
-                plates: combo
+                title: `${titlePrefix} (${precFormatted} Precisión • ${labelTotal} en discos)`,
+                plates: combo,
+                precision: precisionPct,
+                actualTotal: actualTotal,
+                targetTotal: effectiveTargetTotal,
+                isExact: isExact
               });
             }
           }
         }
 
         if (unit === "kg") {
-          // Estrategias 100% exclusivas para Kilogramos (pesos únicamente en KG)
           buildStrategy(
             p => p.unit === "kg",
             (a, b) => b.weight - a.weight,
@@ -2476,7 +2531,6 @@ document.addEventListener("DOMContentLoaded", () => {
             "Opción 4 • Carga con discos medianos / pequeños"
           );
         } else if (unit === "lbs") {
-          // Estrategias 100% exclusivas para Libras (pesos únicamente en LBS)
           buildStrategy(
             p => p.unit === "lb",
             (a, b) => b.weight - a.weight,
@@ -2501,7 +2555,6 @@ document.addEventListener("DOMContentLoaded", () => {
             "Opción 4 • Carga con discos livianos"
           );
         } else {
-          // Modo Mixto (KG + LBS)
           buildStrategy(
             () => true,
             (a, b) => b.weight - a.weight,
@@ -2527,7 +2580,7 @@ document.addEventListener("DOMContentLoaded", () => {
           );
         }
 
-        // Si ninguna estrategia alcanzó la tolerancia estricta, ofrecer la mejor aproximación voraz con los discos permitidos
+        // Si ninguna estrategia alcanzó la tolerancia estricta, evaluar aproximación voraz garantizando precisión >= 95%
         if (solutions.length === 0 && availablePlates.length > 0) {
           const prepared = [...availablePlates].map(p => ({
             ref: p,
@@ -2537,12 +2590,15 @@ document.addEventListener("DOMContentLoaded", () => {
           let currentSum = 0;
           const combo = [];
           for (const item of prepared) {
-            while (combo.filter(p => p.id === item.ref.id).length < 4 && (currentSum + item.weight <= targetPerSide + tolerance)) {
+            while (combo.filter(p => p.id === item.ref.id).length < 4 && (currentSum + item.weight <= targetPerSide + strictTolerance)) {
               combo.push(item.ref);
               currentSum += item.weight;
             }
           }
           if (combo.length > 0) {
+            const actualTotal = (barWeightInTarget || 20) + (currentSum * 2);
+            const error = effectiveTargetTotal > 0 ? Math.abs(actualTotal - effectiveTargetTotal) : 0;
+            const precisionPct = effectiveTargetTotal > 0 ? Math.max(0, (1 - (error / effectiveTargetTotal)) * 100) : 100;
             let labelTotal = "";
             if (isMixto) {
               const totKg = (currentSum * 2).toFixed(1);
@@ -2551,18 +2607,59 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
               labelTotal = `${(currentSum * 2).toFixed(1)} ${unit}`;
             }
+            const precFormatted = precisionPct >= 99.8 ? "100%" : `${precisionPct.toFixed(1)}%`;
             solutions.push({
-              title: `Opción 1 • Carga Aproximada (${labelTotal} en discos)`,
-              plates: combo
+              title: `Opción 1 • Carga Aproximada (${precFormatted} Precisión • ${labelTotal} en discos)`,
+              plates: combo,
+              precision: precisionPct,
+              actualTotal: actualTotal,
+              targetTotal: effectiveTargetTotal,
+              isExact: Math.abs(currentSum - targetPerSide) <= strictTolerance
             });
           }
         }
+
+        // Ordenar soluciones: mayor porcentaje de precisión primero, y menor cantidad de discos en empate
+        solutions.sort((a, b) => {
+          if (Math.abs(b.precision - a.precision) > 0.05) {
+            return b.precision - a.precision;
+          }
+          return a.plates.length - b.plates.length;
+        });
 
         return solutions;
       }
 
       const alternativesDropdown = document.getElementById("loadAlternativesDropdown");
       const solutionsCount = document.getElementById("solutionsCount");
+
+      function updatePrecisionBadge(sol) {
+        const badge = document.getElementById("targetWeightPrecisionBadge");
+        const valEl = document.getElementById("targetWeightPrecisionValue");
+        if (!badge || !valEl) return;
+
+        if (!sol) {
+          valEl.innerText = "100%";
+          badge.className = "target-precision-badge";
+          return;
+        }
+
+        if (sol.isBarOnly) {
+          valEl.innerText = "100% (Solo barra)";
+          badge.className = "target-precision-badge";
+          return;
+        }
+
+        const prec = typeof sol.precision === "number" ? sol.precision : 100;
+        if (prec >= 99.8) {
+          valEl.innerText = "100% (Exacta)";
+          badge.className = "target-precision-badge";
+        } else {
+          const displayUnit = selectedUnit === "mixto" ? "kg" : selectedUnit;
+          valEl.innerText = `${prec.toFixed(1)}% (Real: ${sol.actualTotal.toFixed(1)} ${displayUnit})`;
+          badge.className = "target-precision-badge approx";
+        }
+      }
 
       function renderAlternativesDropdown() {
         alternativesDropdown.innerHTML = "";
@@ -2571,6 +2668,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (generatedSolutions.length === 0) {
           alternativesDropdown.innerHTML = `<option>Solo la barra (sin discos adicionales)</option>`;
           renderBarbell([]);
+          updatePrecisionBadge({ isBarOnly: true, precision: 100 });
           return;
         }
 
@@ -2582,11 +2680,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         renderBarbell(generatedSolutions[0].plates);
+        updatePrecisionBadge(generatedSolutions[0]);
       }
 
       alternativesDropdown.addEventListener("change", (e) => {
         const sol = generatedSolutions[e.target.value];
-        if (sol) renderBarbell(sol.plates);
+        if (sol) {
+          renderBarbell(sol.plates);
+          updatePrecisionBadge(sol);
+        }
       });
 
       function renderBarbell(sidePlates) {

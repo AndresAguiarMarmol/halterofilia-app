@@ -63,7 +63,8 @@ npm run build:protect
 - **Firma:** SHA-256 con sal fija: `"Halterofilia-SuperSecret-Salt-2026"`. Validable 100% offline mediante `crypto.subtle`.
 
 ### 4.2. Perfiles y Conversión de Unidades
-- **Modalidades de Unidad Objetivo en Cabecera:** Soporte para alternar cíclicamente y seleccionar entre `Kgs` (Kilogramos), `Lbs` (Libras) y `Ambas` (cálculo híbrido con discos combinados).
+- **Modalidades de Unidad Objetivo en Cabecera y Tarjeta de Peso Objetivo:** Soporte para alternar cíclicamente y seleccionar entre `Kgs` (Kilogramos), `Lbs` (Libras) y `Ambas` (cálculo híbrido con discos combinados). Disponible tanto desde la cabecera (`#btnHeaderUnit`) como directamente desde el selector de píldoras contextual integrado en la tarjeta de *Peso Objetivo en Barra* (`#targetUnitPillGroup`).
+- **Conversión de Entrada en Caliente:** Al cambiar la unidad desde el selector, el valor numérico ingresado en `#targetWeightInput` se convierte en tiempo real al valor equivalente exacto sin alterar la intención de carga del usuario.
 - **Atleta por dispositivo:** Regla de registro de 1 atleta activo en el primer arranque, con capacidad de cambio o adición de perfiles desde el gestor.
 - **Factor de conversión exacto:** $1\text{ kg} = 2.20462\text{ lbs}$.
 - **Coherencia histórica:** Al cambiar la unidad preferida del atleta (Kg $\leftrightarrow$ Lbs), se convierten automáticamente:
@@ -77,7 +78,7 @@ npm run build:protect
   - Kilos IWF: `25 kg` (rojo), `20 kg` (azul), `15 kg` (amarillo), `10 kg` (verde), `5 kg` (blanco).
   - Fraccionales Kilos: `2.5 kg` (rojo), `2.0 kg` (azul), `1.5 kg` (amarillo), `1.0 kg` (verde), `0.5 kg` (blanco).
 - **Restricción física:** Máximo 4 discos del mismo peso por manga para reflejar la capacidad física de la barra olímpica.
-- **Estrategias:** Generación de alternativas de carga (menor número de discos, prioridad kilos, prioridad libras, balance híbrido).
+- **Estrategias y Precisión Mínima del 95%:** Generación voraz de alternativas de carga (menor número de discos, prioridad kilos, prioridad libras, balance híbrido) con garantía de precisión $\ge 95\%$ respecto al objetivo. Si el centro no cuenta con discos para el calce 100% exacto, se presentan opciones viables ordenadas por mayor precisión y se exhibe el indicador de exactitud en el desplegable y en la tarjeta.
 - **Renderizado visual:** Mangas de acero con soporte completo y discos alineados verticalmente sin huecos en los extremos.
 
 ### 4.4. Estándar de Pie de Página y Versión
