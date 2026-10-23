@@ -75,28 +75,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const DEFAULT_CENTERS = [
         {
-          id: "box_central",
-          name: "Box CrossFit Central",
-          address: "Av. Providencia 1234, Santiago",
-          phone: "+56 9 8765 4321",
+          id: "katsu_egana",
+          name: "Katsu Egaña",
+          address: "Plaza Egaña, Santiago",
+          phone: "+56 9 3339 5447",
           category: "both",
           plates: createDefaultPlatesConfig("both")
-        },
-        {
-          id: "garage_gym",
-          name: "Garage Gym Pro",
-          address: "Calle Los Robles 452, Santiago",
-          phone: "+56 9 9123 4567",
-          category: "lbs",
-          plates: createDefaultPlatesConfig("lbs")
-        },
-        {
-          id: "halterofilia_club",
-          name: "Halterofilia Club",
-          address: "Centro de Alto Rendimiento, Ñuñoa",
-          phone: "+56 9 7654 3210",
-          category: "kg",
-          plates: createDefaultPlatesConfig("kg")
         }
       ];
 
@@ -105,7 +89,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (s) {
           try {
             const list = JSON.parse(s);
-            if (Array.isArray(list) && list.length > 0) return list;
+            // Si la lista contiene únicamente centros heredados (box_central, garage_gym, halterofilia_club), migrar a Katsu Egaña
+            const hasOldLegacy = Array.isArray(list) && list.some(c => c.id === "box_central" || c.id === "garage_gym");
+            if (Array.isArray(list) && list.length > 0 && !hasOldLegacy) return list;
           } catch (e) {}
         }
         saveAllCenters(DEFAULT_CENTERS);
@@ -2065,6 +2051,11 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
 
+        // Conversión en caliente del valor base editado si existe
+        if (typeof editedBaseWeight === "number" && !isNaN(editedBaseWeight)) {
+          editedBaseWeight = convertWeight(editedBaseWeight, prevUnit, nextUnit);
+        }
+
         document.querySelectorAll(".selectable-item[data-type='unit']").forEach(i => i.classList.remove("active"));
         const activeUnitEl = document.querySelector(`.selectable-item[data-type='unit'][data-val='${nextUnit}']`);
         if (activeUnitEl) activeUnitEl.classList.add("active");
@@ -2082,6 +2073,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         updateHeaderUnitButton();
+        updateHeaderBarButton();
         syncInventoryWithAthleteUnit(nextUnit);
         renderInventory();
         updateMovementDisplay();
@@ -2114,16 +2106,19 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       });
 
-      // 3. Botón Alternador de Barra Olímpica (15 / 20 kg)
+      // 3. Botón Alternador de Barra Olímpica (15 / 20 kg ó 35 / 45 lb)
       function updateHeaderBarButton() {
         const labelEl = document.getElementById("headerBarLabel");
         const btn = document.getElementById("btnHeaderBar");
         const isMen = (selectedBar === "men");
-        if (labelEl) labelEl.innerText = isMen ? "20 kg" : "15 kg";
+        const barLabel = (selectedUnit === "kg") ? (isMen ? "20 kg" : "15 kg") : (isMen ? "45 lbs" : "35 lbs");
+        if (labelEl) labelEl.innerText = barLabel;
         if (btn) btn.title = `Barra Olímpica: ${isMen ? "Hombre 20 kg (45 lb)" : "Mujer 15 kg (35 lb)"} (Toca para alternar)`;
         const badgeBar = document.getElementById("badgeBar");
         if (badgeBar) {
-          badgeBar.innerText = isMen ? "Barra Olímpica 20kg" : "Barra Olímpica 15kg";
+          badgeBar.innerText = (selectedUnit === "kg")
+            ? (isMen ? "Barra Olímpica 20kg" : "Barra Olímpica 15kg")
+            : (isMen ? "Barra Olímpica 45lb" : "Barra Olímpica 35lb");
         }
       }
 
@@ -2190,11 +2185,19 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 
+      let editedBaseWeight = null;
+      let lastMoveIndex = -1;
+
       function updateMovementDisplay() {
         const moveName = movements[currentMoveIndex];
         const activeId = getActiveAthleteId();
         const prs = getAthletePRs(activeId);
         const rawPR = prs[moveName] !== undefined ? prs[moveName] : (moveName === "Thrusters" ? 80 : 100);
+
+        if (lastMoveIndex !== currentMoveIndex || editedBaseWeight === null || isNaN(editedBaseWeight)) {
+          editedBaseWeight = rawPR;
+          lastMoveIndex = currentMoveIndex;
+        }
 
         const activeTitleEl = document.getElementById("activeMoveTitle");
         if (activeTitleEl) activeTitleEl.innerText = moveName;
@@ -2206,7 +2209,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const prEl = document.getElementById("activeMovePR");
         if (prEl) {
-          prEl.innerText = `PR: ${rawPR} ${selectedUnit.toUpperCase()}`;
+          prEl.innerText = `(PR: ${rawPR} ${selectedUnit.toUpperCase()})`;
+        }
+
+        const baseInput = document.getElementById("editedBaseWeightInput");
+        if (baseInput && document.activeElement !== baseInput) {
+          baseInput.value = editedBaseWeight.toFixed(1);
+        }
+        const baseUnitLabel = document.getElementById("editedBaseUnitLabel");
+        if (baseUnitLabel) {
+          baseUnitLabel.innerText = selectedUnit.toUpperCase();
         }
       }
 
@@ -2275,6 +2287,31 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 
+      const editedBaseWeightInput = document.getElementById("editedBaseWeightInput");
+      if (editedBaseWeightInput) {
+        editedBaseWeightInput.addEventListener("input", () => {
+          const val = parseFloat(editedBaseWeightInput.value);
+          if (!isNaN(val) && val >= 0) {
+            editedBaseWeight = val;
+            calculateHybridLoad();
+          }
+        });
+      }
+
+      const activeMovePREl = document.getElementById("activeMovePR");
+      if (activeMovePREl) {
+        activeMovePREl.addEventListener("click", () => {
+          const moveName = movements[currentMoveIndex];
+          const activeId = getActiveAthleteId();
+          const prs = getAthletePRs(activeId);
+          const rawPR = prs[moveName] !== undefined ? prs[moveName] : (moveName === "Thrusters" ? 80 : 100);
+          editedBaseWeight = rawPR;
+          const baseInp = document.getElementById("editedBaseWeightInput");
+          if (baseInp) baseInp.value = rawPR.toFixed(1);
+          calculateHybridLoad();
+        });
+      }
+
       // =========================================================================
       // 14. ALGORITMO OPTIMIZADO (CERO CONGELAMIENTO + ALTERNATIVAS REALES)
       // =========================================================================
@@ -2283,15 +2320,26 @@ document.addEventListener("DOMContentLoaded", () => {
         const prs = getAthletePRs(activeId);
         const basePR = prs[movements[currentMoveIndex]] || 100;
 
+        if (editedBaseWeight === null || isNaN(editedBaseWeight)) {
+          editedBaseWeight = basePR;
+        }
+
         let targetTotal;
         if (customTarget !== undefined && !isNaN(customTarget)) {
           targetTotal = Math.max(0, parseFloat(customTarget));
-          // Sincronizar porcentaje respecto al PR base
-          currentPercentage = basePR > 0 ? Math.round((targetTotal / basePR) * 100) : 0;
-          prSlider.value = Math.min(120, Math.max(40, currentPercentage));
-          updateSliderUI();
+          // Sincronizar el valor base editado respecto al % actual si el usuario escribe en targetWeightInput
+          if (currentPercentage > 0) {
+            editedBaseWeight = Math.round((targetTotal / (currentPercentage / 100)) * 10) / 10;
+          } else {
+            editedBaseWeight = targetTotal;
+          }
+          const baseInput = document.getElementById("editedBaseWeightInput");
+          if (baseInput && document.activeElement !== baseInput) {
+            baseInput.value = editedBaseWeight.toFixed(1);
+          }
         } else {
-          targetTotal = basePR * (currentPercentage / 100);
+          // Crear la pesa basándose el cálculo en el % del valor editado y NO en el PR:
+          targetTotal = editedBaseWeight * (currentPercentage / 100);
           if (targetWeightInput && document.activeElement !== targetWeightInput) {
             targetWeightInput.value = targetTotal.toFixed(1);
           }
@@ -2310,9 +2358,15 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
 
-        // Peso de la barra
-        const barWeightKg = selectedBar === "men" ? 20 : 15;
-        const barWeightInTarget = (selectedUnit === "kg") ? barWeightKg : (barWeightKg * KG_TO_LBS);
+        // Peso exacto oficial de la barra según estándar internacional olímpico y de box
+        // En kg: Hombre 20 kg, Mujer 15 kg
+        // En lbs: Hombre 45 lbs, Mujer 35 lbs
+        let barWeightInTarget;
+        if (selectedUnit === "kg") {
+          barWeightInTarget = (selectedBar === "men") ? 20 : 15;
+        } else {
+          barWeightInTarget = (selectedBar === "men") ? 45 : 35;
+        }
 
         const neededTotal = targetTotal - barWeightInTarget;
         const neededPerSide = neededTotal > 0 ? (neededTotal / 2) : 0;
@@ -2344,7 +2398,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const effectiveTargetTotal = (targetTotal !== undefined && !isNaN(targetTotal))
           ? targetTotal
-          : ((barWeightInTarget || 20) + (targetPerSide * 2));
+          : ((barWeightInTarget || (unit === "lbs" ? 45 : 20)) + (targetPerSide * 2));
 
         function buildStrategy(filterFn, sortFn, titlePrefix) {
           let pool = availablePlates.filter(filterFn);
@@ -2366,7 +2420,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           }
 
-          const actualTotal = (barWeightInTarget || 20) + (currentSum * 2);
+          const actualTotal = (barWeightInTarget || (unit === "lbs" ? 45 : 20)) + (currentSum * 2);
           const error = effectiveTargetTotal > 0 ? Math.abs(actualTotal - effectiveTargetTotal) : 0;
           const precisionPct = effectiveTargetTotal > 0 ? Math.max(0, (1 - (error / effectiveTargetTotal)) * 100) : 100;
           const isExact = Math.abs(currentSum - targetPerSide) <= strictTolerance;
@@ -2450,7 +2504,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           }
           if (combo.length > 0) {
-            const actualTotal = (barWeightInTarget || 20) + (currentSum * 2);
+            const actualTotal = (barWeightInTarget || (unit === "lbs" ? 45 : 20)) + (currentSum * 2);
             const error = effectiveTargetTotal > 0 ? Math.abs(actualTotal - effectiveTargetTotal) : 0;
             const precisionPct = effectiveTargetTotal > 0 ? Math.max(0, (1 - (error / effectiveTargetTotal)) * 100) : 100;
             const labelTotal = `${(currentSum * 2).toFixed(1)} ${unit}`;
@@ -2466,12 +2520,12 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
 
-        // Ordenar soluciones: mayor porcentaje de precisión primero, y menor cantidad de discos en empate
+        // 4. Ordenar soluciones: PRIORIZAR MENOR CANTIDAD DE DISCOS y en empate mayor precisión
         solutions.sort((a, b) => {
-          if (Math.abs(b.precision - a.precision) > 0.05) {
-            return b.precision - a.precision;
+          if (a.plates.length !== b.plates.length) {
+            return a.plates.length - b.plates.length;
           }
-          return a.plates.length - b.plates.length;
+          return b.precision - a.precision;
         });
 
         return solutions;
@@ -3554,6 +3608,182 @@ document.addEventListener("DOMContentLoaded", () => {
           if (isDemoPlaying) startDemoTimer();
         });
       });
+
+      // =========================================================================
+      // SISTEMA DE RESPALDO Y RECUPERACIÓN DE DATOS (OFFLINE-FIRST)
+      // =========================================================================
+      function getAllBackupData() {
+        const devId = getOrCreateDeviceId();
+        const athletes = getAthletes();
+        const activeId = getActiveAthleteId();
+        const allPRs = JSON.parse(localStorage.getItem("halterofilia_prs_by_athlete") || "{}");
+        const histMap = JSON.parse(localStorage.getItem("halterofilia_pr_history") || "{}");
+        const centers = getAllCenters();
+        const theme = localStorage.getItem("halterofilia_theme_preference") || "system";
+        const lic = localStorage.getItem("halterofilia_license_token") || "";
+        const instDate = localStorage.getItem("halterofilia_install_date") || "";
+        const instSig = localStorage.getItem("halterofilia_install_sig") || "";
+
+        const athleteUnits = {};
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith("halterofilia_athlete_unit_")) {
+            athleteUnits[k] = localStorage.getItem(k);
+          }
+        }
+
+        return {
+          app: "Halterofilia Pro",
+          version: "V3.26",
+          exportTimestamp: new Date().toISOString(),
+          deviceId: devId,
+          activeAthleteId: activeId,
+          athletes: athletes,
+          prs: allPRs,
+          history: histMap,
+          centers: centers,
+          athleteUnits: athleteUnits,
+          theme: theme,
+          licenseToken: lic,
+          installDate: instDate,
+          installSig: instSig
+        };
+      }
+
+      function backupDataToEmail() {
+        try {
+          const backupPayload = getAllBackupData();
+          const jsonStr = JSON.stringify(backupPayload, null, 2);
+          const now = new Date();
+          const dateStr = now.toISOString().slice(0, 10);
+          const fileName = `halterofilia_backup_${dateStr}.json`;
+
+          // 1. Descarga automática del archivo JSON a la carpeta Downloads
+          const blob = new Blob([jsonStr], { type: "application/json;charset=utf-8" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 1500);
+
+          // 2. Disparar cliente de correo preconfigurado
+          const athletes = getAthletes();
+          const curAthlete = athletes.find(ath => ath.id === getActiveAthleteId()) || athletes[0];
+          const athleteEmail = (curAthlete && curAthlete.email) ? curAthlete.email : "";
+          const athleteName = curAthlete ? curAthlete.name : "Atleta";
+          const subject = encodeURIComponent(`Respaldo Halterofilia Pro - ${athleteName} (${dateStr})`);
+          const bodyText = encodeURIComponent(
+            `Hola ${athleteName},\n\n` +
+            `Se ha generado y descargado con éxito el archivo de respaldo de Halterofilia Pro:\n` +
+            `📄 Archivo: ${fileName}\n` +
+            `📅 Fecha de respaldo: ${now.toLocaleString()}\n\n` +
+            `Por favor, busca este archivo en tu carpeta de "Descargas" (Download) y adjúntalo a este correo para conservarlo como copia de seguridad en tu buzón.\n\n` +
+            `Para restaurar tu información posteriormente, abre Halterofilia Pro y presiona el botón "📥 Recuperar desde Descargas".\n\n` +
+            `Saludos cordiales,\nHalterofilia Pro.`
+          );
+
+          window.location.href = `mailto:${athleteEmail}?subject=${subject}&body=${bodyText}`;
+
+          alert(`✅ Respaldo Exitoso:\n\n1. El archivo "${fileName}" se ha descargado en tu carpeta de Descargas.\n2. Se ha abierto tu cliente de correo electrónico para que puedas conservarlo o reenviarlo como copia de seguridad.`);
+        } catch (err) {
+          alert(`❌ Error al generar el respaldo: ${err.message}`);
+        }
+      }
+
+      function restoreDataFromDownloads() {
+        let fileInput = document.getElementById("backupFileInput");
+        if (!fileInput) {
+          fileInput = document.createElement("input");
+          fileInput.type = "file";
+          fileInput.id = "backupFileInput";
+          fileInput.accept = ".json";
+          fileInput.style.display = "none";
+          document.body.appendChild(fileInput);
+        }
+
+        fileInput.value = "";
+        fileInput.onchange = function(e) {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = function(evt) {
+            try {
+              const data = JSON.parse(evt.target.result);
+              if (!data || (!data.athletes && !data.prs && !data.centers)) {
+                return alert("❌ Archivo de respaldo no válido o estructura no reconocida.");
+              }
+
+              if (data.athletes && Array.isArray(data.athletes)) {
+                localStorage.setItem("halterofilia_athletes", JSON.stringify(data.athletes));
+              }
+              if (data.activeAthleteId) {
+                localStorage.setItem("halterofilia_active_athlete_id", data.activeAthleteId);
+              }
+              if (data.prs && typeof data.prs === "object") {
+                localStorage.setItem("halterofilia_prs_by_athlete", JSON.stringify(data.prs));
+              }
+              if (data.history && typeof data.history === "object") {
+                localStorage.setItem("halterofilia_pr_history", JSON.stringify(data.history));
+              }
+              if (data.centers && Array.isArray(data.centers)) {
+                localStorage.setItem("halterofilia_centers_v2", JSON.stringify(data.centers));
+              }
+              if (data.theme) {
+                localStorage.setItem("halterofilia_theme_preference", data.theme);
+                applyTheme(data.theme);
+              }
+              if (data.licenseToken) {
+                localStorage.setItem("halterofilia_license_token", data.licenseToken);
+              }
+              if (data.athleteUnits && typeof data.athleteUnits === "object") {
+                Object.keys(data.athleteUnits).forEach(k => {
+                  localStorage.setItem(k, data.athleteUnits[k]);
+                });
+              }
+
+              // Refrescar el estado completo de la aplicación en caliente
+              const activeId = getActiveAthleteId();
+              if (activeId) {
+                selectedUnit = getAthleteUnit(activeId);
+              }
+              const allC = getAllCenters();
+              if (allC.length > 0) {
+                selectedCenterId = allC[0].id;
+              }
+              applyCenterMaterial(selectedCenterId);
+              renderCenters();
+              refreshAthleteHeader();
+              updateHeaderBoxSelector();
+              updateHeaderUnitButton();
+              updateHeaderBarButton();
+              updateHeaderThemeButton(selectedTheme);
+              syncInventoryWithAthleteUnit(selectedUnit);
+              renderInventory();
+              updateMovementDisplay();
+              calculateHybridLoad();
+
+              alert("✅ ¡Datos restaurados exitosamente desde la copia de Descargas!");
+            } catch (err) {
+              alert("❌ Error al procesar el archivo de respaldo: " + err.message);
+            }
+          };
+          reader.readAsText(file);
+        };
+
+        fileInput.click();
+      }
+
+      // Enlazar eventos de botones de respaldo y recuperación
+      document.getElementById("btnHeaderBackup")?.addEventListener("click", backupDataToEmail);
+      document.getElementById("btnHeaderRestore")?.addEventListener("click", restoreDataFromDownloads);
+      document.getElementById("btnVerticalBackup")?.addEventListener("click", backupDataToEmail);
+      document.getElementById("btnVerticalRestore")?.addEventListener("click", restoreDataFromDownloads);
+      document.getElementById("btnParamsBackup")?.addEventListener("click", backupDataToEmail);
+      document.getElementById("btnParamsRestore")?.addEventListener("click", restoreDataFromDownloads);
 
       // Inicialización
       const hasExistingUser = checkInstallation();
