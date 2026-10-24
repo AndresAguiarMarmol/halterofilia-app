@@ -3691,10 +3691,64 @@ document.addEventListener("DOMContentLoaded", () => {
         };
       }
 
+      function triggerJsonDownload(fileName, jsonContent) {
+        const blob = new Blob([jsonContent], { type: "application/json;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      }
+
+      function triggerBlobDownload(blob, fileName) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      }
+
+      function generateEmlBlob(to, subject, bodyText, fileName, jsonContent) {
+        const boundary = "----=_Part_Halterofilia_" + Date.now();
+        const b64Json = utf8ToBase64Safe(jsonContent);
+        const b64Lines = b64Json.match(/.{1,76}/g)?.join("\r\n") || b64Json;
+
+        let eml = "";
+        if (to) eml += `To: ${to}\r\n`;
+        eml += `Subject: =?UTF-8?B?${utf8ToBase64Safe(subject)}?=\r\n`;
+        eml += `X-Unsent: 1\r\n`;
+        eml += `MIME-Version: 1.0\r\n`;
+        eml += `Content-Type: multipart/mixed; boundary="${boundary}"\r\n\r\n`;
+
+        // Parte 1: Texto plano del correo
+        eml += `--${boundary}\r\n`;
+        eml += `Content-Type: text/plain; charset=UTF-8\r\n`;
+        eml += `Content-Transfer-Encoding: 8bit\r\n\r\n`;
+        eml += `${bodyText}\r\n\r\n`;
+
+        // Parte 2: Archivo JSON adjunto e incrustado
+        eml += `--${boundary}\r\n`;
+        eml += `Content-Type: application/json; name="${fileName}"\r\n`;
+        eml += `Content-Disposition: attachment; filename="${fileName}"\r\n`;
+        eml += `Content-Transfer-Encoding: base64\r\n\r\n`;
+        eml += `${b64Lines}\r\n\r\n`;
+
+        eml += `--${boundary}--\r\n`;
+
+        return new Blob([eml], { type: "message/rfc822;charset=utf-8" });
+      }
+
       function getBackupEmailPayload() {
         const fullBackup = getAllBackupData();
         const compactBackup = getCompactBackupPayload(fullBackup);
         const jsonMin = JSON.stringify(compactBackup);
+        const jsonFullFormatted = JSON.stringify(fullBackup, null, 2);
         const b64Data = utf8ToBase64Safe(jsonMin);
         const athletes = getAthletes();
         const curAthlete = athletes.find(ath => ath.id === getActiveAthleteId()) || athletes[0];
@@ -3703,6 +3757,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const now = new Date();
         const dateStr = now.toLocaleDateString();
         const timeStr = now.toLocaleTimeString();
+        const isoDate = now.toISOString().slice(0, 10);
+        const cleanName = (athleteName || "atleta").replace(/[^a-zA-Z0-9_\-]/g, "_");
+        const fileName = `halterofilia_backup_${cleanName}_${isoDate}.json`;
 
         const subject = `Respaldo Halterofilia Pro - ${athleteName} (${dateStr})`;
 
@@ -3710,13 +3767,19 @@ document.addEventListener("DOMContentLoaded", () => {
         bodyText += `Atleta: ${athleteName}\n`;
         if (athleteEmail) bodyText += `Correo: ${athleteEmail}\n`;
         bodyText += `Fecha: ${dateStr} ${timeStr}\n`;
-        bodyText += `----------------------------------------------\n`;
-        bodyText += `[HALTEROFILIA_DATA: ${b64Data}]\n`;
+        bodyText += `Archivo adjunto: ${fileName}\n`;
         bodyText += `----------------------------------------------\n\n`;
-        bodyText += `Instrucciones de recuperación:\n`;
-        bodyText += `1. Abre Halterofilia Pro en cualquier teléfono o computador.\n`;
-        bodyText += `2. Presiona "Recuperar".\n`;
-        bodyText += `3. Pega este mensaje completo en la casilla "Pegar Texto o Código".`;
+        bodyText += `INSTRUCCIONES PARA DESCARGAR Y RECUPERAR EN OTROS EQUIPOS:\n`;
+        bodyText += `1. Abre este correo en tu otro computador, teléfono o tablet.\n`;
+        bodyText += `2. Descarga el archivo adjunto "${fileName}" (guárdalo en tu carpeta de Descargas).\n`;
+        bodyText += `3. Abre Halterofilia Pro en ese equipo.\n`;
+        bodyText += `4. Presiona "Recuperar" en la barra superior o menú.\n`;
+        bodyText += `5. Elige "Cargar Archivo .JSON Descargado" y selecciona "${fileName}".\n`;
+        bodyText += `   ¡Tus atletas, PRs históricos y centros de entrenamiento quedarán sincronizados al instante!\n\n`;
+        bodyText += `----------------------------------------------\n`;
+        bodyText += `CÓDIGO DE RESPALDO DIRECTO (Opcional por si no descargas el archivo):\n`;
+        bodyText += `[HALTEROFILIA_DATA: ${b64Data}]\n`;
+        bodyText += `----------------------------------------------`;
 
         return {
           athleteEmail,
@@ -3724,7 +3787,9 @@ document.addEventListener("DOMContentLoaded", () => {
           subject,
           bodyText,
           backupPayload: fullBackup,
+          jsonFullFormatted,
           jsonMin,
+          fileName,
           dateStr
         };
       }
@@ -3754,12 +3819,24 @@ document.addEventListener("DOMContentLoaded", () => {
           const previewArea = document.getElementById("backupEmailBodyPreview");
           const copyNotice = document.getElementById("backupEmailCopyNotification");
           const shareBtn = document.getElementById("btnBackupShareNative");
+          const fileNameLabel = document.getElementById("backupFileNameLabel");
 
+          if (fileNameLabel) fileNameLabel.textContent = payload.fileName;
           if (recipientInput) recipientInput.value = payload.athleteEmail;
           if (previewArea) previewArea.value = payload.bodyText;
           if (copyNotice) copyNotice.style.display = "none";
+
           if (shareBtn) {
-            shareBtn.style.display = (typeof navigator !== "undefined" && navigator.share) ? "block" : "none";
+            let canShareFile = false;
+            try {
+              if (typeof navigator !== "undefined" && navigator.canShare && typeof File !== "undefined") {
+                const testFile = new File(["{}"], "test.json", { type: "application/json" });
+                canShareFile = navigator.canShare({ files: [testFile] });
+              }
+            } catch (e) {
+              canShareFile = false;
+            }
+            shareBtn.style.display = canShareFile ? "block" : ((typeof navigator !== "undefined" && navigator.share) ? "block" : "none");
           }
 
           if (backupEmailModal) backupEmailModal.classList.add("open");
@@ -3809,7 +3886,10 @@ document.addEventListener("DOMContentLoaded", () => {
           const subject = payload.subject;
           const body = payload.bodyText;
 
-          // Copiar preventivamente al portapapeles
+          // 1. Descargar automáticamente el archivo .json
+          triggerJsonDownload(payload.fileName, payload.jsonFullFormatted);
+
+          // 2. Copiar preventivamente al portapapeles
           try {
             if (navigator.clipboard && navigator.clipboard.writeText) {
               await navigator.clipboard.writeText(body);
@@ -3821,7 +3901,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const copyNotice = document.getElementById("backupEmailCopyNotification");
           if (copyNotice) {
             copyNotice.style.display = "block";
-            copyNotice.innerHTML = `✓ ¡Abriendo Gmail! Los datos también se copiaron al portapapeles.<br><a href="${gmailUrl}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline; font-weight: 700; display: inline-block; margin-top: 4px;">👉 Haz clic aquí si tu navegador bloqueó la ventana de Gmail</a>`;
+            copyNotice.innerHTML = `✓ ¡Archivo <strong>${payload.fileName}</strong> descargado y ventana de Gmail abierta!<br><span style="font-size:0.75rem; font-weight:normal;">Solo arrastra o adjunta con el clip 📎 el archivo descargado para enviarlo a tus otros equipos.</span><br><a href="${gmailUrl}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline; font-weight: 700; display: inline-block; margin-top: 4px;">👉 Haz clic aquí si tu navegador bloqueó la ventana de Gmail</a>`;
           }
 
           const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -3850,6 +3930,9 @@ document.addEventListener("DOMContentLoaded", () => {
           const subject = payload.subject;
           const body = payload.bodyText;
 
+          // 1. Descargar automáticamente el archivo .json
+          triggerJsonDownload(payload.fileName, payload.jsonFullFormatted);
+
           try {
             if (navigator.clipboard && navigator.clipboard.writeText) {
               await navigator.clipboard.writeText(body);
@@ -3861,12 +3944,31 @@ document.addEventListener("DOMContentLoaded", () => {
           const copyNotice = document.getElementById("backupEmailCopyNotification");
           if (copyNotice) {
             copyNotice.style.display = "block";
-            copyNotice.innerHTML = `✓ ¡Abriendo Outlook! Los datos también se copiaron al portapapeles.<br><a href="${outlookUrl}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline; font-weight: 700; display: inline-block; margin-top: 4px;">👉 Haz clic aquí si tu navegador bloqueó la ventana emergente</a>`;
+            copyNotice.innerHTML = `✓ ¡Archivo <strong>${payload.fileName}</strong> descargado y ventana de Outlook abierta!<br><span style="font-size:0.75rem; font-weight:normal;">Solo arrastra o adjunta con el clip 📎 el archivo descargado para enviarlo a tus otros equipos.</span><br><a href="${outlookUrl}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline; font-weight: 700; display: inline-block; margin-top: 4px;">👉 Haz clic aquí si tu navegador bloqueó la ventana emergente</a>`;
           }
 
           openExternalUrl(outlookUrl);
         } catch (err) {
           alert("❌ Error al abrir Outlook: " + err.message);
+        }
+      });
+
+      document.getElementById("btnBackupSendEml")?.addEventListener("click", () => {
+        try {
+          const payload = getBackupEmailPayload();
+          const to = (document.getElementById("backupEmailRecipient")?.value || payload.athleteEmail || "").trim();
+          const emlBlob = generateEmlBlob(to, payload.subject, payload.bodyText, payload.fileName, payload.jsonFullFormatted);
+          const cleanName = (payload.athleteName || "atleta").replace(/[^a-zA-Z0-9_\-]/g, "_");
+          const emlFileName = `correo_respaldo_${cleanName}.eml`;
+          triggerBlobDownload(emlBlob, emlFileName);
+
+          const copyNotice = document.getElementById("backupEmailCopyNotification");
+          if (copyNotice) {
+            copyNotice.style.display = "block";
+            copyNotice.innerHTML = `✓ ¡Archivo de correo <strong>${emlFileName}</strong> descargado con el archivo .JSON ya incrustado!<br><span style="font-size:0.75rem; font-weight:normal;">Ábrelo en tu cliente de correo (Outlook, Mail) para enviarlo con el adjunto listo con 1 clic.</span>`;
+          }
+        } catch (err) {
+          alert("❌ Error al generar correo con adjunto: " + err.message);
         }
       });
 
@@ -3876,7 +3978,16 @@ document.addEventListener("DOMContentLoaded", () => {
           const to = (document.getElementById("backupEmailRecipient")?.value || payload.athleteEmail || "").trim();
           const subject = payload.subject;
           const body = payload.bodyText;
+
+          // Descargar automáticamente el archivo .json para adjuntarlo
+          triggerJsonDownload(payload.fileName, payload.jsonFullFormatted);
           triggerNativeMailto(to, subject, body);
+
+          const copyNotice = document.getElementById("backupEmailCopyNotification");
+          if (copyNotice) {
+            copyNotice.style.display = "block";
+            copyNotice.innerHTML = `✓ ¡Abriendo aplicación de correo y archivo <strong>${payload.fileName}</strong> descargado!<br><span style="font-size:0.75rem; font-weight:normal;">Solo adjúntalo con el clip 📎 para enviártelo a tus otros equipos.</span>`;
+          }
         } catch (err) {
           alert("❌ Error al abrir correo: " + err.message);
         }
@@ -3908,14 +4019,29 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("btnBackupShareNative")?.addEventListener("click", async () => {
         try {
           const payload = getBackupEmailPayload();
+          const jsonContent = payload.jsonFullFormatted;
+          const fileName = payload.fileName;
           const subject = payload.subject;
           const body = payload.bodyText;
-          const shareData = {
-            title: subject,
-            text: body
-          };
+
+          if (typeof File !== "undefined" && navigator.canShare) {
+            const file = new File([jsonContent], fileName, { type: "application/json" });
+            if (navigator.canShare({ files: [file] })) {
+              await navigator.share({
+                title: subject,
+                text: body,
+                files: [file]
+              });
+              return;
+            }
+          }
+
           if (navigator.share) {
-            await navigator.share(shareData);
+            triggerJsonDownload(fileName, jsonContent);
+            await navigator.share({
+              title: subject,
+              text: body
+            });
           }
         } catch (err) {
           if (err.name !== "AbortError") {
@@ -3924,24 +4050,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      // Descarga explícita y manual (sólo si el usuario la solicita activamente con el botón)
+      // Descarga explícita y manual del archivo .json
       document.getElementById("btnBackupDownloadManual")?.addEventListener("click", () => {
         try {
-          const payload = getAllBackupData();
-          const jsonStr = JSON.stringify(payload, null, 2);
-          const now = new Date();
-          const dateStr = now.toISOString().slice(0, 10);
-          const fileName = `halterofilia_backup_${dateStr}.json`;
-          const blob = new Blob([jsonStr], { type: "application/json;charset=utf-8" });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = fileName;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          setTimeout(() => URL.revokeObjectURL(url), 1500);
-          alert(`✅ Archivo guardado:\nSe ha descargado "${fileName}" en tu carpeta de Descargas.`);
+          const payload = getBackupEmailPayload();
+          triggerJsonDownload(payload.fileName, payload.jsonFullFormatted);
+          alert(`✅ Archivo guardado:\nSe ha descargado "${payload.fileName}" en tu carpeta de Descargas para usarlo en cualquier equipo.`);
         } catch (err) {
           alert("❌ Error al descargar archivo: " + err.message);
         }
@@ -4109,6 +4223,42 @@ document.addEventListener("DOMContentLoaded", () => {
         };
         reader.readAsText(file);
       });
+
+      // Soporte Drag and Drop para archivo .json en el modal de recuperación
+      const restoreDropZone = document.getElementById("restoreDropZone");
+      if (restoreDropZone) {
+        restoreDropZone.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          restoreDropZone.style.borderColor = "var(--accent-cyan, #06b6d4)";
+          restoreDropZone.style.background = "rgba(6,182,212,0.12)";
+        });
+        restoreDropZone.addEventListener("dragleave", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          restoreDropZone.style.borderColor = "var(--card-border)";
+          restoreDropZone.style.background = "var(--item-bg)";
+        });
+        restoreDropZone.addEventListener("drop", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          restoreDropZone.style.borderColor = "var(--card-border)";
+          restoreDropZone.style.background = "var(--item-bg)";
+          const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+              try {
+                const data = parseBackupInput(evt.target.result);
+                applyRestoredBackup(data);
+              } catch (err) {
+                alert("❌ Error al procesar el archivo soltado: " + err.message);
+              }
+            };
+            reader.readAsText(file);
+          }
+        });
+      }
 
       // Botón: Restaurar desde Texto Pegado
       document.getElementById("btnExecuteTextRestore")?.addEventListener("click", () => {

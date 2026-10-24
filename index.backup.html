@@ -2419,53 +2419,62 @@
         <input type="email" id="backupEmailRecipient" placeholder="tu-correo@ejemplo.com" style="width: 100%;">
       </div>
 
-      <p style="font-size: 0.76rem; color: var(--text-muted); margin: 0 0 8px 0; line-height: 1.35;">
-        El correo incluirá todos tus atletas, PRs históricos y centros de entrenamiento en un código de respaldo seguro. Al recibirlo, guárdalo en tu buzón para recuperarlo en cualquier momento.
-      </p>
+      <!-- Tarjeta informativa del archivo .json incrustado -->
+      <div style="background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.25); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px;">
+        <div style="font-size: 0.82rem; font-weight: 700; color: var(--accent-cyan); display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+          <span>📎</span> Archivo .JSON Incrustado en el Correo
+        </div>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0; line-height: 1.4;">
+          El respaldo genera un archivo <strong style="color:var(--text-main);" id="backupFileNameLabel">halterofilia_backup.json</strong> con todos tus atletas, PRs históricos y centros. Al enviarlo a tu correo podrás <strong>descargarlo en cualquier otro equipo</strong> e importarlo con 1 clic en "Recuperar".
+        </p>
+      </div>
 
       <div class="form-group" style="margin-bottom: 10px;">
         <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 4px;">
           Vista Previa del Mensaje de Respaldo:
         </label>
-        <textarea id="backupEmailBodyPreview" rows="6" readonly style="width: 100%; font-family: monospace; font-size: 0.75rem; background: var(--bg-dark, #0b111e); color: #e2e8f0; border: 1px solid var(--card-border); border-radius: 6px; padding: 8px; resize: none;"></textarea>
+        <textarea id="backupEmailBodyPreview" rows="5" readonly style="width: 100%; font-family: monospace; font-size: 0.75rem; background: var(--bg-dark, #0b111e); color: #e2e8f0; border: 1px solid var(--card-border); border-radius: 6px; padding: 8px; resize: none;"></textarea>
       </div>
 
       <div id="backupEmailCopyNotification" style="display: none; background: rgba(16,185,129,0.18); border: 1px solid var(--accent-green, #10b981); color: var(--accent-green, #10b981); padding: 8px; border-radius: 6px; font-size: 0.8rem; text-align: center; margin-bottom: 10px; font-weight: 600;">
-        ✓ ¡Respaldo copiado al portapapeles con éxito!
+        ✓ ¡Respaldo preparado con éxito!
       </div>
 
       <!-- Botones de Enlace y Envío a Cuentas de Correo -->
       <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+        <button type="button" class="btn-action-primary" id="btnBackupShareNative" style="width: 100%; padding: 10px; font-size: 0.86rem; background: linear-gradient(135deg, #06b6d4, #3b82f6); border: none; font-weight: 700; display: none;" title="Abrir app de correo con el archivo .json adjunto automáticamente">
+          📲 Enviar por App de Correo (Adjunto .json)
+        </button>
+
         <div style="display: flex; gap: 8px;">
-          <button type="button" class="btn-action-primary" id="btnBackupSendGmail" style="flex: 1; padding: 10px 8px; font-size: 0.85rem; border-color: #ea4335; background: #ea4335; color: #ffffff; font-weight: 700;" title="Abrir y enviar borrador directamente en Gmail">
+          <button type="button" class="btn-action-primary" id="btnBackupSendGmail" style="flex: 1; padding: 10px 8px; font-size: 0.85rem; border-color: #ea4335; background: #ea4335; color: #ffffff; font-weight: 700;" title="Descarga el archivo .json y abre Gmail para enviártelo">
             🔴 Enviar por Gmail
           </button>
-          <button type="button" class="btn-action-primary" id="btnBackupSendOutlook" style="flex: 1; padding: 10px 8px; font-size: 0.85rem; border-color: #0078d4; background: #0078d4; color: #ffffff; font-weight: 700;" title="Abrir y enviar borrador directamente en Outlook / Hotmail">
+          <button type="button" class="btn-action-primary" id="btnBackupSendOutlook" style="flex: 1; padding: 10px 8px; font-size: 0.85rem; border-color: #0078d4; background: #0078d4; color: #ffffff; font-weight: 700;" title="Descarga el archivo .json y abre Outlook para enviártelo">
             🔵 Enviar por Outlook
           </button>
         </div>
+
         <div style="display: flex; gap: 8px;">
-          <button type="button" class="btn-header" id="btnBackupSendMailto" style="flex: 1; padding: 9px; font-size: 0.85rem;" title="Abrir aplicación de correo predeterminada del equipo o celular">
-            ✉️ Cliente de Correo
+          <button type="button" class="btn-header" id="btnBackupSendEml" style="flex: 1; padding: 9px; font-size: 0.82rem; font-weight: 600;" title="Descargar mensaje de correo estándar (.eml) con el archivo .json ya incrustado y adjunto">
+            ✉️ Correo con Adjunto (.eml)
           </button>
-          <button type="button" class="btn-header" id="btnBackupCopyText" style="flex: 1; padding: 9px; font-size: 0.85rem; font-weight: 600;" title="Copiar código para pegar manualmente en cualquier correo">
-            📋 Copiar al Portapapeles
+          <button type="button" class="btn-header" id="btnBackupSendMailto" style="flex: 1; padding: 9px; font-size: 0.82rem;" title="Abrir cliente de correo predeterminado del sistema">
+            📫 Cliente de Correo
           </button>
         </div>
-        <button type="button" class="btn-header" id="btnBackupShareNative" style="width: 100%; padding: 8px; font-size: 0.82rem; border-color: var(--accent-cyan); color: var(--accent-cyan); display: none;">
-          📲 Compartir por Correo u otra App
-        </button>
+
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-header" id="btnBackupDownloadManual" style="flex: 1; padding: 9px; font-size: 0.82rem; font-weight: 600; color: #10b981; border-color: #10b981;" title="Descargar directamente el archivo JSON a tu carpeta de Descargas">
+            💾 Descargar Archivo .json
+          </button>
+          <button type="button" class="btn-header" id="btnBackupCopyText" style="flex: 1; padding: 9px; font-size: 0.82rem;" title="Copiar texto y código al portapapeles">
+            📋 Copiar Texto
+          </button>
+        </div>
       </div>
 
-      <!-- Opción secundaria manual (no obligatoria) -->
-      <div style="border-top: 1px dashed var(--card-border); padding-top: 10px; margin-top: 4px; display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-size: 0.74rem; color: var(--text-muted);">¿Deseas también una copia en archivo local?</span>
-        <button type="button" class="btn-header" id="btnBackupDownloadManual" style="font-size: 0.75rem; padding: 5px 10px;" title="Descargar archivo JSON a tu carpeta de Descargas">
-          💾 Descargar Archivo JSON
-        </button>
-      </div>
-
-      <button type="button" class="btn-header" style="width: 100%; margin-top: 12px;" id="btnCancelBackupEmail">Cerrar</button>
+      <button type="button" class="btn-header" style="width: 100%;" id="btnCancelBackupEmail">Cerrar</button>
     </div>
   </div>
 
@@ -2480,19 +2489,19 @@
       </div>
 
       <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0 0 12px 0; line-height: 1.4;">
-        Puedes restaurar tu información de dos formas: seleccionando el archivo <strong style="color:var(--text-main);">.json</strong> de tu carpeta de Descargas o pegando el texto/código de respaldo que te llegó al correo.
+        Puedes restaurar tu información de dos formas: seleccionando el archivo <strong style="color:var(--text-main);">.json</strong> descargado de tu correo o pegando el texto/código de respaldo.
       </p>
 
       <!-- Opción 1: Archivo JSON -->
-      <div style="background: var(--item-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
-        <strong style="font-size: 0.82rem; color: var(--text-main); display: block; margin-bottom: 4px;">
-          Opción 1: Cargar Archivo de Descargas (.json)
+      <div id="restoreDropZone" style="background: var(--item-bg); border: 2px dashed var(--card-border); border-radius: 8px; padding: 14px; margin-bottom: 12px; text-align: center; transition: all 0.2s ease;">
+        <strong style="font-size: 0.84rem; color: var(--text-main); display: block; margin-bottom: 4px;">
+          Opción 1: Cargar Archivo .JSON Descargado
         </strong>
-        <p style="font-size: 0.73rem; color: var(--text-muted); margin-bottom: 8px;">
-          Si descargaste o guardaste un archivo de respaldo en tu teléfono o computador:
+        <p style="font-size: 0.74rem; color: var(--text-muted); margin: 0 0 10px 0; line-height: 1.35;">
+          Descarga el archivo <strong>.json</strong> desde tu correo en este equipo y elígelo o arrástralo aquí:
         </p>
-        <input type="file" id="restoreFileInput" accept=".json" style="display: none;">
-        <button type="button" class="btn-header" id="btnPickRestoreFile" style="width: 100%; padding: 9px; font-size: 0.82rem; font-weight: 700; color: #10b981; border-color: #10b981;">
+        <input type="file" id="restoreFileInput" accept=".json,application/json" style="display: none;">
+        <button type="button" class="btn-header" id="btnPickRestoreFile" style="width: 100%; padding: 10px; font-size: 0.84rem; font-weight: 700; color: #10b981; border-color: #10b981; background: rgba(16,185,129,0.08);">
           📁 Seleccionar Archivo JSON de Descargas
         </button>
       </div>
@@ -2642,7 +2651,7 @@
   </div>
 
   <footer id="appFooter">
-    Análisis/Diseño de Andres Aguiar V3.26.06 Santiago de Chile Octubre 2026 - Contacto +56933395447 - Whatsapp +56933395447
+    Análisis/Diseño de Andres Aguiar V3.26.07 Santiago de Chile Octubre 2026 - Contacto +56933395447 - Whatsapp +56933395447
   </footer>
 
   <script>
