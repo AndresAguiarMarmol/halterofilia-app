@@ -5,6 +5,12 @@ Aplicación web progresiva y portable (SPA) diseñada para atletas y entrenadore
 ## 🚀 Características Principales
 
 - **Gestión de Récords Personales (PR):** Registro y comparación automática de marcas máximas para *Snatch* y *Clean & Jerk*.
+- **Cálculo Basado en % del Valor Editado:** Cálculo de la barra y discos dinámicamente sobre el valor de referencia editado en pantalla, sin sobreescribir el PR del atleta.
+- **Motor de Soluciones por Menor Número de Discos:** Priorización voraz de combinaciones que utilicen la menor cantidad de discos en la barra olímpica, optimizando el tiempo y esfuerzo físico.
+- **Centro de Entrenamiento Exclusivo Katsu Egaña:** Configurado como el box oficial predeterminado con disponibilidad completa de discos en kilos e IWF y discos en libras.
+- **Sistema de Respaldo y Recuperación Offline-First:**
+  - **Respaldo por Correo:** Modal con apertura directa de borrador en Gmail Web, Outlook Web, cliente nativo o compartir, incrustando el código de recuperación en el mensaje sin descargas forzadas.
+  - **Recuperación Dual:** Importación directa de archivos `.json` o restauración inmediata pegando el texto/código recibido por correo.
 - **Motor de Cálculo Inteligente:**
   - Soporte para barra pesada ($45\text{ lb}$) y barra liviana ($35\text{ lb}$).
   - Inventario de discos en libras ($45, 35, 25, 15, 10\text{ lb}$) en color negro.
@@ -53,5 +59,5 @@ Aplicación web progresiva y portable (SPA) diseñada para atletas y entrenadore
 ## 📄 Autoría y Contacto
 
 **Análisis y Diseño:** Andres Aguiar  
-**Versión:** V3.26.01 — Santiago de Chile (Octubre 2026)  
+**Versión:** V3.26.05 — Santiago de Chile (Octubre 2026)  
 **Contacto / WhatsApp:** [+56933395447](https://wa.me/56933395447)
