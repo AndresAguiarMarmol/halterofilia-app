@@ -3650,15 +3650,204 @@ document.addEventListener("DOMContentLoaded", () => {
         };
       }
 
-      function backupDataToEmail() {
+      // --- SISTEMA DE RESPALDO Y RECUPERACIÓN OFFLINE-FIRST ---
+
+      function utf8ToBase64Safe(str) {
         try {
-          const backupPayload = getAllBackupData();
-          const jsonStr = JSON.stringify(backupPayload, null, 2);
+          return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode('0x' + p1)));
+        } catch (e) {
+          return btoa(unescape(encodeURIComponent(str)));
+        }
+      }
+
+      function base64ToUtf8Safe(b64) {
+        try {
+          return decodeURIComponent(Array.prototype.map.call(atob(b64), c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+        } catch (e) {
+          return decodeURIComponent(escape(atob(b64)));
+        }
+      }
+
+      function getBackupEmailPayload() {
+        const backupPayload = getAllBackupData();
+        const jsonMin = JSON.stringify(backupPayload);
+        const b64Data = utf8ToBase64Safe(jsonMin);
+        const athletes = getAthletes();
+        const curAthlete = athletes.find(ath => ath.id === getActiveAthleteId()) || athletes[0];
+        const athleteEmail = (curAthlete && curAthlete.email) ? curAthlete.email : "";
+        const athleteName = curAthlete ? curAthlete.name : "Atleta";
+        const now = new Date();
+        const dateStr = now.toLocaleDateString();
+        const timeStr = now.toLocaleTimeString();
+
+        const subject = `Respaldo Halterofilia Pro - ${athleteName} (${dateStr})`;
+
+        let bodyText = `🏋️ HALTEROFILIA PRO - COPIA DE SEGURIDAD\n`;
+        bodyText += `==============================================\n`;
+        bodyText += `Atleta: ${athleteName}\n`;
+        if (athleteEmail) bodyText += `Correo: ${athleteEmail}\n`;
+        bodyText += `Fecha de Respaldo: ${dateStr} ${timeStr}\n`;
+        bodyText += `Atletas registrados: ${backupPayload.athletes ? backupPayload.athletes.length : 1}\n`;
+        bodyText += `Centros registrados: ${backupPayload.centers ? backupPayload.centers.length : 1}\n`;
+        bodyText += `----------------------------------------------\n`;
+        bodyText += `📋 INSTRUCCIONES DE RECUPERACIÓN:\n`;
+        bodyText += `1. Abre Halterofilia Pro en cualquier teléfono o computador.\n`;
+        bodyText += `2. Presiona "📥 Recuperar".\n`;
+        bodyText += `3. Copia todo este correo y pégalo en la "Opción 2: Pegar Texto o Código", o carga el archivo si lo descargaste.\n`;
+        bodyText += `==============================================\n`;
+        bodyText += `[HALTEROFILIA_DATA: ${b64Data}]\n`;
+        bodyText += `==============================================\n\n`;
+        bodyText += `Generado automáticamente por Halterofilia Pro V3 - 100% Offline y Seguro.`;
+
+        return {
+          athleteEmail,
+          athleteName,
+          subject,
+          bodyText,
+          backupPayload,
+          jsonMin,
+          dateStr
+        };
+      }
+
+      // Referencias a los modales
+      const backupEmailModal = document.getElementById("backupEmailModal");
+      const restoreDataModal = document.getElementById("restoreDataModal");
+
+      function openBackupEmailModal() {
+        try {
+          const payload = getBackupEmailPayload();
+          const recipientInput = document.getElementById("backupEmailRecipient");
+          const previewArea = document.getElementById("backupEmailBodyPreview");
+          const copyNotice = document.getElementById("backupEmailCopyNotification");
+          const shareBtn = document.getElementById("btnBackupShareNative");
+
+          if (recipientInput) recipientInput.value = payload.athleteEmail;
+          if (previewArea) previewArea.value = payload.bodyText;
+          if (copyNotice) copyNotice.style.display = "none";
+          if (shareBtn) {
+            shareBtn.style.display = (typeof navigator !== "undefined" && navigator.share) ? "block" : "none";
+          }
+
+          if (backupEmailModal) backupEmailModal.classList.add("open");
+        } catch (err) {
+          alert("❌ Error al preparar respaldo: " + err.message);
+        }
+      }
+
+      function closeBackupEmailModal() {
+        if (backupEmailModal) backupEmailModal.classList.remove("open");
+      }
+
+      function openRestoreDataModal() {
+        const textInput = document.getElementById("restoreTextInput");
+        const statusNote = document.getElementById("restoreStatusNotification");
+        if (textInput) textInput.value = "";
+        if (statusNote) {
+          statusNote.style.display = "none";
+          statusNote.textContent = "";
+        }
+        if (restoreDataModal) restoreDataModal.classList.add("open");
+      }
+
+      function closeRestoreDataModal() {
+        if (restoreDataModal) restoreDataModal.classList.remove("open");
+      }
+
+      // Eventos de botones cerrar modales
+      document.getElementById("btnCloseBackupEmailModal")?.addEventListener("click", closeBackupEmailModal);
+      document.getElementById("btnCancelBackupEmail")?.addEventListener("click", closeBackupEmailModal);
+      document.getElementById("btnCloseRestoreDataModal")?.addEventListener("click", closeRestoreDataModal);
+      document.getElementById("btnCancelRestoreData")?.addEventListener("click", closeRestoreDataModal);
+
+      // Acciones del modal de Respaldo
+      document.getElementById("btnBackupSendGmail")?.addEventListener("click", () => {
+        try {
+          const payload = getBackupEmailPayload();
+          const to = (document.getElementById("backupEmailRecipient")?.value || payload.athleteEmail).trim();
+          const subject = payload.subject;
+          const body = document.getElementById("backupEmailBodyPreview")?.value || payload.bodyText;
+          const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+          window.open(gmailUrl, "_blank", "noopener,noreferrer");
+        } catch (err) {
+          alert("❌ Error al abrir Gmail: " + err.message);
+        }
+      });
+
+      document.getElementById("btnBackupSendOutlook")?.addEventListener("click", () => {
+        try {
+          const payload = getBackupEmailPayload();
+          const to = (document.getElementById("backupEmailRecipient")?.value || payload.athleteEmail).trim();
+          const subject = payload.subject;
+          const body = document.getElementById("backupEmailBodyPreview")?.value || payload.bodyText;
+          const outlookUrl = `https://outlook.live.com/mail/0/deeplink/compose?to=${encodeURIComponent(to)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+          window.open(outlookUrl, "_blank", "noopener,noreferrer");
+        } catch (err) {
+          alert("❌ Error al abrir Outlook: " + err.message);
+        }
+      });
+
+      document.getElementById("btnBackupSendMailto")?.addEventListener("click", () => {
+        try {
+          const payload = getBackupEmailPayload();
+          const to = (document.getElementById("backupEmailRecipient")?.value || payload.athleteEmail).trim();
+          const subject = payload.subject;
+          const body = document.getElementById("backupEmailBodyPreview")?.value || payload.bodyText;
+          triggerNativeMailto(to, subject, body);
+        } catch (err) {
+          alert("❌ Error al abrir correo: " + err.message);
+        }
+      });
+
+      document.getElementById("btnBackupCopyText")?.addEventListener("click", async () => {
+        const body = document.getElementById("backupEmailBodyPreview")?.value || "";
+        const copyNotice = document.getElementById("backupEmailCopyNotification");
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(body);
+          } else {
+            const ta = document.getElementById("backupEmailBodyPreview");
+            if (ta) {
+              ta.select();
+              document.execCommand("copy");
+            }
+          }
+          if (copyNotice) {
+            copyNotice.style.display = "block";
+            setTimeout(() => { copyNotice.style.display = "none"; }, 4000);
+          }
+        } catch (err) {
+          alert("❌ No se pudo copiar automáticamente: " + err.message);
+        }
+      });
+
+      document.getElementById("btnBackupShareNative")?.addEventListener("click", async () => {
+        try {
+          const payload = getBackupEmailPayload();
+          const subject = payload.subject;
+          const body = document.getElementById("backupEmailBodyPreview")?.value || payload.bodyText;
+          const shareData = {
+            title: subject,
+            text: body
+          };
+          if (navigator.share) {
+            await navigator.share(shareData);
+          }
+        } catch (err) {
+          if (err.name !== "AbortError") {
+            console.warn("Share cancelado o error:", err);
+          }
+        }
+      });
+
+      // Descarga explícita y manual (sólo si el usuario la solicita activamente con el botón)
+      document.getElementById("btnBackupDownloadManual")?.addEventListener("click", () => {
+        try {
+          const payload = getAllBackupData();
+          const jsonStr = JSON.stringify(payload, null, 2);
           const now = new Date();
           const dateStr = now.toISOString().slice(0, 10);
           const fileName = `halterofilia_backup_${dateStr}.json`;
-
-          // 1. Descarga automática del archivo JSON a la carpeta Downloads
           const blob = new Blob([jsonStr], { type: "application/json;charset=utf-8" });
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
@@ -3668,122 +3857,160 @@ document.addEventListener("DOMContentLoaded", () => {
           a.click();
           document.body.removeChild(a);
           setTimeout(() => URL.revokeObjectURL(url), 1500);
-
-          // 2. Disparar cliente de correo preconfigurado
-          const athletes = getAthletes();
-          const curAthlete = athletes.find(ath => ath.id === getActiveAthleteId()) || athletes[0];
-          const athleteEmail = (curAthlete && curAthlete.email) ? curAthlete.email : "";
-          const athleteName = curAthlete ? curAthlete.name : "Atleta";
-          const subject = encodeURIComponent(`Respaldo Halterofilia Pro - ${athleteName} (${dateStr})`);
-          const bodyText = encodeURIComponent(
-            `Hola ${athleteName},\n\n` +
-            `Se ha generado y descargado con éxito el archivo de respaldo de Halterofilia Pro:\n` +
-            `📄 Archivo: ${fileName}\n` +
-            `📅 Fecha de respaldo: ${now.toLocaleString()}\n\n` +
-            `Por favor, busca este archivo en tu carpeta de "Descargas" (Download) y adjúntalo a este correo para conservarlo como copia de seguridad en tu buzón.\n\n` +
-            `Para restaurar tu información posteriormente, abre Halterofilia Pro y presiona el botón "📥 Recuperar desde Descargas".\n\n` +
-            `Saludos cordiales,\nHalterofilia Pro.`
-          );
-
-          window.location.href = `mailto:${athleteEmail}?subject=${subject}&body=${bodyText}`;
-
-          alert(`✅ Respaldo Exitoso:\n\n1. El archivo "${fileName}" se ha descargado en tu carpeta de Descargas.\n2. Se ha abierto tu cliente de correo electrónico para que puedas conservarlo o reenviarlo como copia de seguridad.`);
+          alert(`✅ Archivo guardado:\nSe ha descargado "${fileName}" en tu carpeta de Descargas.`);
         } catch (err) {
-          alert(`❌ Error al generar el respaldo: ${err.message}`);
+          alert("❌ Error al descargar archivo: " + err.message);
         }
+      });
+
+      // --- LOGICA DE RECUPERACIÓN / RESTAURACIÓN ---
+
+      function parseBackupInput(input) {
+        if (typeof input === "object" && input !== null) {
+          return input;
+        }
+        const text = String(input).trim();
+        if (!text) throw new Error("El texto de respaldo está vacío.");
+
+        // 1. Etiqueta [HALTEROFILIA_DATA: <base64>]
+        const tagMatch = text.match(/\[HALTEROFILIA_DATA:\s*([A-Za-z0-9+/=_\-]+)\s*\]/);
+        if (tagMatch) {
+          try {
+            const decodedJson = base64ToUtf8Safe(tagMatch[1].trim());
+            return JSON.parse(decodedJson);
+          } catch (e) {
+            console.warn("Fallo decodificación tag base64:", e);
+          }
+        }
+
+        // 2. JSON directo
+        try {
+          return JSON.parse(text);
+        } catch (e) {}
+
+        // 3. Subcadena JSON { ... }
+        const firstBrace = text.indexOf("{");
+        const lastBrace = text.lastIndexOf("}");
+        if (firstBrace !== -1 && lastBrace > firstBrace) {
+          try {
+            return JSON.parse(text.substring(firstBrace, lastBrace + 1));
+          } catch (e) {}
+        }
+
+        // 4. Intentar decodificar como base64 puro
+        try {
+          const rawDecoded = base64ToUtf8Safe(text);
+          return JSON.parse(rawDecoded);
+        } catch (e) {}
+
+        throw new Error("No se encontró una estructura de respaldo válida en el texto proporcionado.");
       }
 
-      function restoreDataFromDownloads() {
-        let fileInput = document.getElementById("backupFileInput");
-        if (!fileInput) {
-          fileInput = document.createElement("input");
-          fileInput.type = "file";
-          fileInput.id = "backupFileInput";
-          fileInput.accept = ".json";
-          fileInput.style.display = "none";
-          document.body.appendChild(fileInput);
+      function applyRestoredBackup(data) {
+        if (!data || (!data.athletes && !data.prs && !data.centers)) {
+          throw new Error("El respaldo no contiene información válida de atletas, PRs o centros.");
         }
 
-        fileInput.value = "";
-        fileInput.onchange = function(e) {
-          const file = e.target.files && e.target.files[0];
-          if (!file) return;
+        if (data.athletes && Array.isArray(data.athletes)) {
+          localStorage.setItem("halterofilia_athletes", JSON.stringify(data.athletes));
+        }
+        if (data.activeAthleteId) {
+          localStorage.setItem("halterofilia_active_athlete_id", data.activeAthleteId);
+        }
+        if (data.prs && typeof data.prs === "object") {
+          localStorage.setItem("halterofilia_prs_by_athlete", JSON.stringify(data.prs));
+        }
+        if (data.history && typeof data.history === "object") {
+          localStorage.setItem("halterofilia_pr_history", JSON.stringify(data.history));
+        }
+        if (data.centers && Array.isArray(data.centers)) {
+          localStorage.setItem("halterofilia_centers_v2", JSON.stringify(data.centers));
+        }
+        if (data.theme) {
+          localStorage.setItem("halterofilia_theme_preference", data.theme);
+          applyTheme(data.theme);
+        }
+        if (data.licenseToken) {
+          localStorage.setItem("halterofilia_license_token", data.licenseToken);
+        }
+        if (data.athleteUnits && typeof data.athleteUnits === "object") {
+          Object.keys(data.athleteUnits).forEach(k => {
+            localStorage.setItem(k, data.athleteUnits[k]);
+          });
+        }
 
-          const reader = new FileReader();
-          reader.onload = function(evt) {
-            try {
-              const data = JSON.parse(evt.target.result);
-              if (!data || (!data.athletes && !data.prs && !data.centers)) {
-                return alert("❌ Archivo de respaldo no válido o estructura no reconocida.");
-              }
+        // Refrescar el estado completo de la aplicación en caliente
+        const activeId = getActiveAthleteId();
+        if (activeId) {
+          selectedUnit = getAthleteUnit(activeId);
+        }
+        const allC = getAllCenters();
+        if (allC.length > 0) {
+          selectedCenterId = allC[0].id;
+        }
+        applyCenterMaterial(selectedCenterId);
+        renderCenters();
+        refreshAthleteHeader();
+        updateHeaderBoxSelector();
+        updateHeaderUnitButton();
+        updateHeaderBarButton();
+        updateHeaderThemeButton(selectedTheme);
+        syncInventoryWithAthleteUnit(selectedUnit);
+        renderInventory();
+        updateMovementDisplay();
+        calculateHybridLoad();
 
-              if (data.athletes && Array.isArray(data.athletes)) {
-                localStorage.setItem("halterofilia_athletes", JSON.stringify(data.athletes));
-              }
-              if (data.activeAthleteId) {
-                localStorage.setItem("halterofilia_active_athlete_id", data.activeAthleteId);
-              }
-              if (data.prs && typeof data.prs === "object") {
-                localStorage.setItem("halterofilia_prs_by_athlete", JSON.stringify(data.prs));
-              }
-              if (data.history && typeof data.history === "object") {
-                localStorage.setItem("halterofilia_pr_history", JSON.stringify(data.history));
-              }
-              if (data.centers && Array.isArray(data.centers)) {
-                localStorage.setItem("halterofilia_centers_v2", JSON.stringify(data.centers));
-              }
-              if (data.theme) {
-                localStorage.setItem("halterofilia_theme_preference", data.theme);
-                applyTheme(data.theme);
-              }
-              if (data.licenseToken) {
-                localStorage.setItem("halterofilia_license_token", data.licenseToken);
-              }
-              if (data.athleteUnits && typeof data.athleteUnits === "object") {
-                Object.keys(data.athleteUnits).forEach(k => {
-                  localStorage.setItem(k, data.athleteUnits[k]);
-                });
-              }
+        closeRestoreDataModal();
+        alert("✅ ¡Datos restaurados exitosamente!\n\nSe han recuperado tus atletas, PRs históricos y centros de entrenamiento.");
+      }
 
-              // Refrescar el estado completo de la aplicación en caliente
-              const activeId = getActiveAthleteId();
-              if (activeId) {
-                selectedUnit = getAthleteUnit(activeId);
-              }
-              const allC = getAllCenters();
-              if (allC.length > 0) {
-                selectedCenterId = allC[0].id;
-              }
-              applyCenterMaterial(selectedCenterId);
-              renderCenters();
-              refreshAthleteHeader();
-              updateHeaderBoxSelector();
-              updateHeaderUnitButton();
-              updateHeaderBarButton();
-              updateHeaderThemeButton(selectedTheme);
-              syncInventoryWithAthleteUnit(selectedUnit);
-              renderInventory();
-              updateMovementDisplay();
-              calculateHybridLoad();
+      // Botón: Seleccionar Archivo JSON de Descargas
+      document.getElementById("btnPickRestoreFile")?.addEventListener("click", () => {
+        let fileInput = document.getElementById("restoreFileInput");
+        if (fileInput) {
+          fileInput.value = "";
+          fileInput.click();
+        }
+      });
 
-              alert("✅ ¡Datos restaurados exitosamente desde la copia de Descargas!");
-            } catch (err) {
-              alert("❌ Error al procesar el archivo de respaldo: " + err.message);
-            }
-          };
-          reader.readAsText(file);
+      document.getElementById("restoreFileInput")?.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          try {
+            const data = parseBackupInput(evt.target.result);
+            applyRestoredBackup(data);
+          } catch (err) {
+            alert("❌ Error al procesar el archivo: " + err.message);
+          }
         };
+        reader.readAsText(file);
+      });
 
-        fileInput.click();
-      }
+      // Botón: Restaurar desde Texto Pegado
+      document.getElementById("btnExecuteTextRestore")?.addEventListener("click", () => {
+        const text = (document.getElementById("restoreTextInput")?.value || "").trim();
+        if (!text) {
+          alert("⚠️ Por favor, pega primero el texto o código del correo de respaldo.");
+          return;
+        }
+        try {
+          const data = parseBackupInput(text);
+          applyRestoredBackup(data);
+        } catch (err) {
+          alert("❌ Error al restaurar desde el texto: " + err.message);
+        }
+      });
 
-      // Enlazar eventos de botones de respaldo y recuperación
-      document.getElementById("btnHeaderBackup")?.addEventListener("click", backupDataToEmail);
-      document.getElementById("btnHeaderRestore")?.addEventListener("click", restoreDataFromDownloads);
-      document.getElementById("btnVerticalBackup")?.addEventListener("click", backupDataToEmail);
-      document.getElementById("btnVerticalRestore")?.addEventListener("click", restoreDataFromDownloads);
-      document.getElementById("btnParamsBackup")?.addEventListener("click", backupDataToEmail);
-      document.getElementById("btnParamsRestore")?.addEventListener("click", restoreDataFromDownloads);
+      // Enlazar botones de Respaldo y Recuperación a los nuevos modales
+      document.getElementById("btnHeaderBackup")?.addEventListener("click", openBackupEmailModal);
+      document.getElementById("btnHeaderRestore")?.addEventListener("click", openRestoreDataModal);
+      document.getElementById("btnVerticalBackup")?.addEventListener("click", openBackupEmailModal);
+      document.getElementById("btnVerticalRestore")?.addEventListener("click", openRestoreDataModal);
+      document.getElementById("btnParamsBackup")?.addEventListener("click", openBackupEmailModal);
+      document.getElementById("btnParamsRestore")?.addEventListener("click", openRestoreDataModal);
 
       // Inicialización
       const hasExistingUser = checkInstallation();

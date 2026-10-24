@@ -1801,7 +1801,7 @@
       <button class="btn-header" id="btnOpenPRModal">🏆 PRs</button>
       <button class="btn-header" id="btnOpenLicenseModal">🔑 Licencia</button>
       <button class="btn-header" id="btnHeaderBackup" title="Hacer Respaldo de Datos en Correo Electrónico">📧 Respaldo</button>
-      <button class="btn-header" id="btnHeaderRestore" title="Recuperar Datos desde Descargas (Download)">📥 Recuperar</button>
+      <button class="btn-header" id="btnHeaderRestore" title="Recuperar Datos desde Descargas o Correo">📥 Recuperar</button>
       <!-- 1. Selector Desplegable para el Box -->
       <select class="btn-header header-select" id="headerBoxSelect" title="Seleccionar Box / Centro de Entrenamiento" aria-label="Centro de Entrenamiento"></select>
       <!-- 2. Botón para cambiar Unidad Objetivo (Kgs / Lbs) -->
@@ -1842,7 +1842,7 @@
       <span class="vtb-icon">📧</span>
       <span class="vtb-label">Copia</span>
     </button>
-    <button class="vertical-toolbar-btn" id="btnVerticalRestore" title="Recuperar desde Descargas">
+    <button class="vertical-toolbar-btn" id="btnVerticalRestore" title="Recuperar Datos desde Descargas o Correo">
       <span class="vtb-icon">📥</span>
       <span class="vtb-label">Restaurar</span>
     </button>
@@ -1922,14 +1922,14 @@
           💾 Respaldo y Recuperación de Datos (Offline-First)
         </strong>
         <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px;">
-          Exporta una copia de seguridad completa a tu correo electrónico o recupera tus atletas, PRs y centros desde tu carpeta de Descargas.
+          Exporta una copia de seguridad completa a tu correo electrónico o recupera tus atletas, PRs y centros desde tu carpeta de Descargas o desde el correo.
         </p>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
           <button type="button" class="btn-header" id="btnParamsBackup" style="padding: 8px; justify-content: center; font-weight: 700; color: var(--accent-cyan); border-color: var(--accent-cyan);">
             📧 Respaldar por Correo
           </button>
           <button type="button" class="btn-header" id="btnParamsRestore" style="padding: 8px; justify-content: center; font-weight: 700; color: #10b981; border-color: #10b981;">
-            📥 Recuperar desde Descargas
+            📥 Recuperar Datos
           </button>
         </div>
       </div>
@@ -2402,6 +2402,121 @@
     </div>
   </div>
 
+  <!-- MODAL: RESPALDO DE DATOS POR CORREO ELECTRÓNICO -->
+  <div class="modal-overlay" id="backupEmailModal">
+    <div class="modal-box" style="max-width: 520px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--card-border); padding-bottom: 8px;">
+        <h3 style="color: var(--accent-cyan); margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+          <span>📧</span> Respaldo de Datos por Correo
+        </h3>
+        <button type="button" class="btn-header" id="btnCloseBackupEmailModal" style="padding: 3px 8px; font-size: 0.85rem;" title="Cerrar">✕</button>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label for="backupEmailRecipient" style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 4px;">
+          Enviar a (Correo Electrónico):
+        </label>
+        <input type="email" id="backupEmailRecipient" placeholder="tu-correo@ejemplo.com" style="width: 100%;">
+      </div>
+
+      <p style="font-size: 0.76rem; color: var(--text-muted); margin: 0 0 8px 0; line-height: 1.35;">
+        El correo incluirá todos tus atletas, PRs históricos y centros de entrenamiento en un código de respaldo seguro. Al recibirlo, guárdalo en tu buzón para recuperarlo en cualquier momento.
+      </p>
+
+      <div class="form-group" style="margin-bottom: 10px;">
+        <label style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 4px;">
+          Vista Previa del Mensaje de Respaldo:
+        </label>
+        <textarea id="backupEmailBodyPreview" rows="6" readonly style="width: 100%; font-family: monospace; font-size: 0.75rem; background: var(--bg-dark, #0b111e); color: #e2e8f0; border: 1px solid var(--card-border); border-radius: 6px; padding: 8px; resize: none;"></textarea>
+      </div>
+
+      <div id="backupEmailCopyNotification" style="display: none; background: rgba(16,185,129,0.18); border: 1px solid var(--accent-green, #10b981); color: var(--accent-green, #10b981); padding: 8px; border-radius: 6px; font-size: 0.8rem; text-align: center; margin-bottom: 10px; font-weight: 600;">
+        ✓ ¡Respaldo copiado al portapapeles con éxito!
+      </div>
+
+      <!-- Botones de Enlace y Envío a Cuentas de Correo -->
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-action-primary" id="btnBackupSendGmail" style="flex: 1; padding: 10px 8px; font-size: 0.85rem; border-color: #ea4335; background: #ea4335; color: #ffffff; font-weight: 700;" title="Abrir y enviar borrador directamente desde Gmail Web">
+            🔴 Abrir en Gmail Web
+          </button>
+          <button type="button" class="btn-action-primary" id="btnBackupSendOutlook" style="flex: 1; padding: 10px 8px; font-size: 0.85rem; border-color: #0078d4; background: #0078d4; color: #ffffff; font-weight: 700;" title="Abrir y enviar borrador directamente desde Outlook / Hotmail">
+            🔵 Abrir en Outlook Web
+          </button>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-header" id="btnBackupSendMailto" style="flex: 1; padding: 9px; font-size: 0.85rem;" title="Abrir aplicación de correo predeterminada del equipo o celular">
+            ✉️ Cliente de Correo
+          </button>
+          <button type="button" class="btn-header" id="btnBackupCopyText" style="flex: 1; padding: 9px; font-size: 0.85rem; font-weight: 600;" title="Copiar código para pegar manualmente en cualquier correo">
+            📋 Copiar al Portapapeles
+          </button>
+        </div>
+        <button type="button" class="btn-header" id="btnBackupShareNative" style="width: 100%; padding: 8px; font-size: 0.82rem; border-color: var(--accent-cyan); color: var(--accent-cyan); display: none;">
+          📲 Compartir por Correo u otra App
+        </button>
+      </div>
+
+      <!-- Opción secundaria manual (no obligatoria) -->
+      <div style="border-top: 1px dashed var(--card-border); padding-top: 10px; margin-top: 4px; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.74rem; color: var(--text-muted);">¿Deseas también una copia en archivo local?</span>
+        <button type="button" class="btn-header" id="btnBackupDownloadManual" style="font-size: 0.75rem; padding: 5px 10px;" title="Descargar archivo JSON a tu carpeta de Descargas">
+          💾 Descargar Archivo JSON
+        </button>
+      </div>
+
+      <button type="button" class="btn-header" style="width: 100%; margin-top: 12px;" id="btnCancelBackupEmail">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- MODAL: RECUPERACIÓN DE DATOS (ARCHIVO O CORREO) -->
+  <div class="modal-overlay" id="restoreDataModal">
+    <div class="modal-box" style="max-width: 520px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--card-border); padding-bottom: 8px;">
+        <h3 style="color: #10b981; margin: 0; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+          <span>📥</span> Recuperar Respaldo de Datos
+        </h3>
+        <button type="button" class="btn-header" id="btnCloseRestoreDataModal" style="padding: 3px 8px; font-size: 0.85rem;" title="Cerrar">✕</button>
+      </div>
+
+      <p style="font-size: 0.78rem; color: var(--text-muted); margin: 0 0 12px 0; line-height: 1.4;">
+        Puedes restaurar tu información de dos formas: seleccionando el archivo <strong style="color:var(--text-main);">.json</strong> de tu carpeta de Descargas o pegando el texto/código de respaldo que te llegó al correo.
+      </p>
+
+      <!-- Opción 1: Archivo JSON -->
+      <div style="background: var(--item-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+        <strong style="font-size: 0.82rem; color: var(--text-main); display: block; margin-bottom: 4px;">
+          Opción 1: Cargar Archivo de Descargas (.json)
+        </strong>
+        <p style="font-size: 0.73rem; color: var(--text-muted); margin-bottom: 8px;">
+          Si descargaste o guardaste un archivo de respaldo en tu teléfono o computador:
+        </p>
+        <input type="file" id="restoreFileInput" accept=".json" style="display: none;">
+        <button type="button" class="btn-header" id="btnPickRestoreFile" style="width: 100%; padding: 9px; font-size: 0.82rem; font-weight: 700; color: #10b981; border-color: #10b981;">
+          📁 Seleccionar Archivo JSON de Descargas
+        </button>
+      </div>
+
+      <!-- Opción 2: Pegar texto o código del correo -->
+      <div style="background: var(--item-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+        <strong style="font-size: 0.82rem; color: var(--text-main); display: block; margin-bottom: 4px;">
+          Opción 2: Pegar Texto o Código del Correo
+        </strong>
+        <p style="font-size: 0.73rem; color: var(--text-muted); margin-bottom: 8px;">
+          Copia el texto del correo que recibiste (o el bloque [HALTEROFILIA_DATA:...]) y pégalo aquí:
+        </p>
+        <textarea id="restoreTextInput" rows="4" placeholder="Pega aquí el contenido de tu correo de respaldo..." style="width: 100%; font-family: monospace; font-size: 0.75rem; background: var(--bg-dark, #0b111e); color: #e2e8f0; border: 1px solid var(--card-border); border-radius: 6px; padding: 8px; margin-bottom: 8px; resize: vertical;"></textarea>
+        <button type="button" class="btn-action-primary" id="btnExecuteTextRestore" style="width: 100%; padding: 10px; font-size: 0.85rem;">
+          🔄 Restaurar Datos desde Texto Pegado
+        </button>
+      </div>
+
+      <div id="restoreStatusNotification" style="display: none; padding: 8px; border-radius: 6px; font-size: 0.8rem; text-align: center; margin-bottom: 10px; font-weight: 600;"></div>
+
+      <button type="button" class="btn-header" style="width: 100%;" id="btnCancelRestoreData">Cerrar</button>
+    </div>
+  </div>
+
   <!-- MODAL: GESTIÓN Y ADMINISTRACIÓN DE CENTROS DE ENTRENAMIENTO -->
   <div class="modal-overlay" id="centersManagerModal">
     <div class="modal-box" style="max-width: 520px;">
@@ -2527,7 +2642,7 @@
   </div>
 
   <footer id="appFooter">
-    Análisis/Diseño de Andres Aguiar V3.26.04 Santiago de Chile Octubre 2026 - Contacto +56933395447 - Whatsapp +56933395447
+    Análisis/Diseño de Andres Aguiar V3.26.05 Santiago de Chile Octubre 2026 - Contacto +56933395447 - Whatsapp +56933395447
   </footer>
 
   <script src="app.src.js"></script>
