@@ -59,5 +59,5 @@ Aplicación web progresiva y portable (SPA) diseñada para atletas y entrenadore
 ## 📄 Autoría y Contacto
 
 **Análisis y Diseño:** Andres Aguiar  
-**Versión:** V3.26.05 — Santiago de Chile (Octubre 2026)  
+**Versión:** V3.26.06 — Santiago de Chile (Octubre 2026)  
 **Contacto / WhatsApp:** [+56933395447](https://wa.me/56933395447)
