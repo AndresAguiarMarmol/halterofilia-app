@@ -3,11 +3,13 @@
 Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo que ya no aporte.
 
 ## Estado actual
-- **Versión activa:** V3.26.03 (Octubre 2026).
+- **Versión activa:** V3.26.08 (Octubre 2026).
 - **Entorno compilado y blindado:** `app.src.js` ofuscado en `index.html` y `V2/Index.html` con AST Control Flow Flattening y RC4 via `javascript-obfuscator`.
 - **Funcionalidades operativas:**
+  - Persistencia de preferencias del atleta: el gimnasio actual y los pesos disponibles se guardan en los datos del usuario entre sesiones hasta que decida cambiarlos.
+  - Presentación de opciones de pesas con priorización estricta del menor número de pesas en la barra (`Opción 1` siempre es el mínimo de discos).
   - Cálculo simétrico de barra olímpica con soporte para discos en Kgs y Lbs y selección de alternativas.
-  - Inventario interactivo de discos por centro de entrenamiento (Box Central, Garage Gym, Halterofilia Club) con visualización simultánea de pesas en ambas medidas (Kgs y Lbs).
+  - Inventario interactivo de discos por centro de entrenamiento con persistencia en tiempo real al hacer clic.
   - Selector de Unidad Objetivo en cabecera con alternancia binaria exclusiva entre Kgs $\leftrightarrow$ Lbs.
   - Selector de Unidad en la tarjeta de Peso Objetivo (Kgs / Lbs) sincronizado con cabecera y conversión numérica en caliente.
   - Desacople total de la unidad visual: la elección de Kgs o Lbs solo afecta la visualización del objetivo; las alternativas pueden contener discos en cualquiera de las opciones (Kgs/Lbs).
@@ -18,6 +20,8 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo qu
   - Selector de temas (Oscuro, Claro, Sistema) y barra visual centrada sin huecos.
 
 ## Decisiones (y por qué)
+  - **Persistencia de gimnasio y discos por atleta:** Asegura que el usuario no tenga que reconfigurar su box ni sus pesos disponibles cada vez que abre la app.
+  - **Priorización estricta de menor número de discos:** Minimiza el esfuerzo físico del atleta para cargar y descargar la barra olímpica, ofreciendo siempre la configuración más práctica.
   - **Selector de unidad exclusivo Kgs / Lbs:** Un peso objetivo en barra se conceptualiza en una sola unidad métrica o imperial. No tiene sentido una meta en "Ambas", por lo que se restringe a Kgs y Lbs.
   - **Desacople de la unidad visual del objetivo respecto a las alternativas de carga:** Permite que un atleta ingrese su objetivo en Kgs (o Lbs) y el sistema aproveche libremente todo el equipamiento del box (kilos, libras o combinaciones mixtas).
   - **Inventario visible con ambas medidas:** Los discos disponibles en el box se muestran en el inventario interactivo sin filtrarse por la unidad elegida para la barra.

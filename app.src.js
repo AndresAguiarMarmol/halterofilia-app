@@ -143,6 +143,33 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("halterofilia_athlete_unit_" + athleteId, unit);
       }
 
+      function getAthletePreferredCenter(athleteId) {
+        if (!athleteId) athleteId = getActiveAthleteId();
+        const stored = athleteId ? localStorage.getItem("halterofilia_athlete_center_" + athleteId) : null;
+        const centers = getAllCenters();
+        if (stored && centers.some(c => c.id === stored)) {
+          return stored;
+        }
+        const athletes = getAthletes();
+        const ath = athletes.find(a => a.id === athleteId);
+        if (ath && ath.preferredCenterId && centers.some(c => c.id === ath.preferredCenterId)) {
+          return ath.preferredCenterId;
+        }
+        return (centers[0] && centers[0].id) ? centers[0].id : DEFAULT_CENTERS[0].id;
+      }
+
+      function setAthletePreferredCenter(athleteId, centerId) {
+        if (!athleteId) athleteId = getActiveAthleteId();
+        if (!athleteId || !centerId) return;
+        localStorage.setItem("halterofilia_athlete_center_" + athleteId, centerId);
+        const athletes = getAthletes();
+        const ath = athletes.find(a => a.id === athleteId);
+        if (ath) {
+          ath.preferredCenterId = centerId;
+          saveAthletes(athletes);
+        }
+      }
+
       function convertWeight(value, fromUnit, toUnit) {
         if (!value || isNaN(value)) return value;
         const fromIsLbs = (fromUnit === "lbs");
@@ -409,7 +436,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Estado de sesión
-      let selectedCenterId = DEFAULT_CENTERS[0].id;
+      let selectedCenterId = getAthletePreferredCenter(getActiveAthleteId());
       let selectedUnit = "kg";
       let selectedBar = "men";
       let currentPercentage = 80;
@@ -1042,6 +1069,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setActiveAthleteId(firstAthlete.id);
         localStorage.setItem("halterofilia_device_registered_user", firstAthlete.id);
         setAthleteUnit(firstAthlete.id, selectedUnit || "kg");
+        setAthletePreferredCenter(firstAthlete.id, selectedCenterId);
         localStorage.setItem("halterofilia_installed", "true");
         setInstallDate(Date.now());
 
@@ -1164,12 +1192,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           const isAvail = pConf ? (pConf.available !== false) : true;
 
-          // Seleccionar solamente la unidad de medida preferida por el atleta:
-          let allowedByAthleteUnit = true;
-          if (athPrefUnit === "kg") allowedByAthleteUnit = (plate.unit === "kg");
-          else if (athPrefUnit === "lbs") allowedByAthleteUnit = (plate.unit === "lb");
-
-          plate.active = allowedByCat && isAvail && allowedByAthleteUnit;
+          plate.active = allowedByCat && isAvail;
           plate.customColor = (pConf && pConf.color) ? pConf.color : plate.defaultColor;
         });
 
@@ -1262,6 +1285,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             selectedCenterId = center.id;
+            const currentActiveAthleteId = getActiveAthleteId();
+            if (currentActiveAthleteId) {
+              setAthletePreferredCenter(currentActiveAthleteId, center.id);
+            }
             
             // Validar compatibilidad de la unidad actual con el nuevo Box seleccionado
             const check = checkUnitCompatibilityWithCenter(selectedUnit, center);
@@ -1449,6 +1476,10 @@ document.addEventListener("DOMContentLoaded", () => {
           };
           centers.push(newCenter);
           selectedCenterId = newCenter.id;
+          const currentAthId = getActiveAthleteId();
+          if (currentAthId) {
+            setAthletePreferredCenter(currentAthId, newCenter.id);
+          }
         }
 
         saveAllCenters(centers);
@@ -1499,6 +1530,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (selectedCenterId === centerId) {
           selectedCenterId = updated[0].id;
+          const currentAthId = getActiveAthleteId();
+          if (currentAthId) {
+            setAthletePreferredCenter(currentAthId, selectedCenterId);
+          }
           const newActiveCenter = updated[0];
           const check = checkUnitCompatibilityWithCenter(selectedUnit, newActiveCenter);
           if (!check.compatible) {
@@ -1798,6 +1833,20 @@ document.addEventListener("DOMContentLoaded", () => {
           chip.innerHTML = `${plate.name}<br><small style="color:inherit; opacity:0.85;">${plate.unit.toUpperCase()}</small>`;
           chip.addEventListener("click", () => {
             plate.active = !plate.active;
+
+            // Persistir la disponibilidad de este disco en la configuración del Box actual y datos del usuario
+            const centers = getAllCenters();
+            const currCenter = centers.find(c => c.id === selectedCenterId) || centers[0];
+            if (currCenter) {
+              if (!currCenter.plates) currCenter.plates = {};
+              if (!currCenter.plates[plate.id]) {
+                currCenter.plates[plate.id] = { available: plate.active, color: plate.customColor || plate.defaultColor };
+              } else {
+                currCenter.plates[plate.id].available = plate.active;
+              }
+              saveAllCenters(centers);
+            }
+
             renderInventory();
             calculateHybridLoad();
           });
@@ -1812,8 +1861,17 @@ document.addEventListener("DOMContentLoaded", () => {
         step1Screen.style.display = "none";
         step2Screen.style.display = "block";
 
+        const activeAthId = getActiveAthleteId();
+        if (activeAthId) {
+          const prefCenterId = getAthletePreferredCenter(activeAthId);
+          if (prefCenterId) {
+            selectedCenterId = prefCenterId;
+          }
+        }
+
         const all = getAllCenters();
         const current = all.find(c => c.id === selectedCenterId) || all[0];
+        selectedCenterId = current.id;
 
         document.getElementById("badgeCenterName").innerText = current ? current.name : "Centro";
         const badgeUnitEl = document.getElementById("badgeUnit");
@@ -1968,6 +2026,10 @@ document.addEventListener("DOMContentLoaded", () => {
           if (!center) return;
 
           selectedCenterId = center.id;
+          const currentAthId = getActiveAthleteId();
+          if (currentAthId) {
+            setAthletePreferredCenter(currentAthId, center.id);
+          }
 
           // Validar compatibilidad de la unidad actual con el nuevo Box seleccionado
           const check = checkUnitCompatibilityWithCenter(selectedUnit, center);
@@ -2400,7 +2462,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ? targetTotal
           : ((barWeightInTarget || (unit === "lbs" ? 45 : 20)) + (targetPerSide * 2));
 
-        function buildStrategy(filterFn, sortFn, titlePrefix) {
+        function buildStrategy(filterFn, sortFn, strategyDesc) {
           let pool = availablePlates.filter(filterFn);
           if (pool.length === 0) return;
 
@@ -2430,10 +2492,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const sig = combo.map(p => p.id).sort().join("|");
             if (!seenSignatures.has(sig)) {
               seenSignatures.add(sig);
-              const labelTotal = `${(currentSum * 2).toFixed(1)} ${unit}`;
-              const precFormatted = precisionPct >= 99.8 ? "100%" : `${precisionPct.toFixed(1)}%`;
               solutions.push({
-                title: `${titlePrefix} (${precFormatted} Precisión • ${labelTotal} en discos)`,
+                strategyDesc: strategyDesc,
                 plates: combo,
                 precision: precisionPct,
                 actualTotal: actualTotal,
@@ -2448,7 +2508,7 @@ document.addEventListener("DOMContentLoaded", () => {
         buildStrategy(
           () => true,
           (a, b) => b.weight - a.weight,
-          "Opción 1 • Menor cantidad de discos (Estándar)"
+          "Menor cantidad de discos"
         );
 
         // Estrategia 2: Prioridad en la misma unidad visual si existen discos disponibles
@@ -2456,13 +2516,13 @@ document.addEventListener("DOMContentLoaded", () => {
           buildStrategy(
             p => p.unit === "kg",
             (a, b) => b.weight - a.weight,
-            "Opción 2 • Solo discos en Kilogramos"
+            "Solo discos en Kilogramos"
           );
         } else {
           buildStrategy(
             p => p.unit === "lb",
             (a, b) => b.weight - a.weight,
-            "Opción 2 • Solo discos en Libras"
+            "Solo discos en Libras"
           );
         }
 
@@ -2471,13 +2531,13 @@ document.addEventListener("DOMContentLoaded", () => {
           buildStrategy(
             p => p.unit === "lb",
             (a, b) => b.weight - a.weight,
-            "Opción 3 • Discos en Libras (Equivalente)"
+            "Discos en Libras (Equivalente)"
           );
         } else {
           buildStrategy(
             p => p.unit === "kg",
             (a, b) => b.weight - a.weight,
-            "Opción 3 • Discos en Kilogramos (Equivalente)"
+            "Discos en Kilogramos (Equivalente)"
           );
         }
 
@@ -2485,7 +2545,7 @@ document.addEventListener("DOMContentLoaded", () => {
         buildStrategy(
           p => (calcUnit === "kg" ? p.weightKg <= 15 : p.weightLb <= 35),
           (a, b) => b.weight - a.weight,
-          "Opción 4 • Carga Progresiva / Fraccional"
+          "Carga Progresiva / Fraccional"
         );
 
         // Si ninguna estrategia alcanzó la tolerancia estricta, evaluar aproximación voraz garantizando precisión >= 95%
@@ -2507,10 +2567,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const actualTotal = (barWeightInTarget || (unit === "lbs" ? 45 : 20)) + (currentSum * 2);
             const error = effectiveTargetTotal > 0 ? Math.abs(actualTotal - effectiveTargetTotal) : 0;
             const precisionPct = effectiveTargetTotal > 0 ? Math.max(0, (1 - (error / effectiveTargetTotal)) * 100) : 100;
-            const labelTotal = `${(currentSum * 2).toFixed(1)} ${unit}`;
-            const precFormatted = precisionPct >= 99.8 ? "100%" : `${precisionPct.toFixed(1)}%`;
             solutions.push({
-              title: `Opción 1 • Carga Aproximada (${precFormatted} Precisión • ${labelTotal} en discos)`,
+              strategyDesc: "Carga Aproximada",
               plates: combo,
               precision: precisionPct,
               actualTotal: actualTotal,
@@ -2520,12 +2578,37 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
 
-        // 4. Ordenar soluciones: PRIORIZAR MENOR CANTIDAD DE DISCOS y en empate mayor precisión
+        // 4. Ordenar soluciones: PRIORIZAR SIEMPRE MENOR CANTIDAD DE DISCOS EN LA BARRA
         solutions.sort((a, b) => {
+          // 1º Criterio estricto: Menor cantidad total de discos físicos en la barra
           if (a.plates.length !== b.plates.length) {
             return a.plates.length - b.plates.length;
           }
-          return b.precision - a.precision;
+          // 2º Criterio: Mayor precisión porcentual
+          if (Math.abs(b.precision - a.precision) > 0.05) {
+            return b.precision - a.precision;
+          }
+          // 3º Criterio: Afinidad de unidad (preferir discos de la misma unidad objetivo si empatan)
+          const targetUnitCode = (unit === "lbs") ? "lb" : "kg";
+          const aSameUnit = a.plates.every(p => p.unit === targetUnitCode);
+          const bSameUnit = b.plates.every(p => p.unit === targetUnitCode);
+          if (aSameUnit !== bSameUnit) {
+            return aSameUnit ? -1 : 1;
+          }
+          // 4º Criterio: Menor diferencia absoluta numérica en peso
+          return Math.abs(a.actualTotal - a.targetTotal) - Math.abs(b.actualTotal - b.targetTotal);
+        });
+
+        // 5. Renumeración y presentación limpia de cada opción según su orden definitivo
+        solutions.forEach((sol, idx) => {
+          const totalPlates = sol.plates.length * 2;
+          const platesSide = sol.plates.length;
+          const precFormatted = sol.precision >= 99.8 ? "100%" : `${sol.precision.toFixed(1)}%`;
+          const currentSum = sol.plates.reduce((acc, p) => acc + (calcUnit === "kg" ? p.weightKg : p.weightLb), 0);
+          const labelTotal = `${(currentSum * 2).toFixed(1)} ${unit}`;
+          const isMin = (idx === 0);
+          const minBadge = isMin ? " (Mínimo de discos)" : "";
+          sol.title = `Opción ${idx + 1} • ${totalPlates} discos (${platesSide}/lado)${minBadge} • ${sol.strategyDesc || 'Carga'} • ${precFormatted} Precisión • ${labelTotal} en discos`;
         });
 
         return solutions;
@@ -3625,10 +3708,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const instSig = localStorage.getItem("halterofilia_install_sig") || "";
 
         const athleteUnits = {};
+        const athleteCenters = {};
         for (let i = 0; i < localStorage.length; i++) {
           const k = localStorage.key(i);
           if (k && k.startsWith("halterofilia_athlete_unit_")) {
             athleteUnits[k] = localStorage.getItem(k);
+          }
+          if (k && k.startsWith("halterofilia_athlete_center_")) {
+            athleteCenters[k] = localStorage.getItem(k);
           }
         }
 
@@ -3643,6 +3730,7 @@ document.addEventListener("DOMContentLoaded", () => {
           history: histMap,
           centers: centers,
           athleteUnits: athleteUnits,
+          athleteCenters: athleteCenters,
           theme: theme,
           licenseToken: lic,
           installDate: instDate,
@@ -4145,6 +4233,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let theme = data.theme || data.thm;
         let licenseToken = data.licenseToken || data.lic;
         let athleteUnits = data.athleteUnits || data.uni;
+        let athleteCenters = data.athleteCenters;
 
         if (athletes && Array.isArray(athletes)) {
           localStorage.setItem("halterofilia_athletes", JSON.stringify(athletes));
@@ -4173,14 +4262,23 @@ document.addEventListener("DOMContentLoaded", () => {
             localStorage.setItem(k, athleteUnits[k]);
           });
         }
+        if (athleteCenters && typeof athleteCenters === "object") {
+          Object.keys(athleteCenters).forEach(k => {
+            localStorage.setItem(k, athleteCenters[k]);
+          });
+        }
 
         // Refrescar el estado completo de la aplicación en caliente
         const activeId = getActiveAthleteId();
         if (activeId) {
           selectedUnit = getAthleteUnit(activeId);
+          const prefC = getAthletePreferredCenter(activeId);
+          if (prefC) {
+            selectedCenterId = prefC;
+          }
         }
         const allC = getAllCenters();
-        if (allC.length > 0) {
+        if (!allC.some(c => c.id === selectedCenterId) && allC.length > 0) {
           selectedCenterId = allC[0].id;
         }
         applyCenterMaterial(selectedCenterId);
@@ -4292,6 +4390,10 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll(".selectable-item[data-type='unit']").forEach(i => {
           i.classList.toggle("active", i.dataset.val === selectedUnit);
         });
+        const initialPrefCenter = getAthletePreferredCenter(initialAthId);
+        if (initialPrefCenter) {
+          selectedCenterId = initialPrefCenter;
+        }
       }
       refreshAthleteHeader();
       checkLicenseStatus();
