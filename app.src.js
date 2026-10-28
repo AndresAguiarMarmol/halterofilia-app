@@ -1,10 +1,10 @@
-document.addEventListener("DOMContentLoaded", () => {
+﻿document.addEventListener("DOMContentLoaded", () => {
       const KG_TO_LBS = 2.20462;
       const MASTER_SALT = "Halterofilia-SuperSecret-Salt-2026";
       const TRIAL_DAYS = 7;
-      const TRIAL_DURATION_MS = TRIAL_DAYS * 24 * 60 * 60 * 1000; // 604,800,000 ms (7 días)
+      const TRIAL_DURATION_MS = TRIAL_DAYS * 24 * 60 * 60 * 1000; // 604,800,000 ms (7 dÃ­as)
 
-      // 1. Movimientos olímpicos
+      // 1. Movimientos olÃ­mpicos
       const movements = [
         "Snatch", "Clean & Jerk", "Power Snatch", "Power Clean",
         "Hang Snatch", "Hang Clean", "Push Jerk", "Split Jerk",
@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const step1Screen = document.getElementById("step1Screen");
       const step2Screen = document.getElementById("step2Screen");
 
-      // 2. Inventario de discos oficiales (Metadatos y configuración física)
+      // 2. Inventario de discos oficiales (Metadatos y configuraciÃ³n fÃ­sica)
       const OFFICIAL_PLATES_META = [
         { id: "lb45", name: "45 lb", weightKg: 45 / KG_TO_LBS, weightLb: 45, unit: "lb", cssClass: "plate-45lb", defaultColor: "#374151", height: 85, width: 14 },
         { id: "lb35", name: "35 lb", weightKg: 35 / KG_TO_LBS, weightLb: 35, unit: "lb", cssClass: "plate-35lb", defaultColor: "#374151", height: 85, width: 12 },
@@ -76,8 +76,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const DEFAULT_CENTERS = [
         {
           id: "katsu_egana",
-          name: "Katsu Egaña",
-          address: "Plaza Egaña, Santiago",
+          name: "Katsu EgaÃ±a",
+          address: "Plaza EgaÃ±a, Santiago",
           phone: "+56 9 3339 5447",
           category: "both",
           plates: createDefaultPlatesConfig("both")
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (s) {
           try {
             const list = JSON.parse(s);
-            // Si la lista contiene únicamente centros heredados (box_central, garage_gym, halterofilia_club), migrar a Katsu Egaña
+            // Si la lista contiene Ãºnicamente centros heredados (box_central, garage_gym, halterofilia_club), migrar a Katsu EgaÃ±a
             const hasOldLegacy = Array.isArray(list) && list.some(c => c.id === "box_central" || c.id === "garage_gym");
             if (Array.isArray(list) && list.length > 0 && !hasOldLegacy) return list;
           } catch (e) {}
@@ -102,12 +102,12 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("halterofilia_centers_v2", JSON.stringify(list));
       }
 
-      // 4. Perfiles de atletas (Restricción estricta: 1 usuario registrado por dispositivo)
+      // 4. Perfiles de atletas (RestricciÃ³n estricta: 1 usuario registrado por dispositivo)
       function getAthletes() {
         const a = localStorage.getItem("halterofilia_athletes");
         let list = a ? JSON.parse(a) : [];
         if (!Array.isArray(list)) list = [];
-        // Política de dispositivo: Máximo 1 usuario registrado permitido
+        // PolÃ­tica de dispositivo: MÃ¡ximo 1 usuario registrado permitido
         if (list.length > 1) {
           const activeId = getActiveAthleteId();
           const active = list.find(x => x.id === activeId) || list[0];
@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       function saveAthletes(list) {
         if (!Array.isArray(list)) list = [];
-        // Política de dispositivo: Se permite únicamente 1 usuario registrado por dispositivo
+        // PolÃ­tica de dispositivo: Se permite Ãºnicamente 1 usuario registrado por dispositivo
         if (list.length > 1) {
           list = [list[0]];
         }
@@ -212,7 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
         allPRs[athleteId] = updatedPRs;
         localStorage.setItem("halterofilia_prs_by_athlete", JSON.stringify(allPRs));
 
-        // 2. Convertir el historial de PRs para mantener coherencia en gráficas y tablas
+        // 2. Convertir el historial de PRs para mantener coherencia en grÃ¡ficas y tablas
         const histMap = JSON.parse(localStorage.getItem("halterofilia_pr_history") || "{}");
         if (histMap[athleteId] && Array.isArray(histMap[athleteId])) {
           histMap[athleteId].forEach(item => {
@@ -317,7 +317,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("halterofilia_pr_history", JSON.stringify(histMap));
       }
 
-      // 5. Criptografía y Device ID
+      // 5. CriptografÃ­a y Device ID
       function getOrCreateDeviceId() {
         let devId = localStorage.getItem("halterofilia_device_id");
         if (!devId) {
@@ -333,7 +333,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
       }
 
-      // Integridad contra manipulación local
+      // Integridad contra manipulaciÃ³n local
       function getInstallDate() {
         const raw = localStorage.getItem("halterofilia_install_date");
         if (!raw) return 0;
@@ -345,7 +345,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const expectedSig = Math.abs(hash).toString(16);
         if (sig && sig !== expectedSig) {
-          return 1; // Manipulado manualmente: fuerza expiración inmediata
+          return 1; // Manipulado manualmente: fuerza expiraciÃ³n inmediata
         }
         return parseInt(raw, 10);
       }
@@ -361,7 +361,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("halterofilia_install_sig", Math.abs(hash).toString(16));
       }
 
-      // 6. Validación de Trial y Licencia
+      // 6. ValidaciÃ³n de Trial y Licencia
       function checkLicenseStatus() {
         const installDate = getInstallDate();
         const licenseToken = localStorage.getItem("halterofilia_license_token");
@@ -371,7 +371,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const athletes = getAthletes();
         const activeId = getActiveAthleteId();
         const currentAthlete = athletes.find(a => a.id === activeId) || athletes[0];
-        const email = currentAthlete ? currentAthlete.email : "atleta@halterofilia.com";
+        const email = currentAthlete ? currentAthlete.email : "su-usuario@dominio.com";
         const reqCode = `REQ|${devId}|${email}`;
 
         document.getElementById("modalReqCode").value = reqCode;
@@ -383,7 +383,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const expTime = data.expiryDate || data.exp;
             if (expTime && Date.now() < expTime) {
               lockBanner.style.display = "none";
-              document.getElementById("licenseStatusText").innerText = "Licencia Activa ✅";
+              document.getElementById("licenseStatusText").innerText = "Licencia Activa âœ…";
               document.getElementById("licenseExpiryText").innerText = "Vence: " + new Date(expTime).toLocaleDateString();
               return true;
             }
@@ -393,7 +393,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const now = Date.now();
         if (installDate > 0 && (now - installDate > TRIAL_DURATION_MS)) {
           lockBanner.style.display = "flex";
-          document.getElementById("licenseStatusText").innerText = "Trial Expirado ❌";
+          document.getElementById("licenseStatusText").innerText = "Trial Expirado âŒ";
           document.getElementById("licenseExpiryText").innerText = "Contactar al +56933395447";
           return false;
         } else {
@@ -401,7 +401,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const remainingDays = installDate > 0
             ? Math.max(0, Math.ceil((TRIAL_DURATION_MS - (now - installDate)) / (1000 * 60 * 60 * 24)))
             : TRIAL_DAYS;
-          document.getElementById("licenseStatusText").innerText = `Trial Activo (${remainingDays} días restantes)`;
+          document.getElementById("licenseStatusText").innerText = `Trial Activo (${remainingDays} dÃ­as restantes)`;
           return true;
         }
       }
@@ -416,7 +416,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const sig2 = await sha256(raw2);
 
           if (payload.signature !== sig1 && payload.signature !== sig2) {
-            alert("Error: Firma inválida.");
+            alert("Error: Firma invÃ¡lida.");
             return false;
           }
 
@@ -426,23 +426,23 @@ document.addEventListener("DOMContentLoaded", () => {
           }
 
           localStorage.setItem("halterofilia_license_token", tokenStr.trim());
-          alert("¡Licencia activada con éxito!");
+          alert("Â¡Licencia activada con Ã©xito!");
           checkLicenseStatus();
           return true;
         } catch (e) {
-          alert("Error: Clave corrupta o inválida.");
+          alert("Error: Clave corrupta o invÃ¡lida.");
           return false;
         }
       }
 
-      // Estado de sesión
+      // Estado de sesiÃ³n
       let selectedCenterId = getAthletePreferredCenter(getActiveAthleteId());
       let selectedUnit = "kg";
       let selectedBar = "men";
       let currentPercentage = 80;
       let generatedSolutions = [];
 
-      // 7. Gestión de Perfiles de Atletas y Fotos
+      // 7. GestiÃ³n de Perfiles de Atletas y Fotos
       function compressImageFile(file, maxDim, callback) {
         if (!file || !file.type.startsWith('image/')) return callback(null);
         const reader = new FileReader();
@@ -482,7 +482,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let currentFacingMode = 'user'; // 'user' (selfie frontal) o 'environment' (trasera)
       let capturedSnapshotData = null;
 
-      // Elementos del Modal de Cámara
+      // Elementos del Modal de CÃ¡mara
       const cameraCaptureModal = document.getElementById("cameraCaptureModal");
       const cameraVideo = document.getElementById("cameraVideo");
       const cameraCanvas = document.getElementById("cameraCanvas");
@@ -497,7 +497,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const btnRetakePhoto = document.getElementById("btnRetakePhoto");
       const btnAcceptPhoto = document.getElementById("btnAcceptPhoto");
 
-      // Función para apagar y liberar la cámara
+      // FunciÃ³n para apagar y liberar la cÃ¡mara
       function stopCamera() {
         if (cameraStream) {
           try {
@@ -508,7 +508,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (cameraVideo) cameraVideo.srcObject = null;
       }
 
-      // Iniciar cámara en vivo con visor
+      // Iniciar cÃ¡mara en vivo con visor
       async function startCamera(target) {
         currentCameraTarget = target;
         capturedSnapshotData = null;
@@ -525,7 +525,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         cameraCaptureModal.classList.add("open");
 
-        // Si el navegador no soporta MediaDevices (o contexto no seguro), fallback directo a cámara nativa
+        // Si el navegador no soporta MediaDevices (o contexto no seguro), fallback directo a cÃ¡mara nativa
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
           stopCamera();
           cameraCaptureModal.classList.remove("open");
@@ -556,16 +556,16 @@ document.addEventListener("DOMContentLoaded", () => {
           cameraVideo.srcObject = cameraStream;
           await cameraVideo.play();
 
-          // Ajustar efecto espejo según cámara frontal o trasera
+          // Ajustar efecto espejo segÃºn cÃ¡mara frontal o trasera
           if (currentFacingMode === 'user') {
             cameraVideo.classList.remove("rear-camera");
           } else {
             cameraVideo.classList.add("rear-camera");
           }
         } catch (err) {
-          console.warn("Fallo acceso a cámara en vivo, abriendo selector nativo:", err);
+          console.warn("Fallo acceso a cÃ¡mara en vivo, abriendo selector nativo:", err);
           if (cameraStatusMsg) {
-            cameraStatusMsg.innerText = "Abriendo cámara nativa del dispositivo...";
+            cameraStatusMsg.innerText = "Abriendo cÃ¡mara nativa del dispositivo...";
             cameraStatusMsg.style.display = "block";
           }
           setTimeout(() => {
@@ -580,7 +580,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      // Tomar captura instantánea
+      // Tomar captura instantÃ¡nea
       function takeSnapshot() {
         if (!cameraVideo || !cameraCanvas || !cameraVideo.videoWidth) return;
 
@@ -648,7 +648,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (cameraCaptureModal) cameraCaptureModal.classList.remove("open");
       }
 
-      // Eventos del modal de cámara
+      // Eventos del modal de cÃ¡mara
       if (btnCloseCameraModal) {
         btnCloseCameraModal.addEventListener("click", () => {
           stopCamera();
@@ -665,7 +665,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 
-      // Configurar eventos de foto / cámara en modal de nuevo atleta
+      // Configurar eventos de foto / cÃ¡mara en modal de nuevo atleta
       const newPhotoInput = document.getElementById("newAthletePhotoInput");
       const newCameraInput = document.getElementById("newAthleteCameraInput");
       const btnCameraNewPhoto = document.getElementById("btnCameraNewAthletePhoto");
@@ -726,7 +726,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 
-      // Configurar eventos de foto / cámara en modal de instalación inicial
+      // Configurar eventos de foto / cÃ¡mara en modal de instalaciÃ³n inicial
       const installPhotoInput = document.getElementById("installPhotoInput");
       const installCameraInput = document.getElementById("installCameraInput");
       const btnCameraInstallPhoto = document.getElementById("btnCameraInstallPhoto");
@@ -843,9 +843,9 @@ document.addEventListener("DOMContentLoaded", () => {
                   <strong style="color: var(--text-main); font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${cur.name}</strong>
                   <span style="font-size: 0.7rem; background: rgba(16,185,129,0.2); color: var(--accent-green); padding: 1px 6px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(16,185,129,0.3);">Usuario Registrado</span>
                 </div>
-                <small style="color: var(--text-muted); display: block; font-size: 0.78rem;">✉️ ${cur.email || 'Sin correo'}</small>
-                ${cur.phone ? `<small style="color: var(--accent-cyan); display: block; font-size: 0.75rem; font-weight: 600;">📞 ${cur.phone}</small>` : ''}
-                <small style="color: #64748b; display: block; font-size: 0.72rem; margin-top: 2px;">🔑 Dispositivo: ${devId}</small>
+                <small style="color: var(--text-muted); display: block; font-size: 0.78rem;">âœ‰ï¸ ${cur.email || 'Sin correo'}</small>
+                ${cur.phone ? `<small style="color: var(--accent-cyan); display: block; font-size: 0.75rem; font-weight: 600;">ðŸ“ž ${cur.phone}</small>` : ''}
+                <small style="color: #64748b; display: block; font-size: 0.72rem; margin-top: 2px;">ðŸ”‘ Dispositivo: ${devId}</small>
               </div>
               <div class="radio-circle"></div>
             </div>
@@ -874,13 +874,13 @@ document.addEventListener("DOMContentLoaded", () => {
           });
           athletesListContainer.appendChild(div);
 
-          // Cargar datos en el formulario para permitir edición del usuario registrado
+          // Cargar datos en el formulario para permitir ediciÃ³n del usuario registrado
           if (document.getElementById("newAthleteFirstName")) document.getElementById("newAthleteFirstName").value = cur.firstName || cur.name.split(" ")[0] || "";
           if (document.getElementById("newAthleteLastName")) document.getElementById("newAthleteLastName").value = cur.lastName || cur.name.split(" ").slice(1).join(" ") || "";
           if (document.getElementById("newAthleteEmail")) document.getElementById("newAthleteEmail").value = cur.email || "";
           if (document.getElementById("newAthletePhone")) document.getElementById("newAthletePhone").value = cur.phone || "";
 
-          // Actualizar previsualización de foto
+          // Actualizar previsualizaciÃ³n de foto
           if (cur.photo) {
             currentNewAthletePhoto = cur.photo;
             if (newPhotoImg) { newPhotoImg.src = cur.photo; newPhotoImg.style.display = "block"; }
@@ -893,11 +893,11 @@ document.addEventListener("DOMContentLoaded", () => {
             if (btnRemoveNewPhoto) btnRemoveNewPhoto.style.display = "none";
           }
 
-          if (formTitle) formTitle.innerText = "✏️ Datos del Usuario Registrado (Dispositivo Vinculado):";
-          if (saveBtn) saveBtn.innerText = "💾 Guardar Cambios del Usuario";
+          if (formTitle) formTitle.innerText = "âœï¸ Datos del Usuario Registrado (Dispositivo Vinculado):";
+          if (saveBtn) saveBtn.innerText = "ðŸ’¾ Guardar Cambios del Usuario";
           if (limitNotice) {
             limitNotice.style.display = "block";
-            limitNotice.innerHTML = `🛡️ <strong>Límite:</strong> 1 usuario registrado por dispositivo. Los cambios actualizarán el perfil actual.`;
+            limitNotice.innerHTML = `ðŸ›¡ï¸ <strong>LÃ­mite:</strong> 1 usuario registrado por dispositivo. Los cambios actualizarÃ¡n el perfil actual.`;
           }
           const resetBtn = document.getElementById("btnResetDeviceUser");
           if (resetBtn) resetBtn.style.display = "inline-block";
@@ -907,11 +907,11 @@ document.addEventListener("DOMContentLoaded", () => {
               No hay usuario registrado en este dispositivo.
             </div>
           `;
-          if (formTitle) formTitle.innerText = "➕ Registrar Usuario del Dispositivo:";
+          if (formTitle) formTitle.innerText = "âž• Registrar Usuario del Dispositivo:";
           if (saveBtn) saveBtn.innerText = "Registrar Usuario";
           if (limitNotice) {
             limitNotice.style.display = "block";
-            limitNotice.innerHTML = `ℹ️ Se registrará el único perfil de usuario autorizado para este dispositivo.`;
+            limitNotice.innerHTML = `â„¹ï¸ Se registrarÃ¡ el Ãºnico perfil de usuario autorizado para este dispositivo.`;
           }
           const resetBtn = document.getElementById("btnResetDeviceUser");
           if (resetBtn) resetBtn.style.display = "none";
@@ -927,7 +927,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const btnResetDeviceUser = document.getElementById("btnResetDeviceUser");
       if (btnResetDeviceUser) {
         btnResetDeviceUser.addEventListener("click", () => {
-          if (confirm("¿Estás seguro de que deseas desvincular el usuario de este dispositivo para registrar uno nuevo?")) {
+          if (confirm("Â¿EstÃ¡s seguro de que deseas desvincular el usuario de este dispositivo para registrar uno nuevo?")) {
             saveAthletes([]);
             localStorage.removeItem("halterofilia_active_athlete_id");
             localStorage.removeItem("halterofilia_device_registered_user");
@@ -953,7 +953,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const phone = (document.getElementById("newAthletePhone")?.value || "").trim();
 
         if (!firstName) return alert("Por favor ingresa al menos el Nombre del usuario.");
-        if (!email) return alert("Por favor ingresa el Correo Electrónico.");
+        if (!email) return alert("Por favor ingresa el Correo ElectrÃ³nico.");
 
         const fullName = lastName ? `${firstName} ${lastName}` : firstName;
         const list = getAthletes();
@@ -977,12 +977,12 @@ document.addEventListener("DOMContentLoaded", () => {
           renderAthletesList();
           checkLicenseStatus();
 
-          alert("✅ Datos del usuario registrado actualizados con éxito.");
+          alert("âœ… Datos del usuario registrado actualizados con Ã©xito.");
           athletesModal.classList.remove("open");
           return;
         }
 
-        // Si no existiera ningún usuario aún, crear el único usuario permitido para este dispositivo
+        // Si no existiera ningÃºn usuario aÃºn, crear el Ãºnico usuario permitido para este dispositivo
         const newAth = {
           id: "ath_" + Date.now(),
           name: fullName,
@@ -1006,13 +1006,13 @@ document.addEventListener("DOMContentLoaded", () => {
         calculateHybridLoad();
         checkLicenseStatus();
 
-        // Al definirse el usuario, mostrar Parámetros de la Aplicación
+        // Al definirse el usuario, mostrar ParÃ¡metros de la AplicaciÃ³n
         athletesModal.classList.remove("open");
         try { document.documentElement.classList.add("hp-user-exists"); } catch(e) {}
         goToStep1(true);
       });
 
-      // 8. Instalación
+      // 8. InstalaciÃ³n
       const installModal = document.getElementById("installModal");
       function userExists() {
         try {
@@ -1053,7 +1053,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const phone = (document.getElementById("installPhone")?.value || "").trim();
 
         if (!fName) return alert("Por favor ingresa tu Nombre.");
-        if (!email) return alert("Por favor ingresa tu Correo Electrónico.");
+        if (!email) return alert("Por favor ingresa tu Correo ElectrÃ³nico.");
 
         const fullName = lName ? `${fName} ${lName}` : fName;
         const firstAthlete = {
@@ -1079,11 +1079,11 @@ document.addEventListener("DOMContentLoaded", () => {
         checkLicenseStatus();
         renderCenters();
         syncInventoryWithAthleteUnit(selectedUnit || "kg");
-        // Al definirse el usuario por primera vez, mostrar Parámetros de la Aplicación
+        // Al definirse el usuario por primera vez, mostrar ParÃ¡metros de la AplicaciÃ³n
         goToStep1(true);
       });
 
-      // 9. Centros de Entrenamiento y Validación de Compatibilidad de Unidad
+      // 9. Centros de Entrenamiento y ValidaciÃ³n de Compatibilidad de Unidad
       const centersContainer = document.getElementById("centersContainer");
       let currentCenterCategory = "both";
 
@@ -1120,8 +1120,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       function checkUnitCompatibilityWithCenter(unitVal, center) {
-        // La selección de unidad para el peso objetivo es puramente visual
-        // y de ingreso numérico; las alternativas de pesas pueden utilizar
+        // La selecciÃ³n de unidad para el peso objetivo es puramente visual
+        // y de ingreso numÃ©rico; las alternativas de pesas pueden utilizar
         // discos en cualquiera de las opciones (Kgs/Lbs) disponibles en el Box.
         return { compatible: true };
       }
@@ -1129,7 +1129,7 @@ document.addEventListener("DOMContentLoaded", () => {
       function showUnitCompatibilityError(message) {
         const banner = document.getElementById("unitCompatibilityErrorBanner");
         if (banner) {
-          banner.innerText = message.replace(/\n\n/g, " — ");
+          banner.innerText = message.replace(/\n\n/g, " â€” ");
           banner.style.display = "block";
           if (banner._timer) clearTimeout(banner._timer);
           banner._timer = setTimeout(() => {
@@ -1169,7 +1169,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const isAvail = pConf ? (pConf.available !== false) : true;
 
           // Se muestran y quedan activos los discos de ambas medidas (Kgs y Lbs)
-          // que permita el centro, sin restringir por la unidad de visualización.
+          // que permita el centro, sin restringir por la unidad de visualizaciÃ³n.
           plate.active = allowedByCat && isAvail;
         });
       }
@@ -1199,7 +1199,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const badgeCenterName = document.getElementById("badgeCenterName");
         if (badgeCenterName) {
           badgeCenterName.innerText = center.name;
-          badgeCenterName.title = `${center.name}\n📍 ${center.address || 'Sin dirección'}\n📞 ${center.phone || 'Sin teléfono'}`;
+          badgeCenterName.title = `${center.name}\nðŸ“ ${center.address || 'Sin direcciÃ³n'}\nðŸ“ž ${center.phone || 'Sin telÃ©fono'}`;
         }
 
         const headerBoxSelect = document.getElementById("headerBoxSelect");
@@ -1253,18 +1253,18 @@ document.addEventListener("DOMContentLoaded", () => {
               <div class="radio-circle"></div>
             </div>
             <div class="center-details-list">
-              <div class="center-detail-item">📍 ${center.address || "Dirección no especificada"}</div>
-              <div class="center-detail-item">📞 ${center.phone || "Teléfono no especificado"}</div>
+              <div class="center-detail-item">ðŸ“ ${center.address || "DirecciÃ³n no especificada"}</div>
+              <div class="center-detail-item">ðŸ“ž ${center.phone || "TelÃ©fono no especificado"}</div>
               <div class="center-detail-item" style="color:var(--accent-cyan); font-weight:600;">
-                🏋️ Discos disponibles: ${activePlatesCount} de 15
+                ðŸ‹ï¸ Discos disponibles: ${activePlatesCount} de 15
               </div>
             </div>
             <div class="center-actions-row">
               <button type="button" class="btn-center-action" data-edit-center="${center.id}">
-                ✏️ Modificar
+                âœï¸ Modificar
               </button>
               <button type="button" class="btn-center-action del" data-del-center="${center.id}">
-                🗑️ Eliminar
+                ðŸ—‘ï¸ Eliminar
               </button>
             </div>
           `;
@@ -1299,7 +1299,7 @@ document.addEventListener("DOMContentLoaded", () => {
               else if (avail.hasLb && !avail.hasKg) fallbackUnit = "lbs";
               else if (avail.hasKg && avail.hasLb) fallbackUnit = "kg";
 
-              alert(`⚠️ Ajuste Automático por Cambio de Box:\n\nEl centro "${center.name}" no dispone de discos en la unidad actual (${selectedUnit.toUpperCase()}).\nSe ajustará automáticamente la unidad a "${fallbackUnit.toUpperCase()}".`);
+              alert(`âš ï¸ Ajuste AutomÃ¡tico por Cambio de Box:\n\nEl centro "${center.name}" no dispone de discos en la unidad actual (${selectedUnit.toUpperCase()}).\nSe ajustarÃ¡ automÃ¡ticamente la unidad a "${fallbackUnit.toUpperCase()}".`);
 
               const prevUnit = selectedUnit;
               selectedUnit = fallbackUnit;
@@ -1336,14 +1336,14 @@ document.addEventListener("DOMContentLoaded", () => {
         let center = centerId ? centers.find(c => c.id === centerId) : null;
 
         if (center) {
-          titleEl.innerText = "✏️ Modificar Centro de Entrenamiento";
+          titleEl.innerText = "âœï¸ Modificar Centro de Entrenamiento";
           hiddenId.value = center.id;
           nameInp.value = center.name || "";
           addrInp.value = center.address || "";
           phoneInp.value = center.phone || "";
           currentCenterCategory = center.category || "both";
         } else {
-          titleEl.innerText = "🏋️ Definir Nuevo Centro de Entrenamiento";
+          titleEl.innerText = "ðŸ‹ï¸ Definir Nuevo Centro de Entrenamiento";
           hiddenId.value = "";
           nameInp.value = "";
           addrInp.value = "";
@@ -1402,7 +1402,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </label>
             <div class="plate-color-control">
               <input type="color" class="plate-color-input" data-color-plate="${p.id}" value="${currentColor}" title="Elegir color para ${p.name}">
-              <button type="button" class="btn-reset-color" data-reset-plate="${p.id}" title="Restablecer color predeterminado">↺</button>
+              <button type="button" class="btn-reset-color" data-reset-plate="${p.id}" title="Restablecer color predeterminado">â†º</button>
             </div>
           `;
 
@@ -1493,7 +1493,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (!check.compatible) {
             const avail = getCenterAvailableUnits(activeCenter);
             let fallbackUnit = avail.hasKg ? "kg" : (avail.hasLb ? "lbs" : "kg");
-            alert(`⚠️ Ajuste de Unidad por Cambio en el Equipamiento del Box:\n\nEl centro "${activeCenter.name}" ya no dispone de discos en "${selectedUnit.toUpperCase()}".\nSe ajustará la unidad a "${fallbackUnit.toUpperCase()}".`);
+            alert(`âš ï¸ Ajuste de Unidad por Cambio en el Equipamiento del Box:\n\nEl centro "${activeCenter.name}" ya no dispone de discos en "${selectedUnit.toUpperCase()}".\nSe ajustarÃ¡ la unidad a "${fallbackUnit.toUpperCase()}".`);
             const prevUnit = selectedUnit;
             selectedUnit = fallbackUnit;
             const activeId = getActiveAthleteId();
@@ -1518,10 +1518,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!center) return;
 
         if (centers.length <= 1) {
-          return alert("⚠️ Debe existir al menos un Centro de Entrenamiento en la aplicación.");
+          return alert("âš ï¸ Debe existir al menos un Centro de Entrenamiento en la aplicaciÃ³n.");
         }
 
-        if (!confirm(`¿Estás seguro de que deseas eliminar el centro "${center.name}"?\nEsta acción no se puede deshacer.`)) {
+        if (!confirm(`Â¿EstÃ¡s seguro de que deseas eliminar el centro "${center.name}"?\nEsta acciÃ³n no se puede deshacer.`)) {
           return;
         }
 
@@ -1563,7 +1563,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // =========================================================================
-      // GESTIÓN INTEGRAL DE CENTROS DE ENTRENAMIENTO (BOXES)
+      // GESTIÃ“N INTEGRAL DE CENTROS DE ENTRENAMIENTO (BOXES)
       // Opciones para Crear, Modificar y Eliminar Centros
       // =========================================================================
       function openCentersManagerModal() {
@@ -1614,26 +1614,26 @@ document.addEventListener("DOMContentLoaded", () => {
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
               <div>
                 <strong style="font-size: 0.95rem; color: var(--text-main); display: flex; align-items: center; gap: 6px;">
-                  🏋️ ${c.name}
+                  ðŸ‹ï¸ ${c.name}
                 </strong>
                 <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
-                  📍 ${c.address || "Sin dirección"} • 📞 ${c.phone || "Sin teléfono"}
+                  ðŸ“ ${c.address || "Sin direcciÃ³n"} â€¢ ðŸ“ž ${c.phone || "Sin telÃ©fono"}
                 </div>
               </div>
               <div style="display: flex; gap: 4px; align-items: center;">
                 <span style="font-size: 0.68rem; padding: 2px 6px; border-radius: 4px; background: var(--card-border); color: var(--text-main); font-weight: 700;">
                   ${catBadgeText}
                 </span>
-                ${isAct ? '<span style="background: rgba(16,185,129,0.2); color: #10b981; border: 1px solid #10b981; padding: 2px 6px; border-radius: 10px; font-size: 0.68rem; font-weight: 700;">✓ ACTIVO</span>' : ''}
+                ${isAct ? '<span style="background: rgba(16,185,129,0.2); color: #10b981; border: 1px solid #10b981; padding: 2px 6px; border-radius: 10px; font-size: 0.68rem; font-weight: 700;">âœ“ ACTIVO</span>' : ''}
               </div>
             </div>
             <div style="font-size: 0.76rem; color: var(--accent-cyan); margin-bottom: 8px;">
               Discos disponibles: ${activePlatesCount} de 15
             </div>
             <div style="display: flex; gap: 6px; justify-content: flex-end; align-items: center;">
-              ${!isAct ? `<button type="button" class="btn-header" data-mgr-select="${c.id}" style="color: var(--accent-cyan); border-color: var(--accent-cyan); font-size: 0.75rem; padding: 4px 10px; font-weight: 600;">✓ Seleccionar</button>` : ''}
-              <button type="button" class="btn-header" data-mgr-edit="${c.id}" style="font-size: 0.75rem; padding: 4px 10px;">✏️ Modificar</button>
-              <button type="button" class="btn-header" data-mgr-del="${c.id}" style="color: var(--accent-red); border-color: rgba(239,68,68,0.4); font-size: 0.75rem; padding: 4px 10px;">🗑️ Eliminar</button>
+              ${!isAct ? `<button type="button" class="btn-header" data-mgr-select="${c.id}" style="color: var(--accent-cyan); border-color: var(--accent-cyan); font-size: 0.75rem; padding: 4px 10px; font-weight: 600;">âœ“ Seleccionar</button>` : ''}
+              <button type="button" class="btn-header" data-mgr-edit="${c.id}" style="font-size: 0.75rem; padding: 4px 10px;">âœï¸ Modificar</button>
+              <button type="button" class="btn-header" data-mgr-del="${c.id}" style="color: var(--accent-red); border-color: rgba(239,68,68,0.4); font-size: 0.75rem; padding: 4px 10px;">ðŸ—‘ï¸ Eliminar</button>
             </div>
           `;
 
@@ -1645,7 +1645,7 @@ document.addEventListener("DOMContentLoaded", () => {
               if (!check.compatible) {
                 const avail = getCenterAvailableUnits(c);
                 let fallbackUnit = avail.hasKg ? "kg" : (avail.hasLb ? "lbs" : "kg");
-                alert(`⚠️ Ajuste Automático por Cambio de Box:\n\nEl centro "${c.name}" no dispone de discos en la unidad actual (${selectedUnit.toUpperCase()}).\nSe ajustará automáticamente la unidad a "${fallbackUnit.toUpperCase()}".`);
+                alert(`âš ï¸ Ajuste AutomÃ¡tico por Cambio de Box:\n\nEl centro "${c.name}" no dispone de discos en la unidad actual (${selectedUnit.toUpperCase()}).\nSe ajustarÃ¡ automÃ¡ticamente la unidad a "${fallbackUnit.toUpperCase()}".`);
                 const prevUnit = selectedUnit;
                 selectedUnit = fallbackUnit;
                 const activeId = getActiveAthleteId();
@@ -1782,7 +1782,7 @@ document.addEventListener("DOMContentLoaded", () => {
           updateHeaderThemeButton(themeChoice);
         }
 
-        // Redibujar reporte si está abierto para ajustar colores de cuadrícula y contraste
+        // Redibujar reporte si estÃ¡ abierto para ajustar colores de cuadrÃ­cula y contraste
         if (document.getElementById("reportsModal") && document.getElementById("reportsModal").classList.contains("open")) {
           drawTemporalReportsChart();
         }
@@ -1794,7 +1794,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       });
 
-      // Escucha reactiva en tiempo real al cambio de tema del sistema/teléfono
+      // Escucha reactiva en tiempo real al cambio de tema del sistema/telÃ©fono
       const systemThemeMatcher = window.matchMedia("(prefers-color-scheme: dark)");
       systemThemeMatcher.addEventListener("change", () => {
         if (selectedTheme === "system") {
@@ -1834,7 +1834,7 @@ document.addEventListener("DOMContentLoaded", () => {
           chip.addEventListener("click", () => {
             plate.active = !plate.active;
 
-            // Persistir la disponibilidad de este disco en la configuración del Box actual y datos del usuario
+            // Persistir la disponibilidad de este disco en la configuraciÃ³n del Box actual y datos del usuario
             const centers = getAllCenters();
             const currCenter = centers.find(c => c.id === selectedCenterId) || centers[0];
             if (currCenter) {
@@ -1854,7 +1854,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 
-      // 11. Navegación de Pasos
+      // 11. NavegaciÃ³n de Pasos
 
       function goToStep2() {
         if (!checkLicenseStatus()) return;
@@ -1889,7 +1889,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const athPrefUnit = getAthleteUnit(getActiveAthleteId()) || selectedUnit;
         selectedUnit = athPrefUnit;
-        document.getElementById("badgeBar").innerText = selectedBar === "men" ? "Barra Olímpica 20kg" : "Barra Olímpica 15kg";
+        document.getElementById("badgeBar").innerText = selectedBar === "men" ? "Barra OlÃ­mpica 20kg" : "Barra OlÃ­mpica 15kg";
 
         updateMovementDisplay();
         applyCenterMaterial(selectedCenterId);
@@ -1910,13 +1910,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const btnStart = document.getElementById("btnStartWorkout");
 
         if (titleEl) {
-          titleEl.innerText = "⚙️ Parámetros de la Aplicación";
+          titleEl.innerText = "âš™ï¸ ParÃ¡metros de la AplicaciÃ³n";
         }
         if (btnStart) {
           if (isInitialSetup) {
-            btnStart.innerText = "Guardar Preferencias y Comenzar Entrenamiento ➔";
+            btnStart.innerText = "Guardar Preferencias y Comenzar Entrenamiento âž”";
           } else {
-            btnStart.innerText = "Guardar Preferencias y Volver al Entrenamiento ➔";
+            btnStart.innerText = "Guardar Preferencias y Volver al Entrenamiento âž”";
           }
         }
         renderCenters();
@@ -1937,11 +1937,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // =========================================================================
       // CONTROLES DE CABECERA (HEADER CONTROLS DIRECTOS)
-      // Reemplazo de Parámetros por:
+      // Reemplazo de ParÃ¡metros por:
       // 1. Selector Desplegable de Box (Centro de Entrenamiento)
-      // 2. Botón Alternador de Unidad Objetivo (Kgs / Lbs / Ambas)
-      // 3. Botón Alternador de Barra Olímpica (15 / 20 kg)
-      // 4. Botón Alternador de Modo de Pantalla (Oscuro / Claro / Por Defecto)
+      // 2. BotÃ³n Alternador de Unidad Objetivo (Kgs / Lbs / Ambas)
+      // 3. BotÃ³n Alternador de Barra OlÃ­mpica (15 / 20 kg)
+      // 4. BotÃ³n Alternador de Modo de Pantalla (Oscuro / Claro / Por Defecto)
       // =========================================================================
 
       // 1. Selector Desplegable para el Box
@@ -1959,7 +1959,7 @@ document.addEventListener("DOMContentLoaded", () => {
         centers.forEach(c => {
           const opt = document.createElement("option");
           opt.value = c.id;
-          opt.textContent = `🏋️ ${c.name}`;
+          opt.textContent = `ðŸ‹ï¸ ${c.name}`;
           if (c.id === currentId) {
             opt.selected = true;
           }
@@ -1967,29 +1967,29 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         select.appendChild(grpCenters);
 
-        // Grupo 2: Opciones de Gestión del Centro solicitadas
+        // Grupo 2: Opciones de GestiÃ³n del Centro solicitadas
         const grpActions = document.createElement("optgroup");
-        grpActions.label = "── Opciones del Box ──";
+        grpActions.label = "â”€â”€ Opciones del Box â”€â”€";
 
         const optCreate = document.createElement("option");
         optCreate.value = "__action_create__";
-        optCreate.textContent = "➕ Crear nuevo centro...";
+        optCreate.textContent = "âž• Crear nuevo centro...";
         grpActions.appendChild(optCreate);
 
         const currentName = currentCenter ? currentCenter.name : "centro actual";
         const optEdit = document.createElement("option");
         optEdit.value = "__action_edit__";
-        optEdit.textContent = `✏️ Modificar "${currentName}"...`;
+        optEdit.textContent = `âœï¸ Modificar "${currentName}"...`;
         grpActions.appendChild(optEdit);
 
         const optDelete = document.createElement("option");
         optDelete.value = "__action_delete__";
-        optDelete.textContent = `🗑️ Eliminar "${currentName}"...`;
+        optDelete.textContent = `ðŸ—‘ï¸ Eliminar "${currentName}"...`;
         grpActions.appendChild(optDelete);
 
         const optManage = document.createElement("option");
         optManage.value = "__action_manage__";
-        optManage.textContent = "⚙️ Administrar todos los centros...";
+        optManage.textContent = "âš™ï¸ Administrar todos los centros...";
         grpActions.appendChild(optManage);
 
         select.appendChild(grpActions);
@@ -2040,7 +2040,7 @@ document.addEventListener("DOMContentLoaded", () => {
             else if (avail.hasLb && !avail.hasKg) fallbackUnit = "lbs";
             else if (avail.hasKg && avail.hasLb) fallbackUnit = "kg";
 
-            alert(`⚠️ Ajuste Automático por Cambio de Box:\n\nEl centro "${center.name}" no dispone de discos en la unidad actual (${selectedUnit.toUpperCase()}).\nSe ajustará automáticamente la unidad a "${fallbackUnit.toUpperCase()}".`);
+            alert(`âš ï¸ Ajuste AutomÃ¡tico por Cambio de Box:\n\nEl centro "${center.name}" no dispone de discos en la unidad actual (${selectedUnit.toUpperCase()}).\nSe ajustarÃ¡ automÃ¡ticamente la unidad a "${fallbackUnit.toUpperCase()}".`);
 
             const prevUnit = selectedUnit;
             selectedUnit = fallbackUnit;
@@ -2062,7 +2062,7 @@ document.addEventListener("DOMContentLoaded", () => {
           updateUnitSelectorAvailability();
         });
       }
-      // 2. Botón Alternador de Unidad Objetivo (Kgs / Lbs)
+      // 2. BotÃ³n Alternador de Unidad Objetivo (Kgs / Lbs)
       function getUnitDisplayLabel(unit) {
         if (!unit) return "Kgs";
         const u = unit.toLowerCase();
@@ -2100,7 +2100,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         hideUnitCompatibilityError();
 
-        // Conversión bidireccional en caliente del peso objetivo editable al cambiar de unidad
+        // ConversiÃ³n bidireccional en caliente del peso objetivo editable al cambiar de unidad
         const targetInput = document.getElementById("targetWeightInput");
         if (convertTargetInput && targetInput && targetInput.value) {
           const val = parseFloat(targetInput.value);
@@ -2113,7 +2113,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
 
-        // Conversión en caliente del valor base editado si existe
+        // ConversiÃ³n en caliente del valor base editado si existe
         if (typeof editedBaseWeight === "number" && !isNaN(editedBaseWeight)) {
           editedBaseWeight = convertWeight(editedBaseWeight, prevUnit, nextUnit);
         }
@@ -2168,19 +2168,19 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       });
 
-      // 3. Botón Alternador de Barra Olímpica (15 / 20 kg ó 35 / 45 lb)
+      // 3. BotÃ³n Alternador de Barra OlÃ­mpica (15 / 20 kg Ã³ 35 / 45 lb)
       function updateHeaderBarButton() {
         const labelEl = document.getElementById("headerBarLabel");
         const btn = document.getElementById("btnHeaderBar");
         const isMen = (selectedBar === "men");
         const barLabel = (selectedUnit === "kg") ? (isMen ? "20 kg" : "15 kg") : (isMen ? "45 lbs" : "35 lbs");
         if (labelEl) labelEl.innerText = barLabel;
-        if (btn) btn.title = `Barra Olímpica: ${isMen ? "Hombre 20 kg (45 lb)" : "Mujer 15 kg (35 lb)"} (Toca para alternar)`;
+        if (btn) btn.title = `Barra OlÃ­mpica: ${isMen ? "Hombre 20 kg (45 lb)" : "Mujer 15 kg (35 lb)"} (Toca para alternar)`;
         const badgeBar = document.getElementById("badgeBar");
         if (badgeBar) {
           badgeBar.innerText = (selectedUnit === "kg")
-            ? (isMen ? "Barra Olímpica 20kg" : "Barra Olímpica 15kg")
-            : (isMen ? "Barra Olímpica 45lb" : "Barra Olímpica 35lb");
+            ? (isMen ? "Barra OlÃ­mpica 20kg" : "Barra OlÃ­mpica 15kg")
+            : (isMen ? "Barra OlÃ­mpica 45lb" : "Barra OlÃ­mpica 35lb");
         }
       }
 
@@ -2196,20 +2196,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 
-      // 4. Botón Alternador de Modo de Pantalla (Oscuro / Claro / Por Defecto)
+      // 4. BotÃ³n Alternador de Modo de Pantalla (Oscuro / Claro / Por Defecto)
       function updateHeaderThemeButton(theme) {
         const curTheme = theme || selectedTheme || "system";
         const iconEl = document.getElementById("headerThemeIcon");
         const labelEl = document.getElementById("headerThemeLabel");
         const btn = document.getElementById("btnHeaderTheme");
 
-        let icon = "🌙";
+        let icon = "ðŸŒ™";
         let text = "Oscuro";
         if (curTheme === "light") {
-          icon = "☀️";
+          icon = "â˜€ï¸";
           text = "Claro";
         } else if (curTheme === "system") {
-          icon = "📱";
+          icon = "ðŸ“±";
           text = "Auto";
         }
 
@@ -2400,7 +2400,7 @@ document.addEventListener("DOMContentLoaded", () => {
             baseInput.value = editedBaseWeight.toFixed(1);
           }
         } else {
-          // Crear la pesa basándose el cálculo en el % del valor editado y NO en el PR:
+          // Crear la pesa basÃ¡ndose el cÃ¡lculo en el % del valor editado y NO en el PR:
           targetTotal = editedBaseWeight * (currentPercentage / 100);
           if (targetWeightInput && document.activeElement !== targetWeightInput) {
             targetWeightInput.value = targetTotal.toFixed(1);
@@ -2420,7 +2420,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
 
-        // Peso exacto oficial de la barra según estándar internacional olímpico y de box
+        // Peso exacto oficial de la barra segÃºn estÃ¡ndar internacional olÃ­mpico y de box
         // En kg: Hombre 20 kg, Mujer 15 kg
         // En lbs: Hombre 45 lbs, Mujer 35 lbs
         let barWeightInTarget;
@@ -2436,11 +2436,11 @@ document.addEventListener("DOMContentLoaded", () => {
         generatedSolutions = [];
 
         if (neededPerSide > 0.05) {
-          // La selección de unidad para el peso objetivo afecta solamente la visualización del valor.
-          // La selección de las alternativas de pesas puede contener pesas en cualquiera de las opciones (Kgs/Lbs).
+          // La selecciÃ³n de unidad para el peso objetivo afecta solamente la visualizaciÃ³n del valor.
+          // La selecciÃ³n de las alternativas de pesas puede contener pesas en cualquiera de las opciones (Kgs/Lbs).
           let available = basePlates.filter(p => p.active);
 
-          // Fallback defensivo si el usuario desactivó manualmente todos los discos
+          // Fallback defensivo si el usuario desactivÃ³ manualmente todos los discos
           if (available.length === 0) {
             available = [...basePlates];
           }
@@ -2451,7 +2451,7 @@ document.addEventListener("DOMContentLoaded", () => {
         renderAlternativesDropdown();
       }
 
-      // Generador voraz determinista con múltiples estrategias y precisión mínima garantizada del 95%
+      // Generador voraz determinista con mÃºltiples estrategias y precisiÃ³n mÃ­nima garantizada del 95%
       function generateFastAlternatives(availablePlates, targetPerSide, unit, targetTotal, barWeightInTarget) {
         const calcUnit = (unit === "lbs") ? "lbs" : "kg";
         const strictTolerance = calcUnit === "kg" ? 0.25 : 0.55;
@@ -2475,7 +2475,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const combo = [];
 
           for (const item of prepared) {
-            // Máximo 4 discos del mismo tipo por lado para realismo físico
+            // MÃ¡ximo 4 discos del mismo tipo por lado para realismo fÃ­sico
             while (combo.filter(p => p.id === item.ref.id).length < 4 && (currentSum + item.weight <= targetPerSide + strictTolerance)) {
               combo.push(item.ref);
               currentSum += item.weight;
@@ -2487,7 +2487,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const precisionPct = effectiveTargetTotal > 0 ? Math.max(0, (1 - (error / effectiveTargetTotal)) * 100) : 100;
           const isExact = Math.abs(currentSum - targetPerSide) <= strictTolerance;
 
-          // Aceptar solución si es físicamente exacta o si cumple la precisión de al menos un 95%
+          // Aceptar soluciÃ³n si es fÃ­sicamente exacta o si cumple la precisiÃ³n de al menos un 95%
           if (combo.length > 0 && (isExact || precisionPct >= 95.0)) {
             const sig = combo.map(p => p.id).sort().join("|");
             if (!seenSignatures.has(sig)) {
@@ -2504,7 +2504,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
 
-        // Estrategia 1: Menor cantidad total de discos (Óptimo voraz entre todos los discos disponibles)
+        // Estrategia 1: Menor cantidad total de discos (Ã“ptimo voraz entre todos los discos disponibles)
         buildStrategy(
           () => true,
           (a, b) => b.weight - a.weight,
@@ -2548,7 +2548,7 @@ document.addEventListener("DOMContentLoaded", () => {
           "Carga Progresiva / Fraccional"
         );
 
-        // Si ninguna estrategia alcanzó la tolerancia estricta, evaluar aproximación voraz garantizando precisión >= 95%
+        // Si ninguna estrategia alcanzÃ³ la tolerancia estricta, evaluar aproximaciÃ³n voraz garantizando precisiÃ³n >= 95%
         if (solutions.length === 0 && availablePlates.length > 0) {
           const prepared = [...availablePlates].map(p => ({
             ref: p,
@@ -2580,26 +2580,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // 4. Ordenar soluciones: PRIORIZAR SIEMPRE MENOR CANTIDAD DE DISCOS EN LA BARRA
         solutions.sort((a, b) => {
-          // 1º Criterio estricto: Menor cantidad total de discos físicos en la barra
+          // 1Âº Criterio estricto: Menor cantidad total de discos fÃ­sicos en la barra
           if (a.plates.length !== b.plates.length) {
             return a.plates.length - b.plates.length;
           }
-          // 2º Criterio: Mayor precisión porcentual
+          // 2Âº Criterio: Mayor precisiÃ³n porcentual
           if (Math.abs(b.precision - a.precision) > 0.05) {
             return b.precision - a.precision;
           }
-          // 3º Criterio: Afinidad de unidad (preferir discos de la misma unidad objetivo si empatan)
+          // 3Âº Criterio: Afinidad de unidad (preferir discos de la misma unidad objetivo si empatan)
           const targetUnitCode = (unit === "lbs") ? "lb" : "kg";
           const aSameUnit = a.plates.every(p => p.unit === targetUnitCode);
           const bSameUnit = b.plates.every(p => p.unit === targetUnitCode);
           if (aSameUnit !== bSameUnit) {
             return aSameUnit ? -1 : 1;
           }
-          // 4º Criterio: Menor diferencia absoluta numérica en peso
+          // 4Âº Criterio: Menor diferencia absoluta numÃ©rica en peso
           return Math.abs(a.actualTotal - a.targetTotal) - Math.abs(b.actualTotal - b.targetTotal);
         });
 
-        // 5. Renumeración y presentación limpia de cada opción según su orden definitivo
+        // 5. RenumeraciÃ³n y presentaciÃ³n limpia de cada opciÃ³n segÃºn su orden definitivo
         solutions.forEach((sol, idx) => {
           const totalPlates = sol.plates.length * 2;
           const platesSide = sol.plates.length;
@@ -2607,8 +2607,8 @@ document.addEventListener("DOMContentLoaded", () => {
           const currentSum = sol.plates.reduce((acc, p) => acc + (calcUnit === "kg" ? p.weightKg : p.weightLb), 0);
           const labelTotal = `${(currentSum * 2).toFixed(1)} ${unit}`;
           const isMin = (idx === 0);
-          const minBadge = isMin ? " (Mínimo de discos)" : "";
-          sol.title = `Opción ${idx + 1} • ${totalPlates} discos (${platesSide}/lado)${minBadge} • ${sol.strategyDesc || 'Carga'} • ${precFormatted} Precisión • ${labelTotal} en discos`;
+          const minBadge = isMin ? " (MÃ­nimo de discos)" : "";
+          sol.title = `OpciÃ³n ${idx + 1} â€¢ ${totalPlates} discos (${platesSide}/lado)${minBadge} â€¢ ${sol.strategyDesc || 'Carga'} â€¢ ${precFormatted} PrecisiÃ³n â€¢ ${labelTotal} en discos`;
         });
 
         return solutions;
@@ -2680,7 +2680,7 @@ document.addEventListener("DOMContentLoaded", () => {
         leftBox.innerHTML = "";
         rightBox.innerHTML = "";
 
-        // Orden de la barra: discos más grandes adentro (junto al collar)
+        // Orden de la barra: discos mÃ¡s grandes adentro (junto al collar)
         const ordered = [...sidePlates].sort((a, b) => {
           const wA = selectedUnit === "kg" ? a.weightKg : a.weightLb;
           const wB = selectedUnit === "kg" ? b.weightKg : b.weightLb;
@@ -2776,7 +2776,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (hasError) {
-          return alert("Por favor, verifica que todos los valores de PR sean números válidos y mayores a 0.");
+          return alert("Por favor, verifica que todos los valores de PR sean nÃºmeros vÃ¡lidos y mayores a 0.");
         }
 
         const activeId = getActiveAthleteId();
@@ -2797,14 +2797,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       document.getElementById("btnActivateToken").addEventListener("click", async () => {
         const token = document.getElementById("activationTokenInput").value;
-        if (!token) return alert("Pega la clave de activación.");
+        if (!token) return alert("Pega la clave de activaciÃ³n.");
         const ok = await verifyAndApplyToken(token);
         if (ok) licenseModal.classList.remove("open");
       });
 
       document.getElementById("btnUnlockFromLock").addEventListener("click", async () => {
         const token = document.getElementById("lockActivationKey").value;
-        if (!token) return alert("Pega la clave de activación.");
+        if (!token) return alert("Pega la clave de activaciÃ³n.");
         await verifyAndApplyToken(token);
       });
 
@@ -2820,13 +2820,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const optAll = document.createElement("option");
         optAll.value = "__all__";
-        optAll.innerText = "⭐ Todas las Disciplinas (Comparativa)";
+        optAll.innerText = "â­ Todas las Disciplinas (Comparativa)";
         reportMovementFilter.appendChild(optAll);
 
         movements.forEach(m => {
           const opt = document.createElement("option");
           opt.value = m;
-          opt.innerText = `🏋️ ${m}`;
+          opt.innerText = `ðŸ‹ï¸ ${m}`;
           reportMovementFilter.appendChild(opt);
         });
 
@@ -2907,7 +2907,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
           if (elLastDate) elLastDate.innerText = items[items.length - 1].date;
 
-          // Dibujo gráfico de línea
+          // Dibujo grÃ¡fico de lÃ­nea
           const paddingLeft = 45;
           const paddingRight = 30;
           const paddingTop = 25;
@@ -2922,7 +2922,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const yMin = Math.max(0, Math.floor((rawMin - range * 0.15) / 5) * 5);
           const yMax = Math.ceil((rawMax + range * 0.2) / 5) * 5;
 
-          // Líneas guía horizontales
+          // LÃ­neas guÃ­a horizontales
           ctx.strokeStyle = gridLineColor;
           ctx.lineWidth = 1;
           ctx.fillStyle = axisTextColor;
@@ -2964,7 +2964,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ctx.fill();
           }
 
-          // Línea principal
+          // LÃ­nea principal
           const lineColor = disciplinePalette[selectedFilter] || "#06b6d4";
           ctx.beginPath();
           ctx.strokeStyle = lineColor;
@@ -2978,7 +2978,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           // Puntos y etiquetas
           points.forEach(p => {
-            // Círculo exterior con contraste
+            // CÃ­rculo exterior con contraste
             ctx.beginPath();
             ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
             ctx.fillStyle = lineColor;
@@ -3000,7 +3000,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ctx.fillText(dateShort, p.x, paddingTop + plotH + 15);
           });
 
-          // Renderizar tabla cronológica
+          // Renderizar tabla cronolÃ³gica
           if (historyContainer) {
             historyContainer.innerHTML = `
               <table style="width:100%; font-size:0.75rem; border-collapse:collapse;">
@@ -3031,14 +3031,14 @@ document.addEventListener("DOMContentLoaded", () => {
           const topPR = Math.max(...allMovements.map(m => curPRs[m] || 0));
 
           if (elInitial) elInitial.innerText = `${allMovements.length} Movimientos`;
-          if (elCurrent) elCurrent.innerText = `Máx: ${topPR} ${selectedUnit}`;
+          if (elCurrent) elCurrent.innerText = `MÃ¡x: ${topPR} ${selectedUnit}`;
           if (elProgress) {
             elProgress.innerText = `General Activo`;
             elProgress.style.color = "#06b6d4";
           }
           if (elLastDate) elLastDate.innerText = "Hoy";
 
-          // Dibujar líneas comparativas para movimientos principales
+          // Dibujar lÃ­neas comparativas para movimientos principales
           const paddingLeft = 45;
           const paddingRight = 20;
           const paddingTop = 25;
@@ -3046,7 +3046,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const plotW = w - paddingLeft - paddingRight;
           const plotH = h - paddingTop - paddingBottom;
 
-          // Obtener fechas únicas ordenadas
+          // Obtener fechas Ãºnicas ordenadas
           const allDates = [...new Set(history.map(h => h.date))].sort();
           if (allDates.length === 0) allDates.push(new Date().toISOString().split('T')[0]);
 
@@ -3113,7 +3113,7 @@ document.addEventListener("DOMContentLoaded", () => {
             legendX += ctx.measureText(move).width + 20;
           });
 
-          // Tabla con últimos registros
+          // Tabla con Ãºltimos registros
           if (historyContainer) {
             const recent = [...history].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
             historyContainer.innerHTML = `
@@ -3156,7 +3156,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.print();
       });
 
-      // 12. Envío y Compartir Reporte por Correo Electrónico
+      // 12. EnvÃ­o y Compartir Reporte por Correo ElectrÃ³nico
       const emailReportModal = document.getElementById("emailReportModal");
       const btnCloseEmailReportModal = document.getElementById("btnCloseEmailReportModal");
       const btnCancelEmailReport = document.getElementById("btnCancelEmailReport");
@@ -3208,22 +3208,22 @@ document.addEventListener("DOMContentLoaded", () => {
         const formattedDate = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
         const unitTag = (selectedUnit || "kg").toUpperCase();
 
-        let bodyText = `🏋️ HALTEROFILIA PRO - REPORTE DE RENDIMIENTO\n`;
+        let bodyText = `ðŸ‹ï¸ HALTEROFILIA PRO - REPORTE DE RENDIMIENTO\n`;
         bodyText += `==============================================\n`;
         bodyText += `Atleta: ${athName}\n`;
         if (athEmail) bodyText += `Correo: ${athEmail}\n`;
         bodyText += `Fecha: ${formattedDate}\n`;
         bodyText += `Unidad: ${unitTag}\n`;
         bodyText += `----------------------------------------------\n`;
-        bodyText += `🏆 RÉCORDS PERSONALES (PRs):\n`;
+        bodyText += `ðŸ† RÃ‰CORDS PERSONALES (PRs):\n`;
 
         movements.forEach(m => {
           const val = prs[m] !== undefined ? prs[m] : "-";
-          bodyText += ` • ${m.padEnd(20, ' ')} : ${val} ${unitTag}\n`;
+          bodyText += ` â€¢ ${m.padEnd(20, ' ')} : ${val} ${unitTag}\n`;
         });
 
         bodyText += `----------------------------------------------\n`;
-        bodyText += `Generado automáticamente por Halterofilia Pro V3\n`;
+        bodyText += `Generado automÃ¡ticamente por Halterofilia Pro V3\n`;
 
         const recipientInput = document.getElementById("emailReportRecipient");
         const bodyPreview = document.getElementById("emailReportBodyPreview");
@@ -3287,10 +3287,10 @@ document.addEventListener("DOMContentLoaded", () => {
               copyNotice.style.display = "block";
               setTimeout(() => { copyNotice.style.display = "none"; }, 3500);
             } else {
-              alert("¡Reporte copiado al portapapeles!");
+              alert("Â¡Reporte copiado al portapapeles!");
             }
           } catch (e) {
-            alert("No se pudo copiar automáticamente. Puedes seleccionar el texto de la vista previa y copiarlo.");
+            alert("No se pudo copiar automÃ¡ticamente. Puedes seleccionar el texto de la vista previa y copiarlo.");
           }
         });
       }
@@ -3356,64 +3356,64 @@ document.addEventListener("DOMContentLoaded", () => {
       // Estructura de diapositivas interactivas para el Demo Animado
       const demoSlides = [
         {
-          title: "1. Parámetros Base y Barra Olímpica",
-          subtitle: "Configuración inicial personalizada",
-          icon: "⚙️",
+          title: "1. ParÃ¡metros Base y Barra OlÃ­mpica",
+          subtitle: "ConfiguraciÃ³n inicial personalizada",
+          icon: "âš™ï¸",
           html: `
             <div style="font-size:0.85rem; line-height:1.45; color:var(--text-main); margin-bottom:12px;">
-              Configura tu sesión de entrenamiento eligiendo el <strong>Centro de Entrenamiento</strong>, la <strong>Unidad Objetivo (Kgs, Lbs o Ambas)</strong> y el tipo de <strong>Barra Olímpica</strong>.
+              Configura tu sesiÃ³n de entrenamiento eligiendo el <strong>Centro de Entrenamiento</strong>, la <strong>Unidad Objetivo (Kgs, Lbs o Ambas)</strong> y el tipo de <strong>Barra OlÃ­mpica</strong>.
             </div>
             <div class="demo-mockup-box">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <span style="font-size:0.75rem; color:var(--text-muted);">Unidad de Medida Preferida:</span>
-                <span style="font-size:0.75rem; color:var(--accent-cyan); font-weight:700;">Conversión Automática 1 kg = 2.20462 lb</span>
+                <span style="font-size:0.75rem; color:var(--accent-cyan); font-weight:700;">ConversiÃ³n AutomÃ¡tica 1 kg = 2.20462 lb</span>
               </div>
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;">
                 <div style="background:var(--input-bg); border:2px solid var(--accent-cyan); border-radius:6px; padding:8px; text-align:center;">
-                  <strong style="color:var(--accent-cyan); font-size:0.95rem;">⚖️ Kilogramos (KG)</strong>
-                  <small style="display:block; color:var(--text-muted); font-size:0.7rem;">Estándar IWF Oficial</small>
+                  <strong style="color:var(--accent-cyan); font-size:0.95rem;">âš–ï¸ Kilogramos (KG)</strong>
+                  <small style="display:block; color:var(--text-muted); font-size:0.7rem;">EstÃ¡ndar IWF Oficial</small>
                 </div>
                 <div style="background:var(--input-bg); border:1px solid var(--card-border); border-radius:6px; padding:8px; text-align:center; opacity:0.7;">
-                  <strong style="font-size:0.95rem;">🇺🇸 Libras (LBS)</strong>
+                  <strong style="font-size:0.95rem;">ðŸ‡ºðŸ‡¸ Libras (LBS)</strong>
                   <small style="display:block; color:var(--text-muted); font-size:0.7rem;">Discos 45, 35, 25, 10...</small>
                 </div>
               </div>
               <div style="display:flex; justify-content:space-around; background:var(--input-bg); padding:8px; border-radius:6px; border:1px solid var(--card-border);">
                 <div style="text-align:center;">
-                  <span style="font-size:1.1rem;">🏋️‍♂️</span>
+                  <span style="font-size:1.1rem;">ðŸ‹ï¸â€â™‚ï¸</span>
                   <div style="font-size:0.75rem; font-weight:700;">Barra Hombre: 20 kg (45 lb)</div>
                   <small style="color:var(--text-muted); font-size:0.68rem;">Grip 28 mm</small>
                 </div>
                 <div style="text-align:center; opacity:0.65;">
-                  <span style="font-size:1.1rem;">🏋️‍♀️</span>
+                  <span style="font-size:1.1rem;">ðŸ‹ï¸â€â™€ï¸</span>
                   <div style="font-size:0.75rem; font-weight:700;">Barra Mujer: 15 kg (35 lb)</div>
                   <small style="color:var(--text-muted); font-size:0.68rem;">Grip 25 mm</small>
                 </div>
               </div>
             </div>
             <div style="font-size:0.78rem; color:var(--accent-cyan); background:rgba(6,182,212,0.1); border-left:3px solid var(--accent-cyan); padding:6px 10px; border-radius:0 6px 6px 0;">
-              💡 <strong>Tip:</strong> Cada atleta guarda su unidad preferida (Kgs, Lbs o Ambas) y se activa automáticamente al cambiar de atleta.
+              ðŸ’¡ <strong>Tip:</strong> Cada atleta guarda su unidad preferida (Kgs, Lbs o Ambas) y se activa automÃ¡ticamente al cambiar de atleta.
             </div>
           `
         },
         {
           title: "2. Movimiento de Halterofilia & PRs",
-          subtitle: "Selección ágil por lista desplegable",
-          icon: "🏋️",
+          subtitle: "SelecciÃ³n Ã¡gil por lista desplegable",
+          icon: "ðŸ‹ï¸",
           html: `
             <div style="font-size:0.85rem; line-height:1.45; color:var(--text-main); margin-bottom:12px;">
-              Selecciona el movimiento olímpico directamente desde la nueva <strong>lista desplegable</strong>. La app cargará instantáneamente tu Récord Personal (PR) vigente para esa disciplina.
+              Selecciona el movimiento olÃ­mpico directamente desde la nueva <strong>lista desplegable</strong>. La app cargarÃ¡ instantÃ¡neamente tu RÃ©cord Personal (PR) vigente para esa disciplina.
             </div>
             <div class="demo-mockup-box">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <label style="font-size:0.8rem; font-weight:700; color:var(--text-main);">Movimiento de Halterofilia:</label>
                 <span style="font-size:0.85rem; font-weight:700; color:var(--accent-cyan); background:rgba(6,182,212,0.15); padding:3px 8px; border-radius:6px; animation:demoPulseGlow 2s infinite;">
-                  🏆 PR Actual: 100 kg
+                  ðŸ† PR Actual: 100 kg
                 </span>
               </div>
               <div style="background:var(--input-bg); border:1.5px solid var(--accent-cyan); border-radius:6px; padding:10px 12px; font-weight:700; font-size:0.95rem; color:var(--text-main); display:flex; justify-content:space-between; align-items:center;">
-                <span>🏋️ Snatch (Arrancada)</span>
-                <span style="color:var(--accent-cyan);">▼</span>
+                <span>ðŸ‹ï¸ Snatch (Arrancada)</span>
+                <span style="color:var(--accent-cyan);">â–¼</span>
               </div>
               <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; margin-top:8px;">
                 <span style="background:rgba(255,255,255,0.04); padding:4px 6px; border-radius:4px; font-size:0.7rem; text-align:center; color:var(--text-muted);">Clean & Jerk</span>
@@ -3422,17 +3422,17 @@ document.addEventListener("DOMContentLoaded", () => {
               </div>
             </div>
             <div style="font-size:0.78rem; color:var(--accent-cyan); background:rgba(6,182,212,0.1); border-left:3px solid var(--accent-cyan); padding:6px 10px; border-radius:0 6px 6px 0;">
-              💡 <strong>Tip:</strong> Puedes editar todos tus PRs en cualquier momento presionando el botón <strong>🏆 PRs</strong> en la cabecera o barra lateral.
+              ðŸ’¡ <strong>Tip:</strong> Puedes editar todos tus PRs en cualquier momento presionando el botÃ³n <strong>ðŸ† PRs</strong> en la cabecera o barra lateral.
             </div>
           `
         },
         {
           title: "3. Control de Porcentaje y Peso en Barra",
-          subtitle: "Cálculo matemático instantáneo",
-          icon: "🎯",
+          subtitle: "CÃ¡lculo matemÃ¡tico instantÃ¡neo",
+          icon: "ðŸŽ¯",
           html: `
             <div style="font-size:0.85rem; line-height:1.45; color:var(--text-main); margin-bottom:12px;">
-              Ajusta el porcentaje de entrenamiento con el deslizador suave (40% a 120%) o usando los botones rápidos. También puedes escribir el peso exacto deseado.
+              Ajusta el porcentaje de entrenamiento con el deslizador suave (40% a 120%) o usando los botones rÃ¡pidos. TambiÃ©n puedes escribir el peso exacto deseado.
             </div>
             <div class="demo-mockup-box" style="text-align:center;">
               <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
@@ -3452,18 +3452,18 @@ document.addEventListener("DOMContentLoaded", () => {
               <div style="background:var(--input-bg); padding:10px; border-radius:8px; border:1px solid var(--accent-cyan); display:inline-block; min-width:180px;">
                 <small style="color:var(--text-muted); display:block; font-size:0.7rem;">Peso Objetivo en Barra:</small>
                 <span style="font-size:1.6rem; font-weight:800; color:var(--text-main);">80.0 <span style="font-size:1rem; color:var(--accent-cyan);">kg</span></span>
-                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">≈ 176.4 lbs (Conversión dual)</div>
+                <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">â‰ˆ 176.4 lbs (ConversiÃ³n dual)</div>
               </div>
             </div>
           `
         },
         {
-          title: "4. Barra Olímpica & Carga Visual",
-          subtitle: "Representación realista con colores oficiales",
-          icon: "🏋️‍♂️",
+          title: "4. Barra OlÃ­mpica & Carga Visual",
+          subtitle: "RepresentaciÃ³n realista con colores oficiales",
+          icon: "ðŸ‹ï¸â€â™‚ï¸",
           html: `
             <div style="font-size:0.85rem; line-height:1.45; color:var(--text-main); margin-bottom:12px;">
-              Visualiza en pantalla cómo cargar la barra de forma 100% simétrica por lado, con collarines de seguridad y código cromático oficial de halterofilia.
+              Visualiza en pantalla cÃ³mo cargar la barra de forma 100% simÃ©trica por lado, con collarines de seguridad y cÃ³digo cromÃ¡tico oficial de halterofilia.
             </div>
             <div class="demo-mockup-box" style="padding:18px 8px; background:var(--barbell-bg);">
               <div style="display:flex; align-items:center; justify-content:center; height:80px; position:relative;">
@@ -3475,11 +3475,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div style="width:16px; height:70px; background:#2563eb; border-radius:3px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.5rem; font-weight:800; writing-mode:vertical-lr; box-shadow:0 1px 3px rgba(0,0,0,0.35);">20</div>
                   </div>
                 </div>
-                <!-- Collarín -->
+                <!-- CollarÃ­n -->
                 <div style="position:relative; z-index:3; width:8px; height:28px; background:linear-gradient(180deg, #cbd5e1 0%, #94a3b8 50%, #475569 100%); border:1px solid #334155; border-radius:1px;"></div>
                 <!-- Barra de acero -->
                 <div style="position:relative; z-index:1; width:70px; height:12px; background:linear-gradient(180deg, #f8fafc 0%, #cbd5e1 40%, #64748b 100%); border-top:1px solid #cbd5e1; border-bottom:1px solid #475569;"></div>
-                <!-- Collarín -->
+                <!-- CollarÃ­n -->
                 <div style="position:relative; z-index:3; width:8px; height:28px; background:linear-gradient(180deg, #cbd5e1 0%, #94a3b8 50%, #475569 100%); border:1px solid #334155; border-radius:1px;"></div>
                 <!-- Manga Derecha -->
                 <div style="position:relative; display:flex; align-items:center; justify-content:flex-start; min-width:85px; height:76px;">
@@ -3497,61 +3497,61 @@ document.addEventListener("DOMContentLoaded", () => {
               </div>
             </div>
             <div style="font-size:0.78rem; color:var(--accent-cyan); background:rgba(6,182,212,0.1); border-left:3px solid var(--accent-cyan); padding:6px 10px; border-radius:0 6px 6px 0;">
-              💡 <strong>Regla física:</strong> La aplicación organiza automáticamente los discos más grandes pegados al collarín para máxima estabilidad biomecánica.
+              ðŸ’¡ <strong>Regla fÃ­sica:</strong> La aplicaciÃ³n organiza automÃ¡ticamente los discos mÃ¡s grandes pegados al collarÃ­n para mÃ¡xima estabilidad biomecÃ¡nica.
             </div>
           `
         },
         {
           title: "5. Alternativas de Carga & Inventario",
           subtitle: "Filtradas por tu unidad y adaptadas a tus discos",
-          icon: "📦",
+          icon: "ðŸ“¦",
           html: `
             <div style="font-size:0.85rem; line-height:1.45; color:var(--text-main); margin-bottom:12px;">
-              El algoritmo voraz genera <strong>Alternativas de Carga</strong> filtradas estrictamente en tu unidad preferida (solo KG o solo LBS). Si en tu box falta un disco, tócalo en el Inventario para desactivarlo y el sistema recalculará la carga.
+              El algoritmo voraz genera <strong>Alternativas de Carga</strong> filtradas estrictamente en tu unidad preferida (solo KG o solo LBS). Si en tu box falta un disco, tÃ³calo en el Inventario para desactivarlo y el sistema recalcularÃ¡ la carga.
             </div>
             <div class="demo-mockup-box">
               <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:4px;">Alternativas Viables Generadas:</label>
               <div style="background:var(--input-bg); border:1px solid var(--card-border); padding:8px 10px; border-radius:6px; font-size:0.8rem; margin-bottom:10px;">
-                <span style="color:var(--accent-cyan); font-weight:700;">Opción 1 (Menor cant. de discos):</span> 2x20kg + 2x10kg (80.0 kg exactos)
+                <span style="color:var(--accent-cyan); font-weight:700;">OpciÃ³n 1 (Menor cant. de discos):</span> 2x20kg + 2x10kg (80.0 kg exactos)
               </div>
               <label style="font-size:0.75rem; color:var(--text-muted); display:block; margin-bottom:6px;">Inventario Disponible (Toca para activar/desactivar):</label>
               <div style="display:flex; justify-content:center; gap:6px; flex-wrap:wrap;">
                 <span style="background:#ea580c; color:#fff; font-weight:700; padding:4px 8px; border-radius:4px; font-size:0.75rem;">25 kg</span>
-                <span style="background:#2563eb; color:#fff; font-weight:700; padding:4px 8px; border-radius:4px; font-size:0.75rem; border:2px solid var(--accent-cyan);">20 kg ✓</span>
+                <span style="background:#2563eb; color:#fff; font-weight:700; padding:4px 8px; border-radius:4px; font-size:0.75rem; border:2px solid var(--accent-cyan);">20 kg âœ“</span>
                 <span style="background:#ca8a04; color:#fff; font-weight:700; padding:4px 8px; border-radius:4px; font-size:0.75rem;">15 kg</span>
-                <span style="background:#16a34a; color:#fff; font-weight:700; padding:4px 8px; border-radius:4px; font-size:0.75rem; border:2px solid var(--accent-cyan);">10 kg ✓</span>
-                <span style="background:#64748b; color:#cbd5e1; padding:4px 8px; border-radius:4px; font-size:0.75rem; text-decoration:line-through; opacity:0.5;">5 kg ✕</span>
+                <span style="background:#16a34a; color:#fff; font-weight:700; padding:4px 8px; border-radius:4px; font-size:0.75rem; border:2px solid var(--accent-cyan);">10 kg âœ“</span>
+                <span style="background:#64748b; color:#cbd5e1; padding:4px 8px; border-radius:4px; font-size:0.75rem; text-decoration:line-through; opacity:0.5;">5 kg âœ•</span>
               </div>
             </div>
           `
         },
         {
           title: "6. Atletas con Foto, Contacto y Reportes",
-          subtitle: "Gestión integral de perfiles y evolución",
-          icon: "👥",
+          subtitle: "GestiÃ³n integral de perfiles y evoluciÃ³n",
+          icon: "ðŸ‘¥",
           html: `
             <div style="font-size:0.85rem; line-height:1.45; color:var(--text-main); margin-bottom:12px;">
-              Registra perfiles completos con <strong>Nombre, Apellidos, Correo Electrónico, Teléfono de Contacto y Foto de Perfil</strong>. Visualiza el historial de rendimiento de cada atleta y exporta informes a PDF o por correo.
+              Registra perfiles completos con <strong>Nombre, Apellidos, Correo ElectrÃ³nico, TelÃ©fono de Contacto y Foto de Perfil</strong>. Visualiza el historial de rendimiento de cada atleta y exporta informes a PDF o por correo.
             </div>
             <div class="demo-mockup-box">
               <div style="display:flex; align-items:center; gap:12px; background:var(--input-bg); padding:10px; border-radius:8px; border:1px solid var(--card-border); margin-bottom:8px;">
                 <div style="width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:1.3rem; border:2px solid var(--accent-cyan); flex-shrink:0;">
-                  🏋️
+                  ðŸ‹ï¸
                 </div>
                 <div style="flex:1;">
-                  <strong style="color:var(--text-main); font-size:0.95rem; display:block;">Carlos González</strong>
-                  <small style="color:var(--text-muted); display:block; font-size:0.75rem;">✉️ carlos.gonzalez@email.com</small>
-                  <small style="color:var(--accent-cyan); display:block; font-size:0.75rem; font-weight:600;">📞 +56 9 8765 4321</small>
+                  <strong style="color:var(--text-main); font-size:0.95rem; display:block;">Carlos GonzÃ¡lez</strong>
+                  <small style="color:var(--text-muted); display:block; font-size:0.75rem;">âœ‰ï¸ carlos.gonzalez@email.com</small>
+                  <small style="color:var(--accent-cyan); display:block; font-size:0.75rem; font-weight:600;">ðŸ“ž +56 9 8765 4321</small>
                 </div>
                 <span style="color:var(--accent-cyan); font-size:0.75rem; font-weight:700; background:rgba(6,182,212,0.15); padding:4px 8px; border-radius:4px;">Activo</span>
               </div>
               <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-muted); padding:4px 6px;">
-                <span>📊 Gráfica temporal de evolución</span>
-                <span>📄 Exportar informe a PDF</span>
+                <span>ðŸ“Š GrÃ¡fica temporal de evoluciÃ³n</span>
+                <span>ðŸ“„ Exportar informe a PDF</span>
               </div>
             </div>
             <div style="font-size:0.78rem; color:var(--accent-cyan); background:rgba(6,182,212,0.1); border-left:3px solid var(--accent-cyan); padding:6px 10px; border-radius:0 6px 6px 0;">
-              💡 <strong>Tip:</strong> Puedes cambiar rápidamente de atleta tocando el botón de perfil en la barra superior o en la barra vertical lateral.
+              ðŸ’¡ <strong>Tip:</strong> Puedes cambiar rÃ¡pidamente de atleta tocando el botÃ³n de perfil en la barra superior o en la barra vertical lateral.
             </div>
           `
         }
@@ -3601,7 +3601,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Actualizar botones de Anterior y Siguiente
         if (btnDemoPrev) btnDemoPrev.disabled = (stepIdx === 0);
         if (btnDemoNext) {
-          btnDemoNext.innerText = (stepIdx === demoSlides.length - 1) ? "Reiniciar ↺" : "Siguiente ▶";
+          btnDemoNext.innerText = (stepIdx === demoSlides.length - 1) ? "Reiniciar â†º" : "Siguiente â–¶";
         }
       }
 
@@ -3630,7 +3630,7 @@ document.addEventListener("DOMContentLoaded", () => {
         currentDemoStep = 0;
         isDemoPlaying = true;
         if (btnDemoPlayPause) {
-          btnDemoPlayPause.innerText = "⏸ Pausa";
+          btnDemoPlayPause.innerText = "â¸ Pausa";
           btnDemoPlayPause.style.color = "var(--accent-cyan)";
         }
         renderDemoStep(0);
@@ -3673,11 +3673,11 @@ document.addEventListener("DOMContentLoaded", () => {
         btnDemoPlayPause.addEventListener("click", () => {
           isDemoPlaying = !isDemoPlaying;
           if (isDemoPlaying) {
-            btnDemoPlayPause.innerText = "⏸ Pausa";
+            btnDemoPlayPause.innerText = "â¸ Pausa";
             btnDemoPlayPause.style.color = "var(--accent-cyan)";
             startDemoTimer();
           } else {
-            btnDemoPlayPause.innerText = "▶ Seguir";
+            btnDemoPlayPause.innerText = "â–¶ Seguir";
             btnDemoPlayPause.style.color = "var(--text-main)";
             stopDemoTimer();
           }
@@ -3693,7 +3693,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       // =========================================================================
-      // SISTEMA DE RESPALDO Y RECUPERACIÓN DE DATOS (OFFLINE-FIRST)
+      // SISTEMA DE RESPALDO Y RECUPERACIÃ“N DE DATOS (OFFLINE-FIRST)
       // =========================================================================
       function getAllBackupData() {
         const devId = getOrCreateDeviceId();
@@ -3738,7 +3738,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
       }
 
-      // --- SISTEMA DE RESPALDO Y RECUPERACIÓN OFFLINE-FIRST ---
+      // --- SISTEMA DE RESPALDO Y RECUPERACIÃ“N OFFLINE-FIRST ---
 
       function utf8ToBase64Safe(str) {
         try {
@@ -3851,21 +3851,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const subject = `Respaldo Halterofilia Pro - ${athleteName} (${dateStr})`;
 
-        let bodyText = `🏋️ HALTEROFILIA PRO - RESPALDO DE DATOS\n`;
+        let bodyText = `ðŸ‹ï¸ HALTEROFILIA PRO - RESPALDO DE DATOS\n`;
         bodyText += `Atleta: ${athleteName}\n`;
         if (athleteEmail) bodyText += `Correo: ${athleteEmail}\n`;
         bodyText += `Fecha: ${dateStr} ${timeStr}\n`;
         bodyText += `Archivo adjunto: ${fileName}\n`;
         bodyText += `----------------------------------------------\n\n`;
         bodyText += `INSTRUCCIONES PARA DESCARGAR Y RECUPERAR EN OTROS EQUIPOS:\n`;
-        bodyText += `1. Abre este correo en tu otro computador, teléfono o tablet.\n`;
-        bodyText += `2. Descarga el archivo adjunto "${fileName}" (guárdalo en tu carpeta de Descargas).\n`;
+        bodyText += `1. Abre este correo en tu otro computador, telÃ©fono o tablet.\n`;
+        bodyText += `2. Descarga el archivo adjunto "${fileName}" (guÃ¡rdalo en tu carpeta de Descargas).\n`;
         bodyText += `3. Abre Halterofilia Pro en ese equipo.\n`;
-        bodyText += `4. Presiona "Recuperar" en la barra superior o menú.\n`;
+        bodyText += `4. Presiona "Recuperar" en la barra superior o menÃº.\n`;
         bodyText += `5. Elige "Cargar Archivo .JSON Descargado" y selecciona "${fileName}".\n`;
-        bodyText += `   ¡Tus atletas, PRs históricos y centros de entrenamiento quedarán sincronizados al instante!\n\n`;
+        bodyText += `   Â¡Tus atletas, PRs histÃ³ricos y centros de entrenamiento quedarÃ¡n sincronizados al instante!\n\n`;
         bodyText += `----------------------------------------------\n`;
-        bodyText += `CÓDIGO DE RESPALDO DIRECTO (Opcional por si no descargas el archivo):\n`;
+        bodyText += `CÃ“DIGO DE RESPALDO DIRECTO (Opcional por si no descargas el archivo):\n`;
         bodyText += `[HALTEROFILIA_DATA: ${b64Data}]\n`;
         bodyText += `----------------------------------------------`;
 
@@ -3929,7 +3929,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           if (backupEmailModal) backupEmailModal.classList.add("open");
         } catch (err) {
-          alert("❌ Error al preparar respaldo: " + err.message);
+          alert("âŒ Error al preparar respaldo: " + err.message);
         }
       }
 
@@ -3974,7 +3974,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const subject = payload.subject;
           const body = payload.bodyText;
 
-          // 1. Descargar automáticamente el archivo .json
+          // 1. Descargar automÃ¡ticamente el archivo .json
           triggerJsonDownload(payload.fileName, payload.jsonFullFormatted);
 
           // 2. Copiar preventivamente al portapapeles
@@ -3989,7 +3989,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const copyNotice = document.getElementById("backupEmailCopyNotification");
           if (copyNotice) {
             copyNotice.style.display = "block";
-            copyNotice.innerHTML = `✓ ¡Archivo <strong>${payload.fileName}</strong> descargado y ventana de Gmail abierta!<br><span style="font-size:0.75rem; font-weight:normal;">Solo arrastra o adjunta con el clip 📎 el archivo descargado para enviarlo a tus otros equipos.</span><br><a href="${gmailUrl}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline; font-weight: 700; display: inline-block; margin-top: 4px;">👉 Haz clic aquí si tu navegador bloqueó la ventana de Gmail</a>`;
+            copyNotice.innerHTML = `âœ“ Â¡Archivo <strong>${payload.fileName}</strong> descargado y ventana de Gmail abierta!<br><span style="font-size:0.75rem; font-weight:normal;">Solo arrastra o adjunta con el clip ðŸ“Ž el archivo descargado para enviarlo a tus otros equipos.</span><br><a href="${gmailUrl}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline; font-weight: 700; display: inline-block; margin-top: 4px;">ðŸ‘‰ Haz clic aquÃ­ si tu navegador bloqueÃ³ la ventana de Gmail</a>`;
           }
 
           const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -3999,7 +3999,7 @@ document.addEventListener("DOMContentLoaded", () => {
             openExternalUrl(gmailUrl);
           }
         } catch (err) {
-          alert("❌ Error al abrir Gmail: " + err.message);
+          alert("âŒ Error al abrir Gmail: " + err.message);
         }
       });
 
@@ -4018,7 +4018,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const subject = payload.subject;
           const body = payload.bodyText;
 
-          // 1. Descargar automáticamente el archivo .json
+          // 1. Descargar automÃ¡ticamente el archivo .json
           triggerJsonDownload(payload.fileName, payload.jsonFullFormatted);
 
           try {
@@ -4032,12 +4032,12 @@ document.addEventListener("DOMContentLoaded", () => {
           const copyNotice = document.getElementById("backupEmailCopyNotification");
           if (copyNotice) {
             copyNotice.style.display = "block";
-            copyNotice.innerHTML = `✓ ¡Archivo <strong>${payload.fileName}</strong> descargado y ventana de Outlook abierta!<br><span style="font-size:0.75rem; font-weight:normal;">Solo arrastra o adjunta con el clip 📎 el archivo descargado para enviarlo a tus otros equipos.</span><br><a href="${outlookUrl}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline; font-weight: 700; display: inline-block; margin-top: 4px;">👉 Haz clic aquí si tu navegador bloqueó la ventana emergente</a>`;
+            copyNotice.innerHTML = `âœ“ Â¡Archivo <strong>${payload.fileName}</strong> descargado y ventana de Outlook abierta!<br><span style="font-size:0.75rem; font-weight:normal;">Solo arrastra o adjunta con el clip ðŸ“Ž el archivo descargado para enviarlo a tus otros equipos.</span><br><a href="${outlookUrl}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline; font-weight: 700; display: inline-block; margin-top: 4px;">ðŸ‘‰ Haz clic aquÃ­ si tu navegador bloqueÃ³ la ventana emergente</a>`;
           }
 
           openExternalUrl(outlookUrl);
         } catch (err) {
-          alert("❌ Error al abrir Outlook: " + err.message);
+          alert("âŒ Error al abrir Outlook: " + err.message);
         }
       });
 
@@ -4053,10 +4053,10 @@ document.addEventListener("DOMContentLoaded", () => {
           const copyNotice = document.getElementById("backupEmailCopyNotification");
           if (copyNotice) {
             copyNotice.style.display = "block";
-            copyNotice.innerHTML = `✓ ¡Archivo de correo <strong>${emlFileName}</strong> descargado con el archivo .JSON ya incrustado!<br><span style="font-size:0.75rem; font-weight:normal;">Ábrelo en tu cliente de correo (Outlook, Mail) para enviarlo con el adjunto listo con 1 clic.</span>`;
+            copyNotice.innerHTML = `âœ“ Â¡Archivo de correo <strong>${emlFileName}</strong> descargado con el archivo .JSON ya incrustado!<br><span style="font-size:0.75rem; font-weight:normal;">Ãbrelo en tu cliente de correo (Outlook, Mail) para enviarlo con el adjunto listo con 1 clic.</span>`;
           }
         } catch (err) {
-          alert("❌ Error al generar correo con adjunto: " + err.message);
+          alert("âŒ Error al generar correo con adjunto: " + err.message);
         }
       });
 
@@ -4067,17 +4067,17 @@ document.addEventListener("DOMContentLoaded", () => {
           const subject = payload.subject;
           const body = payload.bodyText;
 
-          // Descargar automáticamente el archivo .json para adjuntarlo
+          // Descargar automÃ¡ticamente el archivo .json para adjuntarlo
           triggerJsonDownload(payload.fileName, payload.jsonFullFormatted);
           triggerNativeMailto(to, subject, body);
 
           const copyNotice = document.getElementById("backupEmailCopyNotification");
           if (copyNotice) {
             copyNotice.style.display = "block";
-            copyNotice.innerHTML = `✓ ¡Abriendo aplicación de correo y archivo <strong>${payload.fileName}</strong> descargado!<br><span style="font-size:0.75rem; font-weight:normal;">Solo adjúntalo con el clip 📎 para enviártelo a tus otros equipos.</span>`;
+            copyNotice.innerHTML = `âœ“ Â¡Abriendo aplicaciÃ³n de correo y archivo <strong>${payload.fileName}</strong> descargado!<br><span style="font-size:0.75rem; font-weight:normal;">Solo adjÃºntalo con el clip ðŸ“Ž para enviÃ¡rtelo a tus otros equipos.</span>`;
           }
         } catch (err) {
-          alert("❌ Error al abrir correo: " + err.message);
+          alert("âŒ Error al abrir correo: " + err.message);
         }
       });
 
@@ -4096,11 +4096,11 @@ document.addEventListener("DOMContentLoaded", () => {
           }
           if (copyNotice) {
             copyNotice.style.display = "block";
-            copyNotice.textContent = "✓ ¡Respaldo copiado al portapapeles con éxito!";
+            copyNotice.textContent = "âœ“ Â¡Respaldo copiado al portapapeles con Ã©xito!";
             setTimeout(() => { copyNotice.style.display = "none"; }, 4000);
           }
         } catch (err) {
-          alert("❌ No se pudo copiar automáticamente: " + err.message);
+          alert("âŒ No se pudo copiar automÃ¡ticamente: " + err.message);
         }
       });
 
@@ -4138,25 +4138,25 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      // Descarga explícita y manual del archivo .json
+      // Descarga explÃ­cita y manual del archivo .json
       document.getElementById("btnBackupDownloadManual")?.addEventListener("click", () => {
         try {
           const payload = getBackupEmailPayload();
           triggerJsonDownload(payload.fileName, payload.jsonFullFormatted);
-          alert(`✅ Archivo guardado:\nSe ha descargado "${payload.fileName}" en tu carpeta de Descargas para usarlo en cualquier equipo.`);
+          alert(`âœ… Archivo guardado:\nSe ha descargado "${payload.fileName}" en tu carpeta de Descargas para usarlo en cualquier equipo.`);
         } catch (err) {
-          alert("❌ Error al descargar archivo: " + err.message);
+          alert("âŒ Error al descargar archivo: " + err.message);
         }
       });
 
-      // --- LOGICA DE RECUPERACIÓN / RESTAURACIÓN ---
+      // --- LOGICA DE RECUPERACIÃ“N / RESTAURACIÃ“N ---
 
       function parseBackupInput(input) {
         if (typeof input === "object" && input !== null) {
           return input;
         }
         const text = String(input).trim();
-        if (!text) throw new Error("El texto de respaldo está vacío.");
+        if (!text) throw new Error("El texto de respaldo estÃ¡ vacÃ­o.");
 
         // 1. Etiqueta [HALTEROFILIA_DATA: <base64>]
         const tagMatch = text.match(/\[HALTEROFILIA_DATA:\s*([A-Za-z0-9+/=_\-]+)\s*\]/);
@@ -4165,7 +4165,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const decodedJson = base64ToUtf8Safe(tagMatch[1].trim());
             return JSON.parse(decodedJson);
           } catch (e) {
-            console.warn("Fallo decodificación tag base64:", e);
+            console.warn("Fallo decodificaciÃ³n tag base64:", e);
           }
         }
 
@@ -4189,12 +4189,12 @@ document.addEventListener("DOMContentLoaded", () => {
           return JSON.parse(rawDecoded);
         } catch (e) {}
 
-        throw new Error("No se encontró una estructura de respaldo válida en el texto proporcionado.");
+        throw new Error("No se encontrÃ³ una estructura de respaldo vÃ¡lida en el texto proporcionado.");
       }
 
       function applyRestoredBackup(data) {
         if (!data || (!data.athletes && !data.ath && !data.prs && !data.centers && !data.cen)) {
-          throw new Error("El respaldo no contiene información válida de atletas, PRs o centros.");
+          throw new Error("El respaldo no contiene informaciÃ³n vÃ¡lida de atletas, PRs o centros.");
         }
 
         // Normalizar formato compacto o completo
@@ -4216,13 +4216,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!centers && data.cen) {
           centers = data.cen.map(c => {
             const cid = c.id || "katsu_egana";
-            const cname = c.name || c.n || "Katsu Egaña";
+            const cname = c.name || c.n || "Katsu EgaÃ±a";
             const ccat = c.category || c.cat || "both";
             const cplates = c.plates || c.plt || createDefaultPlatesConfig(ccat);
             return {
               id: cid,
               name: cname,
-              address: c.address || c.a || "Plaza Egaña, Santiago",
+              address: c.address || c.a || "Plaza EgaÃ±a, Santiago",
               phone: c.phone || c.p || "+56 9 3339 5447",
               category: ccat,
               plates: cplates
@@ -4268,7 +4268,7 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         }
 
-        // Refrescar el estado completo de la aplicación en caliente
+        // Refrescar el estado completo de la aplicaciÃ³n en caliente
         const activeId = getActiveAthleteId();
         if (activeId) {
           selectedUnit = getAthleteUnit(activeId);
@@ -4294,10 +4294,10 @@ document.addEventListener("DOMContentLoaded", () => {
         calculateHybridLoad();
 
         closeRestoreDataModal();
-        alert("✅ ¡Datos restaurados exitosamente!\n\nSe han recuperado tus atletas, PRs históricos y centros de entrenamiento.");
+        alert("âœ… Â¡Datos restaurados exitosamente!\n\nSe han recuperado tus atletas, PRs histÃ³ricos y centros de entrenamiento.");
       }
 
-      // Botón: Seleccionar Archivo JSON de Descargas
+      // BotÃ³n: Seleccionar Archivo JSON de Descargas
       document.getElementById("btnPickRestoreFile")?.addEventListener("click", () => {
         let fileInput = document.getElementById("restoreFileInput");
         if (fileInput) {
@@ -4316,13 +4316,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = parseBackupInput(evt.target.result);
             applyRestoredBackup(data);
           } catch (err) {
-            alert("❌ Error al procesar el archivo: " + err.message);
+            alert("âŒ Error al procesar el archivo: " + err.message);
           }
         };
         reader.readAsText(file);
       });
 
-      // Soporte Drag and Drop para archivo .json en el modal de recuperación
+      // Soporte Drag and Drop para archivo .json en el modal de recuperaciÃ³n
       const restoreDropZone = document.getElementById("restoreDropZone");
       if (restoreDropZone) {
         restoreDropZone.addEventListener("dragover", (e) => {
@@ -4350,7 +4350,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const data = parseBackupInput(evt.target.result);
                 applyRestoredBackup(data);
               } catch (err) {
-                alert("❌ Error al procesar el archivo soltado: " + err.message);
+                alert("âŒ Error al procesar el archivo soltado: " + err.message);
               }
             };
             reader.readAsText(file);
@@ -4358,22 +4358,22 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 
-      // Botón: Restaurar desde Texto Pegado
+      // BotÃ³n: Restaurar desde Texto Pegado
       document.getElementById("btnExecuteTextRestore")?.addEventListener("click", () => {
         const text = (document.getElementById("restoreTextInput")?.value || "").trim();
         if (!text) {
-          alert("⚠️ Por favor, pega primero el texto o código del correo de respaldo.");
+          alert("âš ï¸ Por favor, pega primero el texto o cÃ³digo del correo de respaldo.");
           return;
         }
         try {
           const data = parseBackupInput(text);
           applyRestoredBackup(data);
         } catch (err) {
-          alert("❌ Error al restaurar desde el texto: " + err.message);
+          alert("âŒ Error al restaurar desde el texto: " + err.message);
         }
       });
 
-      // Enlazar botones de Respaldo y Recuperación a los nuevos modales
+      // Enlazar botones de Respaldo y RecuperaciÃ³n a los nuevos modales
       document.getElementById("btnHeaderBackup")?.addEventListener("click", openBackupEmailModal);
       document.getElementById("btnHeaderRestore")?.addEventListener("click", openRestoreDataModal);
       document.getElementById("btnVerticalBackup")?.addEventListener("click", openBackupEmailModal);
@@ -4381,7 +4381,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("btnParamsBackup")?.addEventListener("click", openBackupEmailModal);
       document.getElementById("btnParamsRestore")?.addEventListener("click", openRestoreDataModal);
 
-      // Inicialización
+      // InicializaciÃ³n
       const hasExistingUser = checkInstallation();
       const initialAthId = getActiveAthleteId();
       if (initialAthId) {
@@ -4406,7 +4406,7 @@ document.addEventListener("DOMContentLoaded", () => {
       updateHeaderBarButton();
       updateHeaderThemeButton(selectedTheme);
 
-      // Si el usuario ya existe, entra directamente al entrenamiento (no muestra Parámetros de la Aplicación)
+      // Si el usuario ya existe, entra directamente al entrenamiento (no muestra ParÃ¡metros de la AplicaciÃ³n)
       if (hasExistingUser) {
         goToStep2();
       } else {
@@ -4414,7 +4414,7 @@ document.addEventListener("DOMContentLoaded", () => {
         step2Screen.style.display = "none";
       }
 
-      // Sincronización dinámica de la versión en el footer con formato V3.26.<consecutivo>
+      // SincronizaciÃ³n dinÃ¡mica de la versiÃ³n en el footer con formato V3.26.<consecutivo>
       function syncFooterVersion() {
         try {
           const footerEl = document.querySelector("footer, #appFooter");
@@ -4433,14 +4433,14 @@ document.addEventListener("DOMContentLoaded", () => {
             targetVersion
           );
           updatedHtml = updatedHtml.replace(
-            /(Santiago de Chile\s+)[A-Za-zñáéíóúÁÉÍÓÚ]+\s+[0-9]{4}/i,
+            /(Santiago de Chile\s+)[A-Za-zÃ±Ã¡Ã©Ã­Ã³ÃºÃÃ‰ÃÃ“Ãš]+\s+[0-9]{4}/i,
             `$1${currentMonthName} ${sysYear}`
           );
           footerEl.innerHTML = updatedHtml;
           footerEl.style.display = "block";
           footerEl.style.visibility = "visible";
         } catch (e) {
-          console.error("Error al sincronizar la versión del footer:", e);
+          console.error("Error al sincronizar la versiÃ³n del footer:", e);
         }
       }
       syncFooterVersion();
