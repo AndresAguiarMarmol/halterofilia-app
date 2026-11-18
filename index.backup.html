@@ -166,10 +166,130 @@
     }
 
     .header-actions {
-      display: flex;
-      gap: 5px;
+      display: none;
+    }
+
+    .header-menu-container {
+      position: relative;
+      display: inline-flex;
       align-items: center;
-      flex-wrap: wrap;
+    }
+
+    .btn-header-menu-toggle {
+      background: var(--btn-header-bg);
+      border: 1px solid var(--btn-header-border);
+      color: var(--btn-header-color);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 2px 5px var(--shadow-color);
+    }
+
+    .btn-header-menu-toggle:hover {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-header-menu-toggle:active,
+    .btn-header-menu-toggle.active {
+      background: var(--card-bg);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.45);
+    }
+
+    .btn-header-menu-toggle .menu-icon {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .btn-header-menu-toggle .menu-label {
+      font-size: 0.78rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .header-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: min(320px, calc(100vw - 24px));
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      max-height: min(520px, 85vh);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      transform-origin: top right;
+      animation: menuDropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes menuDropdownFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-6px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .header-dropdown-menu.open {
+      display: flex;
+    }
+
+    .dropdown-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .dropdown-section-tools {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+
+    .dropdown-section-settings {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border-top: 1px solid var(--card-border);
+      padding-top: 8px;
+      margin-top: 2px;
+    }
+
+    .dropdown-btn {
+      width: 100%;
+      justify-content: center;
+      padding: 8px 10px;
+      font-size: 0.8rem;
+    }
+
+    .dropdown-select {
+      width: 100%;
+      max-width: 100% !important;
+      padding: 8px 24px 8px 10px;
+      font-size: 0.8rem;
     }
 
     .btn-header {
@@ -1790,32 +1910,40 @@
       <img src="icono-192.png" alt="Logo" class="brand-logo">
       <span>Halterofilia Pro</span>
     </div>
-    <div class="header-actions">
-      <button class="btn-header" id="btnSwitchAthlete" style="display:inline-flex; align-items:center; gap:6px;">
-        <img id="currentAthleteAvatar" src="" alt="Avatar" style="display:none; width:20px; height:20px; border-radius:50%; object-fit:cover; border:1px solid var(--accent-cyan);">
-        <span id="currentAthleteAvatarIcon">👤</span>
-        <span id="currentAthleteLabel">Atleta</span>
+    <div class="header-menu-container">
+      <button type="button" class="btn-header-menu-toggle" id="btnHeaderMenuToggle" title="Menú de Opciones" aria-label="Menú de Opciones" aria-expanded="false" aria-controls="headerDropdownMenu">
+        <span class="menu-icon">☰</span>
+        <span class="menu-label">Menú</span>
       </button>
-      <button class="btn-header btn-demo-glow" id="btnOpenDemoHeader" style="font-weight: 700;" title="Ver Demo Animado">🎬 Demo</button>
-      <button class="btn-header" id="btnOpenReports">📊 Reportes</button>
-      <button class="btn-header" id="btnOpenPRModal">🏆 PRs</button>
-      <button class="btn-header" id="btnOpenLicenseModal">🔑 Licencia</button>
-      <button class="btn-header" id="btnHeaderBackup" title="Hacer Respaldo de Datos en Correo Electrónico">📧 Respaldo</button>
-      <button class="btn-header" id="btnHeaderRestore" title="Recuperar Datos desde Descargas o Correo">📥 Recuperar</button>
-      <!-- 1. Selector Desplegable para el Box -->
-      <select class="btn-header header-select" id="headerBoxSelect" title="Seleccionar Box / Centro de Entrenamiento" aria-label="Centro de Entrenamiento"></select>
-      <!-- 2. Botón para cambiar Unidad Objetivo (Kgs / Lbs) -->
-      <button type="button" class="btn-header" id="btnHeaderUnit" title="Cambiar Unidad Objetivo (Kgs / Lbs)">
-        <span id="headerUnitIcon">⚖️</span> <span id="headerUnitLabel">Kgs</span>
-      </button>
-      <!-- 3. Botón para cambiar Barra Olímpica (15 / 20 kg) -->
-      <button type="button" class="btn-header" id="btnHeaderBar" title="Cambiar Barra Olímpica (15 kg / 20 kg)">
-        <span id="headerBarIcon">🏋️</span> <span id="headerBarLabel">20 kg</span>
-      </button>
-      <!-- 4. Botón para cambiar Modo (Oscuro / Claro / Por Defecto) -->
-      <button type="button" class="btn-header" id="btnHeaderTheme" title="Cambiar Modo Visual (Oscuro / Claro / Por Defecto)">
-        <span id="headerThemeIcon">🌙</span> <span id="headerThemeLabel">Oscuro</span>
-      </button>
+      <div class="header-dropdown-menu" id="headerDropdownMenu" role="menu" aria-labelledby="btnHeaderMenuToggle">
+        <div class="dropdown-section dropdown-section-user">
+          <button class="btn-header dropdown-btn" id="btnSwitchAthlete" style="display:inline-flex; align-items:center; gap:6px;">
+            <img id="currentAthleteAvatar" src="" alt="Avatar" style="display:none; width:20px; height:20px; border-radius:50%; object-fit:cover; border:1px solid var(--accent-cyan);">
+            <span id="currentAthleteAvatarIcon">👤</span>
+            <span id="currentAthleteLabel">Atleta</span>
+          </button>
+        </div>
+        <div class="dropdown-section dropdown-section-tools">
+          <button class="btn-header dropdown-btn btn-demo-glow" id="btnOpenDemoHeader" style="font-weight: 700;" title="Ver Demo Animado">🎬 Demo</button>
+          <button class="btn-header dropdown-btn" id="btnOpenReports">📊 Reportes</button>
+          <button class="btn-header dropdown-btn" id="btnOpenPRModal">🏆 PRs</button>
+          <button class="btn-header dropdown-btn" id="btnOpenLicenseModal">🔑 Licencia</button>
+          <button class="btn-header dropdown-btn" id="btnHeaderBackup" title="Hacer Respaldo de Datos en Correo Electrónico">📧 Respaldo</button>
+          <button class="btn-header dropdown-btn" id="btnHeaderRestore" title="Recuperar Datos desde Descargas o Correo">📥 Recuperar</button>
+        </div>
+        <div class="dropdown-section dropdown-section-settings">
+          <select class="btn-header header-select dropdown-select" id="headerBoxSelect" title="Seleccionar Box / Centro de Entrenamiento" aria-label="Centro de Entrenamiento"></select>
+          <button type="button" class="btn-header dropdown-btn" id="btnHeaderUnit" title="Cambiar Unidad Objetivo (Kgs / Lbs)">
+            <span id="headerUnitIcon">⚖️</span> <span id="headerUnitLabel">Kgs</span>
+          </button>
+          <button type="button" class="btn-header dropdown-btn" id="btnHeaderBar" title="Cambiar Barra Olímpica (15 kg / 20 kg)">
+            <span id="headerBarIcon">🏋️</span> <span id="headerBarLabel">20 kg</span>
+          </button>
+          <button type="button" class="btn-header dropdown-btn" id="btnHeaderTheme" title="Cambiar Modo Visual (Oscuro / Claro / Por Defecto)">
+            <span id="headerThemeIcon">🌙</span> <span id="headerThemeLabel">Oscuro</span>
+          </button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -2651,7 +2779,7 @@
   </div>
 
   <footer id="appFooter">
-    Análisis/Diseño de Andres Aguiar V3.26.08 Santiago de Chile Noviembre 2026 - Contacto +56933395447 - Whatsapp +56933395447
+    Análisis/Diseño de Andres Aguiar V3.26.09 Santiago de Chile Noviembre 2026 - Contacto +56933395447 - Whatsapp +56933395447
   </footer>
 
   <script>

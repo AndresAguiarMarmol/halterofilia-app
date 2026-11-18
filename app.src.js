@@ -4381,6 +4381,71 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("btnParamsBackup")?.addEventListener("click", openBackupEmailModal);
       document.getElementById("btnParamsRestore")?.addEventListener("click", openRestoreDataModal);
 
+      // =========================================================================
+      // GESTIÓN DEL MENÚ SUPERIOR COLAPSABLE (#btnHeaderMenuToggle / #headerDropdownMenu)
+      // =========================================================================
+      function initHeaderDropdownMenu() {
+        const toggleBtn = document.getElementById("btnHeaderMenuToggle");
+        const menuDropdown = document.getElementById("headerDropdownMenu");
+        if (!toggleBtn || !menuDropdown) return;
+
+        function closeMenu() {
+          if (menuDropdown.classList.contains("open")) {
+            menuDropdown.classList.remove("open");
+            toggleBtn.setAttribute("aria-expanded", "false");
+            toggleBtn.classList.remove("active");
+          }
+        }
+
+        function openMenu() {
+          menuDropdown.classList.add("open");
+          toggleBtn.setAttribute("aria-expanded", "true");
+          toggleBtn.classList.add("active");
+        }
+
+        function toggleMenu() {
+          if (menuDropdown.classList.contains("open")) {
+            closeMenu();
+          } else {
+            openMenu();
+          }
+        }
+
+        // 1. Alternar apertura al presionar el botón de menú
+        toggleBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          toggleMenu();
+        });
+
+        // 2. Prevenir cierre accidental si se hace click dentro del menú desplegable,
+        // pero cerrar automáticamente si se presiona un botón de acción modal
+        menuDropdown.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const modalTrigger = e.target.closest(
+            "#btnSwitchAthlete, #btnOpenDemoHeader, #btnOpenReports, #btnOpenPRModal, #btnOpenLicenseModal, #btnHeaderBackup, #btnHeaderRestore"
+          );
+          if (modalTrigger) {
+            closeMenu();
+          }
+        });
+
+        // 3. Cerrar al hacer clic en cualquier parte fuera del menú y del botón
+        document.addEventListener("click", (e) => {
+          if (!menuDropdown.contains(e.target) && !toggleBtn.contains(e.target)) {
+            closeMenu();
+          }
+        });
+
+        // 4. Cerrar con la tecla Escape
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" || e.keyCode === 27) {
+            closeMenu();
+          }
+        });
+      }
+
+      initHeaderDropdownMenu();
+
       // Inicialización
       const hasExistingUser = checkInstallation();
       const initialAthId = getActiveAthleteId();

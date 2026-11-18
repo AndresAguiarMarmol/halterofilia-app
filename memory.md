@@ -3,34 +3,27 @@
 Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo que ya no aporte.
 
 ## Estado actual
-- **Versión activa:** V3.26.08 (Noviembre 2026).
+- **Versión activa:** V3.26.09 (Noviembre 2026).
 - **Entorno compilado y blindado:** `app.src.js` ofuscado en `index.html` y `V2/Index.html` con AST Control Flow Flattening y RC4 via `javascript-obfuscator`.
-- **Codificación:** 100% UTF-8 limpio sin BOM ni mojibake. Verificado con `npm test` (`node --test tests/encoding.test.js`).
+- **Codificación y Calidad:** 100% UTF-8 limpio sin BOM ni mojibake. Verificado con `npm test` (8 tests en verde).
 - **Funcionalidades operativas:**
-  - Codificación UTF-8 estricta en español (acentos, ñ, símbolos/emojis y correo estándar `su-usuario@dominio.com`).
-  - Persistencia de preferencias del atleta: el gimnasio actual y los pesos disponibles se guardan en los datos del usuario entre sesiones.
-  - Presentación de opciones de pesas con priorización estricta del menor número de pesas en la barra (`Opción 1` siempre es el mínimo de discos).
-  - Cálculo simétrico de barra olímpica con soporte para discos en Kgs y Lbs y selección de alternativas.
-  - Inventario interactivo de discos por centro con persistencia en tiempo real al hacer clic.
-  - Selector de Unidad Objetivo en cabecera con alternancia binaria exclusiva entre Kgs $\leftrightarrow$ Lbs.
-  - Selector de Unidad en la tarjeta de Peso Objetivo (Kgs / Lbs) sincronizado con cabecera y conversión en caliente.
-  - Desacople total de la unidad visual respecto a las alternativas de carga (pueden ser Kgs, Lbs o mixtas).
-  - Selector y gestor integral de Boxes / Centros (Crear, Modificar, Eliminar).
-  - Motor de armado con garantía de precisión mínima del 95% y badge visual de precisión.
-  - Gestión de PRs en 11 movimientos olímpicos y gráficas de progreso.
-  - Licenciamiento offline con 7 días de trial, Device ID y validación criptográfica SHA-256.
-  - Selector de temas (Oscuro, Claro, Sistema) y barra visual centrada.
+  - **Cabecera colapsable moderna:** Botón compacto `#btnHeaderMenuToggle` que despliega el panel flotante `#headerDropdownMenu` con los 11 controles del sistema (Atleta, Demo, Reportes, PRs, Licencia, Respaldo, Recuperar, Box, Unidad, Barra, Modo Visual) sin alterar IDs, listeners ni datos persistentes.
+  - Persistencia de preferencias del atleta: box y pesos disponibles guardados por perfil.
+  - Priorización estricta del menor número de pesas en la barra (`Opción 1` siempre es el óptimo físico).
+  - Cálculo simétrico de barra olímpica en Kgs y Lbs con precisión $\ge 95\%$.
+  - Inventario interactivo de discos por centro con persistencia en tiempo real.
+  - Selector exclusivo Kgs / Lbs en cabecera y tarjeta de peso objetivo con conversión en caliente.
+  - Gestor integral de Boxes (Crear, Modificar, Eliminar) y PRs en 11 disciplinas.
+  - Licenciamiento offline SHA-256 con 7 días de trial y Device ID.
 
 ## Decisiones (y por qué)
-  - **Restauración UTF-8 base limpia:** Ante corrupción por guardado en Windows-1252/ISO-8859-1 en `cc27522`, se restauró la base fiel `04e529f` manteniendo `su-usuario@dominio.com` y compilando con `scripts/protect.js`.
-  - **Suite de pruebas de codificación automatizada (`tests/encoding.test.js`):** Previene regresiones de mojibake y asegura que los bundles protegidos y de desarrollo se generen con codificación pura.
-  - **Priorización estricta de menor número de discos:** Minimiza el esfuerzo físico del atleta para cargar y descargar la barra.
-  - **Selector de unidad exclusivo Kgs / Lbs:** No tiene sentido una meta en "Ambas", se restringe a Kgs y Lbs en objetivo.
-  - **Offline-First sin dependencias runtime:** Portabilidad total en móviles y despliegue PWA / APK vía PWABuilder.
+  - **Cabecera colapsable con menú flotante contextual:** Reduce la saturación visual en móviles y escritorio, manteniendo acceso inmediato a todas las herramientas sin colisionar con el dock lateral.
+  - **Preservación estricta de IDs en el DOM:** Asegura 100% de compatibilidad con listeners existentes y lógica de sincronización de atletas, unidades y temas.
+  - **Pruebas automatizadas con `node --test`:** Validación de codificación y consistencia del DOM en cada build.
 
 ## Aprendizajes y errores a evitar
-- **Asegurar UTF-8 sin BOM al guardar:** Evitar editores o scripts que guarden texto en Windows-1252 o inserten BOM, lo cual destruye tildes y emojis.
-- **NUNCA modificar `index.html` directamente:** Todo cambio en JavaScript debe realizarse en `app.src.js` y compilarse con `npm run protect`.
+  - **Asegurar UTF-8 sin BOM al guardar:** Evitar editores que guarden en Windows-1252 o corrompan tildes/emojis.
+  - **NUNCA modificar `index.html` directamente:** Todo cambio en JavaScript debe realizarse en `app.src.js` y compilarse con `npm run protect`.
 
 ## Próximos pasos
-- Mantener validación con `npm test` antes de cada compilación y despliegue.
+  - Monitorear experiencia de usuario y desempeño en PWA y empaquetado móvil.
