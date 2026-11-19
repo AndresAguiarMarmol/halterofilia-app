@@ -135,15 +135,18 @@
       width: 100%;
       background: var(--header-bg);
       border-bottom: 1px solid var(--card-border);
-      padding: 10px 14px;
+      padding-top: max(14px, calc(10px + env(safe-area-inset-top)));
+      padding-bottom: 12px;
+      padding-left: max(16px, calc(14px + env(safe-area-inset-left)));
+      padding-right: max(16px, calc(14px + env(safe-area-inset-right)));
+      min-height: 58px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       position: sticky;
       top: 0;
       z-index: 50;
-      flex-wrap: wrap;
-      gap: 6px;
+      gap: 10px;
       transition: background-color 0.25s ease, border-color 0.25s ease;
     }
 
@@ -179,9 +182,10 @@
       background: var(--btn-header-bg);
       border: 1px solid var(--btn-header-border);
       color: var(--btn-header-color);
-      padding: 6px 12px;
+      min-height: 42px;
+      padding: 8px 14px;
       border-radius: 8px;
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -2779,7 +2783,7 @@
   </div>
 
   <footer id="appFooter">
-    Análisis/Diseño de Andres Aguiar V3.26.09 Santiago de Chile Noviembre 2026 - Contacto +56933395447 - Whatsapp +56933395447
+    Análisis/Diseño de Andres Aguiar V3.26.10 Santiago de Chile Noviembre 2026 - Contacto +56933395447 - Whatsapp +56933395447
   </footer>
 
   <script>
